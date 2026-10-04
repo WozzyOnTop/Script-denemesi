@@ -2,15 +2,39 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local Whitelist = {
-    ["ygzilyas987"] = true,
-    ["BURAKBABASAPLADI"] = true,
-}
+-- BURAYA Pastebin'in "RAW" (Ham) linkini yapıştırın
+-- Örnek: "https://pastebin.com/raw/abcdef12"
+local pastebinUrl = "https://pastebin.com/raw/h9vu11sE"
 
+-- Pastebin'den veriyi güvenli bir şekilde çekelim
+local success, result = pcall(function()
+    return game:HttpGet(pastebinUrl)
+end)
+
+if not success then
+    LocalPlayer:Kick("⛔ Whitelist sunucusuna bağlanılamadı! Lütfen daha sonra tekrar deneyin.")
+    return
+end
+
+-- Whitelist tablosunu dinamik olarak oluştur
+local Whitelist = {}
+for username in result:gmatch("[^\r\n]+") do
+    -- Satır başındaki/sonundaki boşlukları temizle
+    username = username:match("^%s*(.-)%s*$")
+    if username ~= "" then
+        Whitelist[username] = true
+    end
+end
+
+-- Oyuncu whitelist içinde mi kontrol et
 if not Whitelist[LocalPlayer.Name] then
     LocalPlayer:Kick("⛔ Bu scripti kullanma yetkin yok!")
     return
 end
+
+-- Whitelist başarılıysa scriptin geri kalanı burada çalışır
+print("✅ Whitelist onaylandı!")
+
 
 
 local library = loadstring(game:HttpGet("https://github.com/KryvexOnTop/Kryvex-paid/raw/refs/heads/main/KryvexGui%20(3).txt", true))()
