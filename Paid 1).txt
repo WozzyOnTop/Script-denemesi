@@ -3781,11 +3781,12 @@ Misc:AddSwitch("🎰 Auto Fortune Wheel", function(Value)
                         wheelRemote:InvokeServer("openFortuneWheel", wheelChance)
                     end
                 end)
-                task.wait(0.5)
+                task.wait(0.01)
             end
         end)
     end
 end)
+
 
 --// =========================
 --// ANTI AFK
