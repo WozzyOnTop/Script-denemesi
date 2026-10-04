@@ -2173,7 +2173,7 @@ tabs.rebirths.performRebirth = function()
             services.muscleEvent:FireServer("rep")
         end
 
-        task.wait(0.001)
+        task.wait(0.01)
     end
 
     if tabs.rebirths.running
@@ -2182,7 +2182,7 @@ tabs.rebirths.performRebirth = function()
 
         tabs.rebirths.equipRebirthPets()
 
-        task.wait(0.001)
+        task.wait(0.01)
 
         tabs.rebirths.rebirthValueBefore =
             tabs.rebirths.rebirths.Value
@@ -2191,7 +2191,7 @@ tabs.rebirths.performRebirth = function()
             services.replicatedstorage.rEvents.rebirthRemote:
                 InvokeServer("rebirthRequest")
 
-            task.wait(0.001)
+            task.wait(0.01)
 
         until tabs.rebirths.rebirths.Value
             > tabs.rebirths.rebirthValueBefore
@@ -2210,7 +2210,7 @@ tabs.rebirths.startWorker = function()
         while tabs.rebirths.running do
             tabs.rebirths.equipFarmingPets()
             tabs.rebirths.performRebirth()
-            task.wait(0.001)
+            task.wait(0.01)
         end
 
         tabs.rebirths.workerActive = false
@@ -2632,7 +2632,7 @@ tabs.strength.workerLoop = function()
 
         local elapsed =
             math.min(
-                0.001,
+                0.01,
                 now - tabs.strength.lastLoopAt
             )
 
@@ -2655,7 +2655,7 @@ tabs.strength.workerLoop = function()
                 math.min(
                     tabs.strength.maxBurst,
                     math.ceil(
-                        tabs.strength.sendRate * 0.05
+                        tabs.strength.sendRate * 0.01
                     )
                 )
             )
@@ -2668,7 +2668,7 @@ tabs.strength.workerLoop = function()
                 tabs.strength.burstLimit
             )
 
-        tabs.strength.repIndex = 1
+        tabs.strength.repIndex = 0.01
 
         while tabs.strength.repIndex
             <= tabs.strength.sendCount do
@@ -2680,7 +2680,7 @@ tabs.strength.workerLoop = function()
             services.muscleEvent:
                 FireServer("rep")
 
-            tabs.strength.repIndex += 1
+            tabs.strength.repIndex += 0.01
         end
 
         tabs.strength.sendTokens =
@@ -2832,7 +2832,7 @@ task.spawn(function()
         tabs.strength.updateRuntime()
         tabs.strength.calculatePace()
 
-        task.wait(0.001)
+        task.wait(0.01)
     end
 end)
 
