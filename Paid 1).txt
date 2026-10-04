@@ -1753,7 +1753,7 @@ local tabFarming = window:AddTab("Fast Farm")
 
 tabFarming:AddLabel("👀 Fast Rebirth").TextSize = 21
 
--- Pack Farm dependencies / state
+--// SERVICES
 local lp = {
     player = game:GetService("Players").LocalPlayer
 }
@@ -1765,6 +1765,7 @@ local services = {
     muscleEvent = lp.player:WaitForChild("muscleEvent")
 }
 
+--// FORMAT NUMBER
 local function formatNumber(value)
     value = tonumber(value) or 0
 
@@ -1780,8 +1781,10 @@ local function formatNumber(value)
 
     for _, data in ipairs(suffixes) do
         local divisor, suffix = data[1], data[2]
+
         if absValue >= divisor then
             local formatted = value / divisor
+
             if math.abs(formatted) >= 100 then
                 return string.format("%.0f%s", formatted, suffix)
             elseif math.abs(formatted) >= 10 then
@@ -1799,8 +1802,7 @@ local function formatNumber(value)
     return string.format("%.2f", value)
 end
 
--- Both sections below share the same Pack Farm UI tab,
--- but keep their runtime state in separate tables.
+--// STATE
 local function makePackFarmState(uiTab)
     local state = {}
 
@@ -1812,6 +1814,10 @@ local function makePackFarmState(uiTab)
         return uiTab:AddSwitch(...)
     end
 
+    function state:AddTextBox(...)
+        return uiTab:AddTextBox(...)
+    end
+
     return state
 end
 
@@ -1820,20 +1826,28 @@ local tabs = {
     strength = makePackFarmState(tabFarming)
 }
 
+--==================================================
+-- FAST REBIRTH
+--==================================================
+
 tabs.rebirths.leaderstats = lp.player:WaitForChild("leaderstats")
 tabs.rebirths.rebirths = tabs.rebirths.leaderstats:WaitForChild("Rebirths")
 tabs.rebirths.strength = tabs.rebirths.leaderstats:WaitForChild("Strength")
+
 tabs.rebirths.running = false
 tabs.rebirths.workerActive = false
 tabs.rebirths.startedAt = 0
 tabs.rebirths.timerStarted = false
 tabs.rebirths.hasStarted = false
 tabs.rebirths.totalElapsed = 0
+
 tabs.rebirths.startRebirths = tabs.rebirths.rebirths.Value
 tabs.rebirths.gainedBaselineSet = false
+
 tabs.rebirths.lastRebirthAt = tick()
 tabs.rebirths.lastRebirthValue = tabs.rebirths.rebirths.Value
 tabs.rebirths.paceBaselineReady = false
+
 tabs.rebirths.petFolders = {}
 tabs.rebirths.pets = {}
 tabs.rebirths.uniquePets = {}
@@ -1842,31 +1856,62 @@ tabs.rebirths.swifts = {}
 tabs.rebirths.hounds = {}
 tabs.rebirths.hydras = {}
 tabs.rebirths.tribals = {}
+
 tabs.rebirths.folderIndex = 1
 tabs.rebirths.petIndex = 1
 tabs.rebirths.repIndex = 1
 tabs.rebirths.equippedCount = 0
 tabs.rebirths.currentPercent = 0
+
 tabs.rebirths.maxSlots = 9
 tabs.rebirths.strengthTarget = 0
 tabs.rebirths.repsPerBurst = 12
 tabs.rebirths.rebirthValueBefore = tabs.rebirths.rebirths.Value
+
 tabs.rebirths.Status = tabs.rebirths:AddLabel("Status: Inactive")
 tabs.rebirths.Runtime = tabs.rebirths:AddLabel("Runtime: 0d 0h 0m 0s")
-tabs.rebirths.RebirthStats = tabs.rebirths:AddLabel("Rebirths: " .. formatNumber(tabs.rebirths.rebirths.Value) .. " | Gained: 0")
-tabs.rebirths.Pace = tabs.rebirths:AddLabel("Pace: -- / Hour | -- / Day | -- / Week")
-tabs.rebirths.AveragePace = tabs.rebirths:AddLabel("Average: -- / Hour | -- / Day | -- / Week")
-tabs.rebirths.Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+
+tabs.rebirths.RebirthStats =
+    tabs.rebirths:AddLabel(
+        "Rebirths: "
+        .. formatNumber(tabs.rebirths.rebirths.Value)
+        .. " | Gained: 0"
+    )
+
+tabs.rebirths.Pace =
+    tabs.rebirths:AddLabel(
+        "Pace: -- / Hour | -- / Day | -- / Week"
+    )
+
+tabs.rebirths.AveragePace =
+    tabs.rebirths:AddLabel(
+        "Average: -- / Hour | -- / Day | -- / Week"
+    )
+
+tabs.rebirths.Status.TextColor3 =
+    Color3.fromRGB(255, 80, 80)
 
 tabs.rebirths.updateStats = function()
-    tabs.rebirths.RebirthStats.Text = "Rebirths: " .. formatNumber(tabs.rebirths.rebirths.Value)
-        .. " | Gained: " .. formatNumber(tabs.rebirths.rebirths.Value - tabs.rebirths.startRebirths)
+    tabs.rebirths.RebirthStats.Text =
+        "Rebirths: "
+        .. formatNumber(tabs.rebirths.rebirths.Value)
+        .. " | Gained: "
+        .. formatNumber(
+            tabs.rebirths.rebirths.Value
+            - tabs.rebirths.startRebirths
+        )
 end
 
 tabs.rebirths.updateRuntime = function()
     tabs.rebirths.elapsed = tabs.rebirths.totalElapsed
-    if tabs.rebirths.running and tabs.rebirths.timerStarted then
-        tabs.rebirths.elapsed = tabs.rebirths.elapsed + tick() - tabs.rebirths.startedAt
+
+    if tabs.rebirths.running
+        and tabs.rebirths.timerStarted then
+
+        tabs.rebirths.elapsed =
+            tabs.rebirths.elapsed
+            + tick()
+            - tabs.rebirths.startedAt
     end
 
     tabs.rebirths.Runtime.Text = string.format(
@@ -1887,61 +1932,83 @@ tabs.rebirths.updatePace = function()
         tabs.rebirths.paceBaselineReady = true
         tabs.rebirths.timerStarted = true
         tabs.rebirths.startedAt = tick()
+
         tabs.rebirths.lastRebirthAt = tick()
-        tabs.rebirths.lastRebirthValue = tabs.rebirths.rebirths.Value
+        tabs.rebirths.lastRebirthValue =
+            tabs.rebirths.rebirths.Value
+
         tabs.rebirths.averageStartedAt = tick()
-        tabs.rebirths.averageStartRebirths = tabs.rebirths.rebirths.Value
+        tabs.rebirths.averageStartRebirths =
+            tabs.rebirths.rebirths.Value
+
         return
     end
 
-    if tabs.rebirths.rebirths.Value <= tabs.rebirths.lastRebirthValue then
+    if tabs.rebirths.rebirths.Value
+        <= tabs.rebirths.lastRebirthValue then
         return
     end
 
-    tabs.rebirths.rebirthGain = tabs.rebirths.rebirths.Value - tabs.rebirths.lastRebirthValue
-    tabs.rebirths.secondsPerRebirth = (tick() - tabs.rebirths.lastRebirthAt) / tabs.rebirths.rebirthGain
-    tabs.rebirths.hourlyPace = 3600 / tabs.rebirths.secondsPerRebirth
-    tabs.rebirths.dailyPace = 86400 / tabs.rebirths.secondsPerRebirth
-    tabs.rebirths.weeklyPace = 604800 / tabs.rebirths.secondsPerRebirth
+    local gain =
+        tabs.rebirths.rebirths.Value
+        - tabs.rebirths.lastRebirthValue
 
-    tabs.rebirths.Pace.Text = string.format(
-        "Pace: %s / Hour | %s / Day | %s / Week",
-        formatNumber(tabs.rebirths.hourlyPace),
-        formatNumber(tabs.rebirths.dailyPace),
-        formatNumber(tabs.rebirths.weeklyPace)
-    )
+    local seconds =
+        (tick() - tabs.rebirths.lastRebirthAt)
+        / gain
 
-    tabs.rebirths.averageElapsed = tick() - tabs.rebirths.averageStartedAt
-    tabs.rebirths.averageHourlyPace = (tabs.rebirths.rebirths.Value - tabs.rebirths.averageStartRebirths)
-        / tabs.rebirths.averageElapsed * 3600
+    local hourly = 3600 / seconds
+    local daily = 86400 / seconds
+    local weekly = 604800 / seconds
 
-    tabs.rebirths.AveragePace.Text = string.format(
-        "Average: %s / Hour | %s / Day | %s / Week",
-        formatNumber(tabs.rebirths.averageHourlyPace),
-        formatNumber(tabs.rebirths.averageHourlyPace * 24),
-        formatNumber(tabs.rebirths.averageHourlyPace * 168)
-    )
+    tabs.rebirths.Pace.Text =
+        string.format(
+            "Pace: %s / Hour | %s / Day | %s / Week",
+            formatNumber(hourly),
+            formatNumber(daily),
+            formatNumber(weekly)
+        )
+
+    local averageElapsed =
+        tick()
+        - tabs.rebirths.averageStartedAt
+
+    if averageElapsed > 0 then
+        local averageHourly =
+            (
+                tabs.rebirths.rebirths.Value
+                - tabs.rebirths.averageStartRebirths
+            )
+            / averageElapsed
+            * 3600
+
+        tabs.rebirths.AveragePace.Text =
+            string.format(
+                "Average: %s / Hour | %s / Day | %s / Week",
+                formatNumber(averageHourly),
+                formatNumber(averageHourly * 24),
+                formatNumber(averageHourly * 168)
+            )
+    end
 
     tabs.rebirths.lastRebirthAt = tick()
-    tabs.rebirths.lastRebirthValue = tabs.rebirths.rebirths.Value
+    tabs.rebirths.lastRebirthValue =
+        tabs.rebirths.rebirths.Value
 end
 
 tabs.rebirths.unequipAllPets = function()
-    tabs.rebirths.petFolders = lp.player.petsFolder:GetChildren()
-    tabs.rebirths.folderIndex = 1
-    while tabs.rebirths.folderIndex <= #tabs.rebirths.petFolders do
-        tabs.rebirths.petFolder = tabs.rebirths.petFolders[tabs.rebirths.folderIndex]
-        if tabs.rebirths.petFolder:IsA("Folder") then
-            tabs.rebirths.pets = tabs.rebirths.petFolder:GetChildren()
-            tabs.rebirths.petIndex = 1
-            while tabs.rebirths.petIndex <= #tabs.rebirths.pets do
-                tabs.rebirths.pet = tabs.rebirths.pets[tabs.rebirths.petIndex]
-                services.replicatedstorage.rEvents.equipPetEvent:FireServer("unequipPet", tabs.rebirths.pet)
-                tabs.rebirths.petIndex = tabs.rebirths.petIndex + 1
+    tabs.rebirths.petFolders =
+        lp.player.petsFolder:GetChildren()
+
+    for _, folder in ipairs(tabs.rebirths.petFolders) do
+        if folder:IsA("Folder") then
+            for _, pet in ipairs(folder:GetChildren()) do
+                services.replicatedstorage.rEvents.equipPetEvent:
+                    FireServer("unequipPet", pet)
             end
         end
-        tabs.rebirths.folderIndex = tabs.rebirths.folderIndex + 1
     end
+
     task.wait(0.01)
 end
 
@@ -1951,76 +2018,68 @@ tabs.rebirths.equipFarmingPets = function()
     tabs.rebirths.omegas = {}
     tabs.rebirths.swifts = {}
     tabs.rebirths.hounds = {}
-    tabs.rebirths.uniquePets = lp.player.petsFolder.Unique:GetChildren()
-    tabs.rebirths.petIndex = 1
 
-    while tabs.rebirths.petIndex <= #tabs.rebirths.uniquePets do
-        tabs.rebirths.pet = tabs.rebirths.uniquePets[tabs.rebirths.petIndex]
-        if tabs.rebirths.pet.Name == "Omega Overlord" then
-            table.insert(tabs.rebirths.omegas, tabs.rebirths.pet)
-        elseif tabs.rebirths.pet.Name == "Swift Samurai" then
-            table.insert(tabs.rebirths.swifts, tabs.rebirths.pet)
-        elseif tabs.rebirths.pet.Name == "Powercore Hound" then
-            table.insert(tabs.rebirths.hounds, tabs.rebirths.pet)
+    tabs.rebirths.uniquePets =
+        lp.player.petsFolder.Unique:GetChildren()
+
+    for _, pet in ipairs(tabs.rebirths.uniquePets) do
+        if pet.Name == "Omega Overlord" then
+            table.insert(tabs.rebirths.omegas, pet)
+
+        elseif pet.Name == "Swift Samurai" then
+            table.insert(tabs.rebirths.swifts, pet)
+
+        elseif pet.Name == "Powercore Hound" then
+            table.insert(tabs.rebirths.hounds, pet)
         end
-        tabs.rebirths.petIndex = tabs.rebirths.petIndex + 1
     end
 
     tabs.rebirths.equippedCount = 0
     tabs.rebirths.currentPercent = 0
 
-    tabs.rebirths.petIndex = #tabs.rebirths.omegas
-    while tabs.rebirths.petIndex >= 1 do
-        if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots and tabs.rebirths.currentPercent < 100 then
-            tabs.rebirths.pet = table.remove(tabs.rebirths.omegas, tabs.rebirths.petIndex)
-            services.replicatedstorage.rEvents.equipPetEvent:FireServer("equipPet", tabs.rebirths.pet)
-            tabs.rebirths.currentPercent = tabs.rebirths.currentPercent + 20
-            tabs.rebirths.equippedCount = tabs.rebirths.equippedCount + 1
+    for i = #tabs.rebirths.omegas, 1, -1 do
+        if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots
+            and tabs.rebirths.currentPercent < 100 then
+
+            local pet =
+                tabs.rebirths.omegas[i]
+
+            services.replicatedstorage.rEvents.equipPetEvent:
+                FireServer("equipPet", pet)
+
+            tabs.rebirths.currentPercent += 20
+            tabs.rebirths.equippedCount += 1
         end
-        tabs.rebirths.petIndex = tabs.rebirths.petIndex - 1
     end
 
-    tabs.rebirths.petIndex = #tabs.rebirths.swifts
-    while tabs.rebirths.petIndex >= 1 do
-        if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots and tabs.rebirths.currentPercent < 100 then
-            tabs.rebirths.pet = table.remove(tabs.rebirths.swifts, tabs.rebirths.petIndex)
-            services.replicatedstorage.rEvents.equipPetEvent:FireServer("equipPet", tabs.rebirths.pet)
-            tabs.rebirths.currentPercent = tabs.rebirths.currentPercent + 15
-            tabs.rebirths.equippedCount = tabs.rebirths.equippedCount + 1
+    for i = #tabs.rebirths.swifts, 1, -1 do
+        if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots
+            and tabs.rebirths.currentPercent < 100 then
+
+            local pet =
+                tabs.rebirths.swifts[i]
+
+            services.replicatedstorage.rEvents.equipPetEvent:
+                FireServer("equipPet", pet)
+
+            tabs.rebirths.currentPercent += 15
+            tabs.rebirths.equippedCount += 1
         end
-        tabs.rebirths.petIndex = tabs.rebirths.petIndex - 1
     end
 
     if tabs.rebirths.currentPercent >= 100 then
-        tabs.rebirths.petIndex = #tabs.rebirths.hounds
-        while tabs.rebirths.petIndex >= 1 do
+        for i = #tabs.rebirths.hounds, 1, -1 do
             if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots then
-                tabs.rebirths.pet = table.remove(tabs.rebirths.hounds, tabs.rebirths.petIndex)
-                services.replicatedstorage.rEvents.equipPetEvent:FireServer("equipPet", tabs.rebirths.pet)
-                tabs.rebirths.equippedCount = tabs.rebirths.equippedCount + 1
+
+                local pet =
+                    tabs.rebirths.hounds[i]
+
+                services.replicatedstorage.rEvents.equipPetEvent:
+                    FireServer("equipPet", pet)
+
+                tabs.rebirths.equippedCount += 1
             end
-            tabs.rebirths.petIndex = tabs.rebirths.petIndex - 1
         end
-    end
-
-    tabs.rebirths.petIndex = #tabs.rebirths.omegas
-    while tabs.rebirths.petIndex >= 1 do
-        if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots then
-            tabs.rebirths.pet = table.remove(tabs.rebirths.omegas, tabs.rebirths.petIndex)
-            services.replicatedstorage.rEvents.equipPetEvent:FireServer("equipPet", tabs.rebirths.pet)
-            tabs.rebirths.equippedCount = tabs.rebirths.equippedCount + 1
-        end
-        tabs.rebirths.petIndex = tabs.rebirths.petIndex - 1
-    end
-
-    tabs.rebirths.petIndex = #tabs.rebirths.swifts
-    while tabs.rebirths.petIndex >= 1 do
-        if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots then
-            tabs.rebirths.pet = table.remove(tabs.rebirths.swifts, tabs.rebirths.petIndex)
-            services.replicatedstorage.rEvents.equipPetEvent:FireServer("equipPet", tabs.rebirths.pet)
-            tabs.rebirths.equippedCount = tabs.rebirths.equippedCount + 1
-        end
-        tabs.rebirths.petIndex = tabs.rebirths.petIndex - 1
     end
 end
 
@@ -2029,65 +2088,90 @@ tabs.rebirths.equipRebirthPets = function()
 
     tabs.rebirths.hydras = {}
     tabs.rebirths.tribals = {}
-    tabs.rebirths.uniquePets = lp.player.petsFolder.Unique:GetChildren()
-    tabs.rebirths.petIndex = 1
 
-    while tabs.rebirths.petIndex <= #tabs.rebirths.uniquePets do
-        tabs.rebirths.pet = tabs.rebirths.uniquePets[tabs.rebirths.petIndex]
-        if tabs.rebirths.pet.Name == "Titanium Hydra" then
-            table.insert(tabs.rebirths.hydras, tabs.rebirths.pet)
-        elseif tabs.rebirths.pet.Name == "Tribal Overlord" then
-            table.insert(tabs.rebirths.tribals, tabs.rebirths.pet)
+    local unique =
+        lp.player.petsFolder.Unique:GetChildren()
+
+    for _, pet in ipairs(unique) do
+        if pet.Name == "Titanium Hydra" then
+            table.insert(tabs.rebirths.hydras, pet)
+
+        elseif pet.Name == "Tribal Overlord" then
+            table.insert(tabs.rebirths.tribals, pet)
         end
-        tabs.rebirths.petIndex = tabs.rebirths.petIndex + 1
     end
 
     tabs.rebirths.equippedCount = 0
 
-    tabs.rebirths.petIndex = 1
-    while tabs.rebirths.petIndex <= #tabs.rebirths.hydras do
-        if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots then
-            tabs.rebirths.pet = tabs.rebirths.hydras[tabs.rebirths.petIndex]
-            services.replicatedstorage.rEvents.equipPetEvent:FireServer("equipPet", tabs.rebirths.pet)
-            tabs.rebirths.equippedCount = tabs.rebirths.equippedCount + 1
+    for _, pet in ipairs(tabs.rebirths.hydras) do
+        if tabs.rebirths.equippedCount >= tabs.rebirths.maxSlots then
+            break
         end
-        tabs.rebirths.petIndex = tabs.rebirths.petIndex + 1
+
+        services.replicatedstorage.rEvents.equipPetEvent:
+            FireServer("equipPet", pet)
+
+        tabs.rebirths.equippedCount += 1
     end
 
-    tabs.rebirths.petIndex = 1
-    while tabs.rebirths.petIndex <= #tabs.rebirths.tribals do
-        if tabs.rebirths.equippedCount < tabs.rebirths.maxSlots then
-            tabs.rebirths.pet = tabs.rebirths.tribals[tabs.rebirths.petIndex]
-            services.replicatedstorage.rEvents.equipPetEvent:FireServer("equipPet", tabs.rebirths.pet)
-            tabs.rebirths.equippedCount = tabs.rebirths.equippedCount + 1
+    for _, pet in ipairs(tabs.rebirths.tribals) do
+        if tabs.rebirths.equippedCount >= tabs.rebirths.maxSlots then
+            break
         end
-        tabs.rebirths.petIndex = tabs.rebirths.petIndex + 1
+
+        services.replicatedstorage.rEvents.equipPetEvent:
+            FireServer("equipPet", pet)
+
+        tabs.rebirths.equippedCount += 1
     end
 end
 
 tabs.rebirths.performRebirth = function()
-    tabs.rebirths.strengthTarget = 5000 + tabs.rebirths.rebirths.Value * 2550
-    tabs.rebirths.repsPerBurst = lp.player.MembershipType == Enum.MembershipType.Premium and 6 or 12
+    tabs.rebirths.strengthTarget =
+        5000
+        + tabs.rebirths.rebirths.Value * 2550
 
-    tabs.rebirths.repIndex = 1
-    while tabs.rebirths.running and tabs.rebirths.strength.Value < tabs.rebirths.strengthTarget do
-        tabs.rebirths.repIndex = 1
-        while tabs.rebirths.repIndex <= tabs.rebirths.repsPerBurst do
+    tabs.rebirths.repsPerBurst =
+        lp.player.MembershipType
+        == Enum.MembershipType.Premium
+        and 6
+        or 12
+
+    while tabs.rebirths.running
+        and tabs.rebirths.strength.Value
+        < tabs.rebirths.strengthTarget do
+
+        for i = 1, tabs.rebirths.repsPerBurst do
+            if not tabs.rebirths.running then
+                break
+            end
+
             services.muscleEvent:FireServer("rep")
-            tabs.rebirths.repIndex = tabs.rebirths.repIndex + 1
         end
+
         task.wait(0.01)
     end
 
-    if tabs.rebirths.running and tabs.rebirths.strength.Value >= tabs.rebirths.strengthTarget then
+    if tabs.rebirths.running
+        and tabs.rebirths.strength.Value
+        >= tabs.rebirths.strengthTarget then
+
         tabs.rebirths.equipRebirthPets()
+
         task.wait(0.25)
-        tabs.rebirths.rebirthValueBefore = tabs.rebirths.rebirths.Value
+
+        tabs.rebirths.rebirthValueBefore =
+            tabs.rebirths.rebirths.Value
 
         repeat
-            services.replicatedstorage.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+            services.replicatedstorage.rEvents.rebirthRemote:
+                InvokeServer("rebirthRequest")
+
             task.wait(0.01)
-        until tabs.rebirths.rebirths.Value > tabs.rebirths.rebirthValueBefore or not tabs.rebirths.running
+
+        until tabs.rebirths.rebirths.Value
+            > tabs.rebirths.rebirthValueBefore
+            or not tabs.rebirths.running
     end
 end
 
@@ -2097,49 +2181,85 @@ tabs.rebirths.startWorker = function()
     end
 
     tabs.rebirths.workerActive = true
+
     task.spawn(function()
         while tabs.rebirths.running do
             tabs.rebirths.equipFarmingPets()
             tabs.rebirths.performRebirth()
             task.wait(0.01)
         end
+
         tabs.rebirths.workerActive = false
     end)
 end
 
-tabs.rebirths.rebirths:GetPropertyChangedSignal("Value"):Connect(function()
-    tabs.rebirths.updatePace()
-    tabs.rebirths.updateStats()
-end)
-
-tabs.rebirths:AddSwitch("👀 Fast Rebirth", function(state)
-    tabs.rebirths.running = state
-    if state then
-        tabs.rebirths.hasStarted = true
-        tabs.rebirths.startedAt = 0
-        tabs.rebirths.timerStarted = false
-        if not tabs.rebirths.gainedBaselineSet then
-            tabs.rebirths.startRebirths = tabs.rebirths.rebirths.Value
-            tabs.rebirths.gainedBaselineSet = true
-        end
-        tabs.rebirths.lastRebirthAt = tick()
-        tabs.rebirths.lastRebirthValue = tabs.rebirths.rebirths.Value
-        tabs.rebirths.paceBaselineReady = false
-        tabs.rebirths.Status.Text = "Status: Rebirthing"
-        tabs.rebirths.Status.TextColor3 = Color3.fromRGB(80, 255, 120)
+tabs.rebirths.rebirths:GetPropertyChangedSignal("Value"):Connect(
+    function()
+        tabs.rebirths.updatePace()
         tabs.rebirths.updateStats()
-        tabs.rebirths.startWorker()
-    else
-        if tabs.rebirths.timerStarted and tabs.rebirths.startedAt > 0 then
-            tabs.rebirths.totalElapsed = tabs.rebirths.totalElapsed + tick() - tabs.rebirths.startedAt
+    end
+)
+
+tabs.rebirths:AddSwitch(
+    "👀 Fast Rebirth",
+    function(state)
+
+        tabs.rebirths.running = state
+
+        if state then
+            tabs.rebirths.hasStarted = true
             tabs.rebirths.startedAt = 0
             tabs.rebirths.timerStarted = false
+
+            if not tabs.rebirths.gainedBaselineSet then
+                tabs.rebirths.startRebirths =
+                    tabs.rebirths.rebirths.Value
+
+                tabs.rebirths.gainedBaselineSet = true
+            end
+
+            tabs.rebirths.lastRebirthAt = tick()
+            tabs.rebirths.lastRebirthValue =
+                tabs.rebirths.rebirths.Value
+
+            tabs.rebirths.paceBaselineReady = false
+
+            tabs.rebirths.Status.Text =
+                "Status: Rebirthing"
+
+            tabs.rebirths.Status.TextColor3 =
+                Color3.fromRGB(80, 255, 120)
+
+            tabs.rebirths.updateStats()
+            tabs.rebirths.startWorker()
+
+        else
+            if tabs.rebirths.timerStarted
+                and tabs.rebirths.startedAt > 0 then
+
+                tabs.rebirths.totalElapsed =
+                    tabs.rebirths.totalElapsed
+                    + tick()
+                    - tabs.rebirths.startedAt
+
+                tabs.rebirths.startedAt = 0
+                tabs.rebirths.timerStarted = false
+            end
+
+            tabs.rebirths.Status.Text =
+                tabs.rebirths.hasStarted
+                and "Status: Paused"
+                or "Status: Inactive"
+
+            tabs.rebirths.Status.TextColor3 =
+                tabs.rebirths.hasStarted
+                and Color3.fromRGB(255, 180, 70)
+                or Color3.fromRGB(255, 80, 80)
+
+            tabs.rebirths.updateRuntime()
         end
-        tabs.rebirths.Status.Text = tabs.rebirths.hasStarted and "Status: Paused" or "Status: Inactive"
-        tabs.rebirths.Status.TextColor3 = tabs.rebirths.hasStarted and Color3.fromRGB(255, 180, 70) or Color3.fromRGB(255, 80, 80)
-        tabs.rebirths.updateRuntime()
     end
-end):Set(false)
+):Set(false)
 
 task.spawn(function()
     while true do
@@ -2148,416 +2268,810 @@ task.spawn(function()
     end
 end)
 
+--==================================================
+-- FAST STRENGTH
+--==================================================
 
 tabFarming:AddLabel("————————————————")
 tabFarming:AddLabel("💪 Fast Strength").TextSize = 21
 
-tabs.strength.leaderstats = lp.player:WaitForChild("leaderstats")
-tabs.strength.strength = tabs.strength.leaderstats:WaitForChild("Strength")
-tabs.strength.durability = lp.player:WaitForChild("Durability")
+tabs.strength.leaderstats =
+    lp.player:WaitForChild("leaderstats")
+
+tabs.strength.strength =
+    tabs.strength.leaderstats:WaitForChild("Strength")
+
+tabs.strength.durability =
+    lp.player:WaitForChild("Durability")
+
 tabs.strength.running = false
 tabs.strength.workerActive = false
+
 tabs.strength.startedAt = 0
 tabs.strength.totalElapsed = 0
 tabs.strength.timerStarted = false
+
 tabs.strength.gainedBaselineSet = false
-tabs.strength.startStrength = tabs.strength.strength.Value
-tabs.strength.startDurability = tabs.strength.durability.Value
+
+tabs.strength.startStrength =
+    tabs.strength.strength.Value
+
+tabs.strength.startDurability =
+    tabs.strength.durability.Value
+
 tabs.strength.lastSampleAt = tick()
-tabs.strength.lastStrength = tabs.strength.strength.Value
-tabs.strength.lastDurability = tabs.strength.durability.Value
-tabs.strength.paceBaselineReady = false
+tabs.strength.lastStrength =
+    tabs.strength.strength.Value
+
+tabs.strength.lastDurability =
+    tabs.strength.durability.Value
+
 tabs.strength.calculationInterval = 10
 tabs.strength.lastCalculationAt = tick()
-tabs.strength.lastCalculatedStrength = tabs.strength.strength.Value
-tabs.strength.lastCalculatedDurability = tabs.strength.durability.Value
-tabs.strength.initialSendRate = 200
+
+tabs.strength.lastCalculatedStrength =
+    tabs.strength.strength.Value
+
+tabs.strength.lastCalculatedDurability =
+    tabs.strength.durability.Value
+
+--// DEFAULT REP SPEED
+tabs.strength.repSpeed = 200
+
+--// MAX REP SPEED
 tabs.strength.maxSendRate = 1200
-tabs.strength.sendRate = tabs.strength.initialSendRate
+
+tabs.strength.sendRate =
+    tabs.strength.repSpeed
+
 tabs.strength.sendTokens = 0
 tabs.strength.maxBurst = 24
-tabs.strength.controlInterval = 0.5
-tabs.strength.lastControlAt = tick()
-tabs.strength.lastProgressAt = tick()
-tabs.strength.lastControlStrength = tabs.strength.strength.Value
-tabs.strength.lastControlDurability = tabs.strength.durability.Value
-tabs.strength.stalledIntervals = 0
+
 tabs.strength.lastLoopAt = os.clock()
 tabs.strength.repIndex = 1
-tabs.strength.Status = tabs.strength:AddLabel("Status: Inactive")
-tabs.strength.Runtime = tabs.strength:AddLabel("Runtime: 0d 0h 0m 0s")
-tabs.strength.StrengthStats = tabs.strength:AddLabel("Strength: " .. formatNumber(tabs.strength.strength.Value) .. " | Gained: 0")
-tabs.strength.DurabilityStats = tabs.strength:AddLabel("Durability: " .. formatNumber(tabs.strength.durability.Value) .. " | Gained: 0")
-tabs.strength.StrengthPace = tabs.strength:AddLabel("Strength Pace: -- / Hour | -- / Day")
-tabs.strength.DurabilityPace = tabs.strength:AddLabel("Durability Pace: -- / Hour | -- / Day")
-tabs.strength.StrengthAverage = tabs.strength:AddLabel("Strength Average: -- / Hour | -- / Day")
-tabs.strength.DurabilityAverage = tabs.strength:AddLabel("Durability Average: -- / Hour | -- / Day")
-tabs.strength.Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+
+tabs.strength.Status =
+    tabs.strength:AddLabel("Status: Inactive")
+
+tabs.strength.Runtime =
+    tabs.strength:AddLabel("Runtime: 0d 0h 0m 0s")
+
+tabs.strength.StrengthStats =
+    tabs.strength:AddLabel(
+        "Strength: "
+        .. formatNumber(tabs.strength.strength.Value)
+        .. " | Gained: 0"
+    )
+
+tabs.strength.DurabilityStats =
+    tabs.strength:AddLabel(
+        "Durability: "
+        .. formatNumber(tabs.strength.durability.Value)
+        .. " | Gained: 0"
+    )
+
+tabs.strength.StrengthPace =
+    tabs.strength:AddLabel(
+        "Strength Pace: -- / Hour | -- / Day"
+    )
+
+tabs.strength.DurabilityPace =
+    tabs.strength:AddLabel(
+        "Durability Pace: -- / Hour | -- / Day"
+    )
+
+tabs.strength.StrengthAverage =
+    tabs.strength:AddLabel(
+        "Strength Average: -- / Hour | -- / Day"
+    )
+
+tabs.strength.DurabilityAverage =
+    tabs.strength:AddLabel(
+        "Durability Average: -- / Hour | -- / Day"
+    )
+
+tabs.strength.Status.TextColor3 =
+    Color3.fromRGB(255, 80, 80)
+
+--==================================================
+-- REP SPEED BOX
+--==================================================
+
+tabs.strength:AddTextBox(
+    "⚡ Rep Speed:",
+    function(value)
+
+        local speed = tonumber(value)
+
+        if speed then
+            speed = math.floor(speed)
+
+            speed = math.clamp(
+                speed,
+                1,
+                tabs.strength.maxSendRate
+            )
+
+            tabs.strength.repSpeed = speed
+
+            -- Açıkken de anında yeni değeri uygula
+            if tabs.strength.running then
+                tabs.strength.sendRate = speed
+                tabs.strength.sendTokens = 0
+
+                tabs.strength.Status.Text =
+                    "Status: Farming | "
+                    .. formatNumber(speed)
+                    .. " reps/s"
+
+                tabs.strength.Status.TextColor3 =
+                    Color3.fromRGB(80, 255, 120)
+            end
+        end
+    end
+)
+
+--==================================================
+-- STATS
+--==================================================
 
 tabs.strength.updateRuntime = function()
-    tabs.strength.elapsed = tabs.strength.totalElapsed
-    if tabs.strength.running and tabs.strength.timerStarted then
-        tabs.strength.elapsed = tabs.strength.elapsed + tick() - tabs.strength.startedAt
+
+    local elapsed =
+        tabs.strength.totalElapsed
+
+    if tabs.strength.running
+        and tabs.strength.timerStarted then
+
+        elapsed =
+            elapsed
+            + tick()
+            - tabs.strength.startedAt
     end
 
-    tabs.strength.Runtime.Text = string.format(
-        "Runtime: %dd %dh %dm %ds",
-        math.floor(tabs.strength.elapsed / 86400),
-        math.floor((tabs.strength.elapsed % 86400) / 3600),
-        math.floor((tabs.strength.elapsed % 3600) / 60),
-        math.floor(tabs.strength.elapsed % 60)
-    )
+    tabs.strength.Runtime.Text =
+        string.format(
+            "Runtime: %dd %dh %dm %ds",
+            math.floor(elapsed / 86400),
+            math.floor((elapsed % 86400) / 3600),
+            math.floor((elapsed % 3600) / 60),
+            math.floor(elapsed % 60)
+        )
 end
 
 tabs.strength.updateStats = function()
-    tabs.strength.StrengthStats.Text = "Strength: " .. formatNumber(tabs.strength.strength.Value)
-        .. " | Gained: " .. formatNumber(tabs.strength.strength.Value - tabs.strength.startStrength)
-    tabs.strength.DurabilityStats.Text = "Durability: " .. formatNumber(tabs.strength.durability.Value)
-        .. " | Gained: " .. formatNumber(tabs.strength.durability.Value - tabs.strength.startDurability)
+
+    tabs.strength.StrengthStats.Text =
+        "Strength: "
+        .. formatNumber(tabs.strength.strength.Value)
+        .. " | Gained: "
+        .. formatNumber(
+            tabs.strength.strength.Value
+            - tabs.strength.startStrength
+        )
+
+    tabs.strength.DurabilityStats.Text =
+        "Durability: "
+        .. formatNumber(tabs.strength.durability.Value)
+        .. " | Gained: "
+        .. formatNumber(
+            tabs.strength.durability.Value
+            - tabs.strength.startDurability
+        )
 end
 
 tabs.strength.updatePace = function()
+
     if not tabs.strength.running then
         return
     end
 
     if not tabs.strength.timerStarted then
-        if tabs.strength.strength.Value == tabs.strength.startStrength and tabs.strength.durability.Value == tabs.strength.startDurability then
+
+        if tabs.strength.strength.Value
+            == tabs.strength.startStrength
+            and tabs.strength.durability.Value
+            == tabs.strength.startDurability then
+
             return
         end
 
         tabs.strength.timerStarted = true
         tabs.strength.startedAt = tick()
-        tabs.strength.lastSampleAt = tick()
-        tabs.strength.lastStrength = tabs.strength.strength.Value
-        tabs.strength.lastDurability = tabs.strength.durability.Value
-        tabs.strength.lastCalculationAt = tick()
-        tabs.strength.lastCalculatedStrength = tabs.strength.strength.Value
-        tabs.strength.lastCalculatedDurability = tabs.strength.durability.Value
-        return
-    end
 
+        tabs.strength.lastCalculationAt = tick()
+
+        tabs.strength.lastCalculatedStrength =
+            tabs.strength.strength.Value
+
+        tabs.strength.lastCalculatedDurability =
+            tabs.strength.durability.Value
+    end
 end
 
 tabs.strength.calculatePace = function()
-    if not tabs.strength.running or not tabs.strength.timerStarted then
+
+    if not tabs.strength.running
+        or not tabs.strength.timerStarted then
         return
     end
 
-    if tick() - tabs.strength.lastCalculationAt < tabs.strength.calculationInterval then
+    local now = tick()
+
+    if now - tabs.strength.lastCalculationAt
+        < tabs.strength.calculationInterval then
         return
     end
 
-    tabs.strength.calculationElapsed = tick() - tabs.strength.lastCalculationAt
-    tabs.strength.strengthDelta = tabs.strength.strength.Value - tabs.strength.lastCalculatedStrength
-    tabs.strength.durabilityDelta = tabs.strength.durability.Value - tabs.strength.lastCalculatedDurability
-    tabs.strength.strengthHourlyPace = tabs.strength.strengthDelta / tabs.strength.calculationElapsed * 3600
-    tabs.strength.durabilityHourlyPace = tabs.strength.durabilityDelta / tabs.strength.calculationElapsed * 3600
+    local elapsed =
+        now - tabs.strength.lastCalculationAt
 
-    if tabs.strength.strengthDelta > 0 then
-        tabs.strength.StrengthPace.Text = "Strength Pace: " .. formatNumber(tabs.strength.strengthHourlyPace)
-            .. " / Hour | " .. formatNumber(tabs.strength.strengthHourlyPace * 24) .. " / Day"
+    local strengthDelta =
+        tabs.strength.strength.Value
+        - tabs.strength.lastCalculatedStrength
+
+    local durabilityDelta =
+        tabs.strength.durability.Value
+        - tabs.strength.lastCalculatedDurability
+
+    if elapsed > 0 then
+
+        if strengthDelta > 0 then
+
+            local hourly =
+                strengthDelta
+                / elapsed
+                * 3600
+
+            tabs.strength.StrengthPace.Text =
+                "Strength Pace: "
+                .. formatNumber(hourly)
+                .. " / Hour | "
+                .. formatNumber(hourly * 24)
+                .. " / Day"
+        end
+
+        if durabilityDelta > 0 then
+
+            local hourly =
+                durabilityDelta
+                / elapsed
+                * 3600
+
+            tabs.strength.DurabilityPace.Text =
+                "Durability Pace: "
+                .. formatNumber(hourly)
+                .. " / Hour | "
+                .. formatNumber(hourly * 24)
+                .. " / Day"
+        end
     end
-    if tabs.strength.durabilityDelta > 0 then
-        tabs.strength.DurabilityPace.Text = "Durability Pace: " .. formatNumber(tabs.strength.durabilityHourlyPace)
-            .. " / Hour | " .. formatNumber(tabs.strength.durabilityHourlyPace * 24) .. " / Day"
+
+    local averageElapsed =
+        tabs.strength.totalElapsed
+        + now
+        - tabs.strength.startedAt
+
+    if averageElapsed > 0 then
+
+        local averageStrength =
+            (
+                tabs.strength.strength.Value
+                - tabs.strength.startStrength
+            )
+            / averageElapsed
+            * 3600
+
+        local averageDurability =
+            (
+                tabs.strength.durability.Value
+                - tabs.strength.startDurability
+            )
+            / averageElapsed
+            * 3600
+
+        tabs.strength.StrengthAverage.Text =
+            "Strength Average: "
+            .. formatNumber(averageStrength)
+            .. " / Hour | "
+            .. formatNumber(averageStrength * 24)
+            .. " / Day"
+
+        tabs.strength.DurabilityAverage.Text =
+            "Durability Average: "
+            .. formatNumber(averageDurability)
+            .. " / Hour | "
+            .. formatNumber(averageDurability * 24)
+            .. " / Day"
     end
 
-    tabs.strength.averageElapsed = tabs.strength.totalElapsed + tick() - tabs.strength.startedAt
-    tabs.strength.averageStrengthHourly = (tabs.strength.strength.Value - tabs.strength.startStrength)
-        / tabs.strength.averageElapsed * 3600
-    tabs.strength.averageDurabilityHourly = (tabs.strength.durability.Value - tabs.strength.startDurability)
-        / tabs.strength.averageElapsed * 3600
-    tabs.strength.StrengthAverage.Text = "Strength Average: " .. formatNumber(tabs.strength.averageStrengthHourly)
-        .. " / Hour | " .. formatNumber(tabs.strength.averageStrengthHourly * 24) .. " / Day"
-    tabs.strength.DurabilityAverage.Text = "Durability Average: " .. formatNumber(tabs.strength.averageDurabilityHourly)
-        .. " / Hour | " .. formatNumber(tabs.strength.averageDurabilityHourly * 24) .. " / Day"
+    tabs.strength.lastCalculationAt = now
 
-    tabs.strength.lastCalculationAt = tick()
-    tabs.strength.lastCalculatedStrength = tabs.strength.strength.Value
-    tabs.strength.lastCalculatedDurability = tabs.strength.durability.Value
+    tabs.strength.lastCalculatedStrength =
+        tabs.strength.strength.Value
+
+    tabs.strength.lastCalculatedDurability =
+        tabs.strength.durability.Value
 end
 
-tabs.strength.updateAdaptiveRate = function()
-    tabs.strength.controlNow = tick()
-    tabs.strength.controlElapsed = tabs.strength.controlNow - tabs.strength.lastControlAt
-    if tabs.strength.controlElapsed < tabs.strength.controlInterval then
-        return
-    end
-
-    tabs.strength.serverProgress = tabs.strength.strength.Value > tabs.strength.lastControlStrength
-        or tabs.strength.durability.Value > tabs.strength.lastControlDurability
-
-    if tabs.strength.serverProgress then
-        tabs.strength.stalledIntervals = 0
-        tabs.strength.lastProgressAt = tabs.strength.controlNow
-        tabs.strength.sendRate = math.min(tabs.strength.maxSendRate, tabs.strength.sendRate * 1.12)
-        tabs.strength.Status.Text = "Status: Farming | "
-            .. formatNumber(tabs.strength.sendRate) .. " reps/s"
-        tabs.strength.Status.TextColor3 = Color3.fromRGB(80, 255, 120)
-    else
-        tabs.strength.stalledIntervals = tabs.strength.stalledIntervals + 1
-    end
-
-    if tabs.strength.stalledIntervals >= 2 then
-        tabs.strength.sendRate = math.max(tabs.strength.initialSendRate, tabs.strength.sendRate * 0.01)
-        tabs.strength.sendTokens = 0
-        tabs.strength.Status.Text = "Status: Slowing for server | "
-            .. formatNumber(tabs.strength.sendRate) .. " reps/s"
-        tabs.strength.Status.TextColor3 = Color3.fromRGB(255, 180, 70)
-    end
-
-    tabs.strength.lastControlAt = tabs.strength.controlNow
-    tabs.strength.lastControlStrength = tabs.strength.strength.Value
-    tabs.strength.lastControlDurability = tabs.strength.durability.Value
-end
+--==================================================
+-- WORKER
+--==================================================
 
 tabs.strength.workerLoop = function()
-    tabs.strength.lastLoopAt = os.clock()
-    while tabs.strength.running do
-        tabs.strength.loopNow = os.clock()
-        tabs.strength.loopElapsed = math.min(0.01, tabs.strength.loopNow - tabs.strength.lastLoopAt)
-        tabs.strength.lastLoopAt = tabs.strength.loopNow
 
-        tabs.strength.updateAdaptiveRate()
-        tabs.strength.sendTokens = math.min(
-            tabs.strength.maxBurst,
-            tabs.strength.sendTokens + tabs.strength.sendRate * tabs.strength.loopElapsed
-        )
-        tabs.strength.burstLimit = math.max(
-            1,
-            math.min(tabs.strength.maxBurst, math.ceil(tabs.strength.sendRate * 0.05))
-        )
-        tabs.strength.sendCount = math.min(
-            math.floor(tabs.strength.sendTokens),
-            tabs.strength.burstLimit
-        )
+    tabs.strength.lastLoopAt = os.clock()
+
+    while tabs.strength.running do
+
+        local now = os.clock()
+
+        local elapsed =
+            math.min(
+                0.01,
+                now - tabs.strength.lastLoopAt
+            )
+
+        tabs.strength.lastLoopAt = now
+
+        --// REP SPEED DEĞERİNİ KULLAN
+        tabs.strength.sendRate =
+            tabs.strength.repSpeed
+
+        tabs.strength.sendTokens =
+            math.min(
+                tabs.strength.maxBurst,
+                tabs.strength.sendTokens
+                + tabs.strength.sendRate * elapsed
+            )
+
+        tabs.strength.burstLimit =
+            math.max(
+                1,
+                math.min(
+                    tabs.strength.maxBurst,
+                    math.ceil(
+                        tabs.strength.sendRate * 0.05
+                    )
+                )
+            )
+
+        tabs.strength.sendCount =
+            math.min(
+                math.floor(
+                    tabs.strength.sendTokens
+                ),
+                tabs.strength.burstLimit
+            )
+
         tabs.strength.repIndex = 1
-        while tabs.strength.repIndex <= tabs.strength.sendCount do
-            services.muscleEvent:FireServer("rep")
-            tabs.strength.repIndex = tabs.strength.repIndex + 1
+
+        while tabs.strength.repIndex
+            <= tabs.strength.sendCount do
+
+            if not tabs.strength.running then
+                break
+            end
+
+            services.muscleEvent:
+                FireServer("rep")
+
+            tabs.strength.repIndex += 1
         end
-        tabs.strength.sendTokens = tabs.strength.sendTokens - tabs.strength.sendCount
+
+        tabs.strength.sendTokens =
+            tabs.strength.sendTokens
+            - tabs.strength.sendCount
 
         services.runservice.Heartbeat:Wait()
     end
 
     tabs.strength.workerActive = false
-    if tabs.strength.running then
-        tabs.strength.startWorker()
-    end
 end
 
 tabs.strength.startWorker = function()
+
     if tabs.strength.workerActive then
         return
     end
 
     tabs.strength.workerActive = true
-    task.spawn(tabs.strength.workerLoop)
+
+    task.spawn(
+        tabs.strength.workerLoop
+    )
 end
 
-tabs.strength.strength:GetPropertyChangedSignal("Value"):Connect(function()
-    tabs.strength.updateStats()
-    tabs.strength.updatePace()
-end)
+--==================================================
+-- VALUE EVENTS
+--==================================================
 
-tabs.strength.durability:GetPropertyChangedSignal("Value"):Connect(function()
-    tabs.strength.updateStats()
-    tabs.strength.updatePace()
-end)
+tabs.strength.strength:
+    GetPropertyChangedSignal("Value"):
+    Connect(function()
 
-tabs.strength.FastRepToggle = tabs.strength:AddSwitch("⚡️ Fast Rep", function(state)
-    tabs.strength.running = state
-    if state then
-        if not tabs.strength.gainedBaselineSet then
-            tabs.strength.startStrength = tabs.strength.strength.Value
-            tabs.strength.startDurability = tabs.strength.durability.Value
-            tabs.strength.gainedBaselineSet = true
+        tabs.strength.updateStats()
+        tabs.strength.updatePace()
+    end)
+
+tabs.strength.durability:
+    GetPropertyChangedSignal("Value"):
+    Connect(function()
+
+        tabs.strength.updateStats()
+        tabs.strength.updatePace()
+    end)
+
+--==================================================
+-- FAST REP
+--==================================================
+
+tabs.strength.FastRepToggle =
+    tabs.strength:AddSwitch(
+        "⚡️ Fast Rep",
+        function(state)
+
+            tabs.strength.running = state
+
+            if state then
+
+                if not tabs.strength.gainedBaselineSet then
+
+                    tabs.strength.startStrength =
+                        tabs.strength.strength.Value
+
+                    tabs.strength.startDurability =
+                        tabs.strength.durability.Value
+
+                    tabs.strength.gainedBaselineSet = true
+                end
+
+                tabs.strength.timerStarted = false
+                tabs.strength.startedAt = 0
+
+                tabs.strength.lastSampleAt = tick()
+
+                tabs.strength.lastStrength =
+                    tabs.strength.strength.Value
+
+                tabs.strength.lastDurability =
+                    tabs.strength.durability.Value
+
+                --// REP SPEED
+                tabs.strength.sendRate =
+                    tabs.strength.repSpeed
+
+                tabs.strength.sendTokens = 0
+                tabs.strength.lastLoopAt = os.clock()
+
+                tabs.strength.Status.Text =
+                    "Status: Farming | "
+                    .. formatNumber(
+                        tabs.strength.repSpeed
+                    )
+                    .. " reps/s"
+
+                tabs.strength.Status.TextColor3 =
+                    Color3.fromRGB(
+                        80,
+                        255,
+                        120
+                    )
+
+                tabs.strength.startWorker()
+
+            else
+
+                if tabs.strength.timerStarted
+                    and tabs.strength.startedAt > 0 then
+
+                    tabs.strength.totalElapsed =
+                        tabs.strength.totalElapsed
+                        + tick()
+                        - tabs.strength.startedAt
+
+                    tabs.strength.startedAt = 0
+                    tabs.strength.timerStarted = false
+                end
+
+                tabs.strength.sendTokens = 0
+
+                tabs.strength.Status.Text =
+                    tabs.strength.gainedBaselineSet
+                    and "Status: Paused"
+                    or "Status: Inactive"
+
+                tabs.strength.Status.TextColor3 =
+                    tabs.strength.gainedBaselineSet
+                    and Color3.fromRGB(
+                        255,
+                        180,
+                        70
+                    )
+                    or Color3.fromRGB(
+                        255,
+                        80,
+                        80
+                    )
+
+                tabs.strength.updateRuntime()
+            end
         end
-        tabs.strength.timerStarted = false
-        tabs.strength.startedAt = 0
-        tabs.strength.lastSampleAt = tick()
-        tabs.strength.lastStrength = tabs.strength.strength.Value
-        tabs.strength.lastDurability = tabs.strength.durability.Value
-        tabs.strength.paceBaselineReady = false
-        tabs.strength.sendRate = tabs.strength.initialSendRate
-        tabs.strength.sendTokens = 0
-        tabs.strength.lastLoopAt = os.clock()
-        tabs.strength.lastControlAt = tick()
-        tabs.strength.lastProgressAt = tick()
-        tabs.strength.lastControlStrength = tabs.strength.strength.Value
-        tabs.strength.lastControlDurability = tabs.strength.durability.Value
-        tabs.strength.stalledIntervals = 0
-        tabs.strength.Status.Text = "Status: Farming | 200 reps/s"
-        tabs.strength.Status.TextColor3 = Color3.fromRGB(80, 255, 120)
-        tabs.strength.startWorker()
-    else
-        if tabs.strength.timerStarted and tabs.strength.startedAt > 0 then
-            tabs.strength.totalElapsed = tabs.strength.totalElapsed + tick() - tabs.strength.startedAt
-            tabs.strength.startedAt = 0
-            tabs.strength.timerStarted = false
-        end
-        tabs.strength.sendTokens = 0
-        tabs.strength.Status.Text = tabs.strength.gainedBaselineSet and "Status: Paused" or "Status: Inactive"
-        tabs.strength.Status.TextColor3 = tabs.strength.gainedBaselineSet and Color3.fromRGB(255, 180, 70) or Color3.fromRGB(255, 80, 80)
-        tabs.strength.updateRuntime()
-    end
-end)
+    )
 
 tabs.strength.FastRepToggle:Set(false)
 
 task.spawn(function()
+
     while true do
+
         tabs.strength.updateRuntime()
         tabs.strength.calculatePace()
+
         task.wait(1)
     end
 end)
 
+--==================================================
+-- MISC
+--==================================================
+
 tabFarming:AddLabel("============================")
-tabFarming:AddLabel("🎮 MISC ").TextSize = 21
+tabFarming:AddLabel("🎮 MISC").TextSize = 21
 
-tabFarming:AddSwitch("🔒 Lock Position", function(Value)
-    local player = game:GetService("Players").LocalPlayer
+--// LOCK POSITION
+tabFarming:AddSwitch(
+    "🔒 Lock Position",
+    function(Value)
 
-    if Value then
-        local character = player.Character
-        if not character then return end
+        local player =
+            game:GetService("Players").LocalPlayer
 
-        local root = character:FindFirstChild("HumanoidRootPart")
-        if not root then return end
+        if Value then
 
-        local savedPosition = root.Position
+            local character =
+                player.Character
 
-        _G.LockPositionConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if not Value then return end
-
-            local currentCharacter = player.Character
-            local currentRoot = currentCharacter and currentCharacter:FindFirstChild("HumanoidRootPart")
-
-            if currentRoot then
-                currentRoot.CFrame = CFrame.new(savedPosition) * (currentRoot.CFrame - currentRoot.Position)
-                currentRoot.AssemblyLinearVelocity = Vector3.zero
+            if not character then
+                return
             end
-        end)
-    elseif _G.LockPositionConnection then
-        _G.LockPositionConnection:Disconnect()
-        _G.LockPositionConnection = nil
-    end
-end)
 
-tabFarming:AddButton("⚡ Anti Lag", function()
-    local Workspace = game:GetService("Workspace")
-    local Lighting = game:GetService("Lighting")
+            local root =
+                character:FindFirstChild(
+                    "HumanoidRootPart"
+                )
 
-    -- Görsel efektleri kapat
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        if obj:IsA("ParticleEmitter")
-        or obj:IsA("Trail")
-        or obj:IsA("Beam")
-        or obj:IsA("Smoke")
-        or obj:IsA("Fire")
-        or obj:IsA("Sparkles") then
-            obj.Enabled = false
-        elseif obj:IsA("PostEffect") then
-            obj.Enabled = false
-        end
-    end
+            if not root then
+                return
+            end
 
-    -- Lighting efektlerini kapat
-    for _, obj in ipairs(Lighting:GetDescendants()) do
-        if obj:IsA("PostEffect") then
-            obj.Enabled = false
-        end
-    end
+            local savedPosition =
+                root.Position
 
-    -- Grafik kalitesini düşür
-    pcall(function()
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-    end)
-end)
+            if _G.LockPositionConnection then
+                _G.LockPositionConnection:Disconnect()
+            end
 
-tabFarming:AddSwitch("🥚 Auto Eat Egg 30min", function(Value)
-    _G.AutoEatEgg = Value
+            _G.LockPositionConnection =
+                game:GetService("RunService").Heartbeat:
+                Connect(function()
 
-    if not Value then
-        return
-    end
-
-    task.spawn(function()
-        while _G.AutoEatEgg do
-            local Player = game:GetService("Players").LocalPlayer
-            local Backpack = Player:FindFirstChild("Backpack")
-            local Character = Player.Character
-
-            if Backpack and Character then
-                local Egg = nil
-
-                -- Backpack'te Egg bul
-                for _, item in ipairs(Backpack:GetChildren()) do
-                    if item:IsA("Tool") and string.find(string.lower(item.Name), "egg") then
-                        Egg = item
-                        break
+                    if not Value then
+                        return
                     end
-                end
 
-                if Egg then
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                    local currentCharacter =
+                        player.Character
 
-                    if Humanoid then
-                        -- Egg'i ele al
-                        Humanoid:EquipTool(Egg)
-                        task.wait(0.5)
+                    local currentRoot =
+                        currentCharacter
+                        and currentCharacter:
+                        FindFirstChild(
+                            "HumanoidRootPart"
+                        )
 
-                        -- Egg'i kullan
-                        Egg:Activate()
-                        task.wait(0.5)
+                    if currentRoot then
 
-                        -- Evet / Yes butonunu otomatik bul
-                        local PlayerGui = Player:FindFirstChild("PlayerGui")
+                        currentRoot.CFrame =
+                            CFrame.new(savedPosition)
+                            * (
+                                currentRoot.CFrame
+                                - currentRoot.Position
+                            )
 
-                        if PlayerGui then
-                            for _, obj in ipairs(PlayerGui:GetDescendants()) do
-                                if obj:IsA("TextButton") then
-                                    local text = string.lower(obj.Text or "")
+                        currentRoot.AssemblyLinearVelocity =
+                            Vector3.zero
+                    end
+                end)
 
-                                    if text == "evet" or text == "yes" then
-                                        pcall(function()
-                                            obj:Activate()
-                                        end)
-                                        break
+        elseif _G.LockPositionConnection then
+
+            _G.LockPositionConnection:Disconnect()
+            _G.LockPositionConnection = nil
+        end
+    end
+)
+
+--// ANTI LAG
+tabFarming:AddButton(
+    "⚡ Anti Lag",
+    function()
+
+        local Workspace =
+            game:GetService("Workspace")
+
+        local Lighting =
+            game:GetService("Lighting")
+
+        for _, obj in ipairs(
+            Workspace:GetDescendants()
+        ) do
+
+            if obj:IsA("ParticleEmitter")
+                or obj:IsA("Trail")
+                or obj:IsA("Beam")
+                or obj:IsA("Smoke")
+                or obj:IsA("Fire")
+                or obj:IsA("Sparkles") then
+
+                obj.Enabled = false
+
+            elseif obj:IsA("PostEffect") then
+
+                obj.Enabled = false
+            end
+        end
+
+        for _, obj in ipairs(
+            Lighting:GetDescendants()
+        ) do
+
+            if obj:IsA("PostEffect") then
+                obj.Enabled = false
+            end
+        end
+
+        pcall(function()
+            settings().Rendering.QualityLevel =
+                Enum.QualityLevel.Level01
+        end)
+    end
+)
+
+--// AUTO EAT EGG
+tabFarming:AddSwitch(
+    "🥚 Auto Eat Egg 30min",
+    function(Value)
+
+        _G.AutoEatEgg = Value
+
+        if not Value then
+            return
+        end
+
+        task.spawn(function()
+
+            while _G.AutoEatEgg do
+
+                local Player =
+                    game:GetService("Players").LocalPlayer
+
+                local Backpack =
+                    Player:FindFirstChild("Backpack")
+
+                local Character =
+                    Player.Character
+
+                if Backpack and Character then
+
+                    local Egg = nil
+
+                    for _, item in ipairs(
+                        Backpack:GetChildren()
+                    ) do
+
+                        if item:IsA("Tool")
+                            and string.find(
+                                string.lower(item.Name),
+                                "egg"
+                            ) then
+
+                            Egg = item
+                            break
+                        end
+                    end
+
+                    if Egg then
+
+                        local Humanoid =
+                            Character:
+                            FindFirstChildOfClass(
+                                "Humanoid"
+                            )
+
+                        if Humanoid then
+
+                            Humanoid:EquipTool(Egg)
+
+                            task.wait(0.5)
+
+                            Egg:Activate()
+
+                            task.wait(0.5)
+
+                            local PlayerGui =
+                                Player:FindFirstChild(
+                                    "PlayerGui"
+                                )
+
+                            if PlayerGui then
+
+                                for _, obj in ipairs(
+                                    PlayerGui:GetDescendants()
+                                ) do
+
+                                    if obj:IsA("TextButton") then
+
+                                        local text =
+                                            string.lower(
+                                                obj.Text or ""
+                                            )
+
+                                        if text == "evet"
+                                            or text == "yes" then
+
+                                            pcall(function()
+                                                obj:Activate()
+                                            end)
+
+                                            break
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-            end
 
-            -- 30 dakika bekle
-            task.wait(1800)
-        end
-    end)
-end)
-
-tabFarming:AddSwitch("📏 Auto Size 2", function(bool)
-    _G.AutoSize2 = bool
-
-    if bool then
-        task.spawn(function()
-            while _G.AutoSize2 do
-                pcall(function()
-                    game:GetService("ReplicatedStorage")
-                        .rEvents.changeSpeedSizeRemote
-                        :InvokeServer("changeSize", 2)
-                end)
-
-                task.wait(0.1)
+                task.wait(1800)
             end
         end)
     end
-end, "Size 2")
+)
+
+--// AUTO SIZE 2
+tabFarming:AddSwitch(
+    "📏 Auto Size 2",
+    function(bool)
+
+        _G.AutoSize2 = bool
+
+        if bool then
+
+            task.spawn(function()
+
+                while _G.AutoSize2 do
+
+                    pcall(function()
+
+                        game:GetService(
+                            "ReplicatedStorage"
+                        )
+                        .rEvents
+                        .changeSpeedSizeRemote
+                        :InvokeServer(
+                            "changeSize",
+                            2
+                        )
+                    end)
+
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end,
+    "Size 2"
+)
 
 
 local pets = window:AddTab("Pets")
