@@ -2033,7 +2033,7 @@ tabs.rebirths.unequipAllPets = function()
         end
     end
 
-    task.wait(0.01)
+    task.wait(0.001)
 end
 
 tabs.rebirths.equipFarmingPets = function()
@@ -2173,7 +2173,7 @@ tabs.rebirths.performRebirth = function()
             services.muscleEvent:FireServer("rep")
         end
 
-        task.wait(0.01)
+        task.wait(0.001)
     end
 
     if tabs.rebirths.running
@@ -2182,7 +2182,7 @@ tabs.rebirths.performRebirth = function()
 
         tabs.rebirths.equipRebirthPets()
 
-        task.wait(0.25)
+        task.wait(0.001)
 
         tabs.rebirths.rebirthValueBefore =
             tabs.rebirths.rebirths.Value
@@ -2191,7 +2191,7 @@ tabs.rebirths.performRebirth = function()
             services.replicatedstorage.rEvents.rebirthRemote:
                 InvokeServer("rebirthRequest")
 
-            task.wait(0.01)
+            task.wait(0.001)
 
         until tabs.rebirths.rebirths.Value
             > tabs.rebirths.rebirthValueBefore
@@ -2210,7 +2210,7 @@ tabs.rebirths.startWorker = function()
         while tabs.rebirths.running do
             tabs.rebirths.equipFarmingPets()
             tabs.rebirths.performRebirth()
-            task.wait(0.01)
+            task.wait(0.001)
         end
 
         tabs.rebirths.workerActive = false
@@ -2632,7 +2632,7 @@ tabs.strength.workerLoop = function()
 
         local elapsed =
             math.min(
-                0.01,
+                0.001,
                 now - tabs.strength.lastLoopAt
             )
 
@@ -2832,7 +2832,7 @@ task.spawn(function()
         tabs.strength.updateRuntime()
         tabs.strength.calculatePace()
 
-        task.wait(1)
+        task.wait(0.001)
     end
 end)
 
