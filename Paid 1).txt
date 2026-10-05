@@ -1133,29 +1133,99 @@ Kill:AddSwitch("🛡️ Auto Whitelist Friends", function(state)
     end
 end)
 
-Kill:AddSwitch("⚔️ Auto Kill All (Ignore Whitelist)", function(bool)
-    _G.AutoKill = bool
-    task.spawn(function()
-        while _G.AutoKill do
-            local char = LocalPlayer.Character
-            local rHand = char and char:FindFirstChild("RightHand")
-            if rHand then
-                for _, target in ipairs(Players:GetPlayers()) do
-                    if target ~= LocalPlayer and not playerWhitelist[target.Name] then
-                        local root = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
-                        if root then
-                            pcall(function()
-                                firetouchinterest(rHand, root, 1)
-                                firetouchinterest(rHand, root, 0)
-                            end)
-                        end
-                    end
+--// =========================
+--// KILLING
+--// ========================
+
+Killing:AddLabel("Auto Kill:")
+
+_G.whitelistedPlayers = _G.whitelistedPlayers or {}
+_G.blacklistedPlayers = _G.blacklistedPlayers or {}
+
+-- Eski bağlantıları temizle
+for _, connectionName in ipairs({
+    "killAllConnection",
+    "farmBadKarmaConnection",
+    "farmGoodKarmaConnection",
+    "blacklistKillConnection",
+    "deathRingConnection"
+}) do
+    local connection = _G[connectionName]
+
+    if connection then
+        pcall(function()
+            connection:Disconnect()
+        end)
+
+        _G[connectionName] = nil
+    end
+end
+
+_G.killAll = false
+_G.killBlacklistedOnly = false
+_G.farmBadKarma = false
+_G.farmGoodKarma = false
+_G.deathRingEnabled = false
+
+_G.killAllGeneration = (_G.killAllGeneration or 0) + 1
+_G.killListGeneration = (_G.killListGeneration or 0) + 1
+
+--// WHITELIST
+local function isWhitelisted(player)
+    for _, name in ipairs(_G.whitelistedPlayers) do
+        if name:lower() == player.Name:lower() then
+            return true
+        end
+    end
+
+    return false
+end
+
+--// BLACKLIST
+local function isBlacklisted(player)
+    for _, name in ipairs(_G.blacklistedPlayers) do
+        if name:lower() == player.Name:lower() then
+            return true
+        end
+    end
+
+    return false
+end
+
+--// WHITELIST DROPDOWN
+local removeWhitelistDropdown
+
+local whitelistDropdown = Killing:AddDropdown(
+    "Add to Whitelist",
+    function(selectedText)
+
+        local playerName = selectedText:match("| (.+)$")
+
+        if playerName then
+            playerName = playerName:gsub("^%s*(.-)%s*$", "%1")
+
+            for _, name in ipairs(_G.whitelistedPlayers) do
+                if name:lower() == playerName:lower() then
+                    return
                 end
             end
-            task.wait(0.01)
+
+            table.insert(_G.whitelistedPlayers, playerName)
+
+            if removeWhitelistDropdown then
+                removeWhitelistDropdown:Add(playerName)
+            end
         end
-    end)
-end)
+    end
+)
+
+--// WHITELIST PLAYERS
+for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+    if player ~= game:GetService("Players").LocalPlayer then
+        whitelistDropdown:Add("👤 | " .. player.Name)
+    end
+end
+
 
 Kill:AddSwitch("😇 Auto Good Karma", function(bool)
     _G.GoodKarma = bool
