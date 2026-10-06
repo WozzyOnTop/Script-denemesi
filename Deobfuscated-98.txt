@@ -1,0 +1,3420 @@
+--[[
+	Nova Hub Key System
+	Muscle Legends · Credits SGA x AHMAD
+]]
+
+repeat task.wait() until game:IsLoaded()
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = Players.LocalPlayer
+
+local CORRECT_KEY = "VSP"
+local GET_KEY_LINK = "https://discord.gg/nxsD6NdbR3"
+local MAX_ATTEMPTS = 5
+local LOCKOUT_SECONDS = 45
+
+getgenv().KEY_PASSED = false
+getgenv().NovaHub_KeyAttempts = getgenv().NovaHub_KeyAttempts or 0
+getgenv().NovaHub_KeyLockUntil = getgenv().NovaHub_KeyLockUntil or 0
+getgenv().NovaHub_SelectedTheme = getgenv().NovaHub_SelectedTheme or "Crimson"
+
+local THEMES = {
+	Light = {
+		bg = Color3.fromRGB(250, 251, 255), panel = Color3.fromRGB(255, 255, 255), card = Color3.fromRGB(255, 255, 255),
+		accent = Color3.fromRGB(45, 125, 255), accent2 = Color3.fromRGB(30, 90, 200),
+		text = Color3.fromRGB(18, 22, 30), muted = Color3.fromRGB(120, 128, 145),
+		input = Color3.fromRGB(240, 243, 250), btn = Color3.fromRGB(45, 125, 255), btnText = Color3.fromRGB(255, 255, 255),
+		danger = Color3.fromRGB(230, 55, 70), ok = Color3.fromRGB(30, 175, 95), stroke = Color3.fromRGB(220, 225, 235),
+		previewBar = Color3.fromRGB(45, 125, 255), previewBg = Color3.fromRGB(255, 255, 255), rainbow = false,
+	},
+	["Obsidian Violet"] = {
+		bg = Color3.fromRGB(10, 8, 16), panel = Color3.fromRGB(18, 14, 28), card = Color3.fromRGB(26, 20, 40),
+		accent = Color3.fromRGB(155, 90, 255), accent2 = Color3.fromRGB(100, 45, 200),
+		text = Color3.fromRGB(245, 240, 255), muted = Color3.fromRGB(155, 145, 180),
+		input = Color3.fromRGB(32, 26, 50), btn = Color3.fromRGB(130, 65, 230), btnText = Color3.fromRGB(255, 255, 255),
+		danger = Color3.fromRGB(255, 75, 95), ok = Color3.fromRGB(70, 220, 150), stroke = Color3.fromRGB(55, 40, 85),
+		previewBar = Color3.fromRGB(155, 90, 255), previewBg = Color3.fromRGB(16, 12, 26), rainbow = false,
+	},
+	Gold = {
+		bg = Color3.fromRGB(16, 12, 6), panel = Color3.fromRGB(26, 20, 10), card = Color3.fromRGB(36, 28, 14),
+		accent = Color3.fromRGB(235, 185, 55), accent2 = Color3.fromRGB(180, 130, 25),
+		text = Color3.fromRGB(255, 248, 225), muted = Color3.fromRGB(185, 165, 120),
+		input = Color3.fromRGB(42, 34, 16), btn = Color3.fromRGB(210, 160, 40), btnText = Color3.fromRGB(25, 18, 5),
+		danger = Color3.fromRGB(255, 85, 75), ok = Color3.fromRGB(90, 210, 110), stroke = Color3.fromRGB(85, 65, 25),
+		previewBar = Color3.fromRGB(235, 185, 55), previewBg = Color3.fromRGB(22, 16, 6), rainbow = false,
+	},
+	Crimson = {
+		bg = Color3.fromRGB(14, 5, 7), panel = Color3.fromRGB(24, 8, 12), card = Color3.fromRGB(34, 12, 16),
+		accent = Color3.fromRGB(230, 35, 60), accent2 = Color3.fromRGB(150, 15, 35),
+		text = Color3.fromRGB(255, 240, 242), muted = Color3.fromRGB(185, 145, 155),
+		input = Color3.fromRGB(42, 14, 20), btn = Color3.fromRGB(200, 28, 55), btnText = Color3.fromRGB(255, 255, 255),
+		danger = Color3.fromRGB(255, 95, 95), ok = Color3.fromRGB(65, 210, 120), stroke = Color3.fromRGB(75, 22, 32),
+		previewBar = Color3.fromRGB(230, 35, 60), previewBg = Color3.fromRGB(18, 6, 8), rainbow = false,
+	},
+	Blue = {
+		bg = Color3.fromRGB(6, 10, 20), panel = Color3.fromRGB(12, 18, 36), card = Color3.fromRGB(16, 26, 50),
+		accent = Color3.fromRGB(45, 145, 255), accent2 = Color3.fromRGB(25, 95, 210),
+		text = Color3.fromRGB(235, 245, 255), muted = Color3.fromRGB(145, 165, 205),
+		input = Color3.fromRGB(18, 30, 52), btn = Color3.fromRGB(40, 125, 245), btnText = Color3.fromRGB(255, 255, 255),
+		danger = Color3.fromRGB(255, 85, 105), ok = Color3.fromRGB(55, 215, 140), stroke = Color3.fromRGB(35, 55, 95),
+		previewBar = Color3.fromRGB(45, 145, 255), previewBg = Color3.fromRGB(8, 14, 28), rainbow = false,
+	},
+	Purple = {
+		bg = Color3.fromRGB(12, 6, 20), panel = Color3.fromRGB(22, 12, 38), card = Color3.fromRGB(32, 18, 52),
+		accent = Color3.fromRGB(175, 85, 255), accent2 = Color3.fromRGB(115, 45, 195),
+		text = Color3.fromRGB(248, 240, 255), muted = Color3.fromRGB(175, 155, 205),
+		input = Color3.fromRGB(32, 18, 50), btn = Color3.fromRGB(145, 65, 235), btnText = Color3.fromRGB(255, 255, 255),
+		danger = Color3.fromRGB(255, 95, 125), ok = Color3.fromRGB(75, 225, 155), stroke = Color3.fromRGB(65, 35, 100),
+		previewBar = Color3.fromRGB(175, 85, 255), previewBg = Color3.fromRGB(14, 8, 24), rainbow = false,
+	},
+	Rainbow = {
+		bg = Color3.fromRGB(10, 10, 12), panel = Color3.fromRGB(20, 20, 24), card = Color3.fromRGB(28, 28, 34),
+		accent = Color3.fromRGB(255, 95, 145), accent2 = Color3.fromRGB(85, 145, 255),
+		text = Color3.fromRGB(255, 255, 255), muted = Color3.fromRGB(175, 175, 185),
+		input = Color3.fromRGB(34, 34, 40), btn = Color3.fromRGB(48, 48, 58), btnText = Color3.fromRGB(255, 255, 255),
+		danger = Color3.fromRGB(255, 85, 105), ok = Color3.fromRGB(85, 235, 150), stroke = Color3.fromRGB(65, 65, 75),
+		previewBar = Color3.fromRGB(255, 95, 145), previewBg = Color3.fromRGB(14, 14, 18), rainbow = true,
+	},
+}
+
+local function parentGui()
+	local ok, hui = pcall(function() return gethui and gethui() end)
+	if ok and hui then return hui end
+	return CoreGui
+end
+pcall(function()
+	local o = parentGui():FindFirstChild("NovaHubKeySystem")
+	if o then o:Destroy() end
+end)
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "NovaHubKeySystem"
+Gui.ResetOnSpawn = false
+Gui.IgnoreGuiInset = true
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.DisplayOrder = 10000
+pcall(function() Gui.Parent = parentGui() end)
+if not Gui.Parent then Gui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+local Dim = Instance.new("Frame")
+Dim.Size = UDim2.fromScale(1, 1)
+Dim.BackgroundColor3 = Color3.new(0, 0, 0)
+Dim.BackgroundTransparency = 1
+Dim.BorderSizePixel = 0
+Dim.Parent = Gui
+TweenService:Create(Dim, TweenInfo.new(0.35), { BackgroundTransparency = 0.32 }):Play()
+
+local function corner(p, r)
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, r or 12)
+	c.Parent = p
+	return c
+end
+local function stroke(p, col, th)
+	local s = Instance.new("UIStroke")
+	s.Color = col
+	s.Thickness = th or 1.2
+	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	s.Parent = p
+	return s
+end
+local function label(parent, props)
+	local l = Instance.new("TextLabel")
+	l.BackgroundTransparency = 1
+	for k, v in pairs(props) do l[k] = v end
+	l.Parent = parent
+	return l
+end
+local function glow(parent, col, th)
+	local g = Instance.new("UIStroke")
+	g.Name = "Glow"
+	g.Color = col
+	g.Thickness = th or 9
+	g.Transparency = 0.62
+	g.Parent = parent
+	return g
+end
+local function pulse(g, colorFn)
+	task.spawn(function()
+		local a = 0
+		while g and g.Parent do
+			a = a + 0.05
+			if colorFn then g.Color = colorFn() end
+			g.Transparency = 0.45 + 0.3 * (0.5 + 0.5 * math.sin(a))
+			task.wait(0.03)
+		end
+	end)
+end
+
+-- ========== THEME SETUP ==========
+local ThemeFrame = Instance.new("Frame")
+ThemeFrame.Name = "ThemeSetup"
+ThemeFrame.Size = UDim2.fromOffset(0, 0)
+ThemeFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+ThemeFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+ThemeFrame.BackgroundColor3 = Color3.fromRGB(252, 252, 255)
+ThemeFrame.BorderSizePixel = 0
+ThemeFrame.ClipsDescendants = true
+ThemeFrame.Parent = Gui
+corner(ThemeFrame, 20)
+local ThemeStroke = stroke(ThemeFrame, Color3.fromRGB(230, 45, 70), 2)
+local ThemeGlow = glow(ThemeFrame, Color3.fromRGB(230, 45, 70), 12)
+pulse(ThemeGlow)
+
+-- top accent line
+local topLine = Instance.new("Frame", ThemeFrame)
+topLine.Size = UDim2.new(1, 0, 0, 3)
+topLine.BackgroundColor3 = Color3.fromRGB(230, 45, 70)
+topLine.BorderSizePixel = 0
+local topGrad = Instance.new("UIGradient", topLine)
+topGrad.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 80, 100)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(230, 40, 70)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 30, 120)),
+})
+
+local lights = Instance.new("Frame", ThemeFrame)
+lights.BackgroundTransparency = 1
+lights.Size = UDim2.fromOffset(54, 12)
+lights.Position = UDim2.fromOffset(18, 18)
+for i, col in ipairs({Color3.fromRGB(255, 95, 86), Color3.fromRGB(255, 189, 46), Color3.fromRGB(39, 201, 63)}) do
+	local d = Instance.new("Frame", lights)
+	d.Size = UDim2.fromOffset(12, 12)
+	d.Position = UDim2.fromOffset((i-1)*18, 0)
+	d.BackgroundColor3 = col
+	d.BorderSizePixel = 0
+	corner(d, 6)
+end
+
+local badge = Instance.new("Frame", ThemeFrame)
+badge.Size = UDim2.fromOffset(148, 26)
+badge.Position = UDim2.new(1, -164, 0, 14)
+badge.BackgroundColor3 = Color3.fromRGB(255, 210, 50)
+badge.BorderSizePixel = 0
+corner(badge, 8)
+label(badge, { Size = UDim2.fromScale(1,1), Text = "💪  MUSCLE LEGENDS", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Color3.fromRGB(35, 25, 5) })
+
+label(ThemeFrame, {
+	Size = UDim2.new(1, -40, 0, 28), Position = UDim2.fromOffset(20, 48),
+	Text = "Choose Your Theme", Font = Enum.Font.GothamBold, TextSize = 24,
+	TextColor3 = Color3.fromRGB(18, 20, 28), TextXAlignment = Enum.TextXAlignment.Center,
+})
+label(ThemeFrame, {
+	Size = UDim2.new(1, -40, 0, 18), Position = UDim2.fromOffset(20, 78),
+	Text = "Nova Hub setup  ·  theme applies to the full script", Font = Enum.Font.Gotham, TextSize = 13,
+	TextColor3 = Color3.fromRGB(125, 130, 145), TextXAlignment = Enum.TextXAlignment.Center,
+})
+
+local Grid = Instance.new("Frame", ThemeFrame)
+Grid.Size = UDim2.fromOffset(520, 280)
+Grid.Position = UDim2.fromOffset(30, 110)
+Grid.BackgroundTransparency = 1
+
+local themeNames = {"Light", "Obsidian Violet", "Gold", "Crimson", "Blue", "Rainbow"}
+
+local function openAccess(themeName)
+	getgenv().NovaHub_SelectedTheme = themeName
+	local theme = THEMES[themeName]
+	ThemeStroke.Color = theme.accent
+	ThemeGlow.Color = theme.accent
+	topLine.BackgroundColor3 = theme.accent
+
+	TweenService:Create(ThemeFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+		Size = UDim2.fromOffset(20, 20), BackgroundTransparency = 1,
+	}):Play()
+	task.wait(0.28)
+	ThemeFrame.Visible = false
+
+	local AF = Instance.new("Frame")
+	AF.Name = "AccessCenter"
+	AF.Size = UDim2.fromOffset(0, 0)
+	AF.Position = UDim2.new(0.5, 0, 0.5, 0)
+	AF.AnchorPoint = Vector2.new(0.5, 0.5)
+	AF.BackgroundColor3 = theme.panel
+	AF.BorderSizePixel = 0
+	AF.ClipsDescendants = true
+	AF.Parent = Gui
+	corner(AF, 18)
+	local AS = stroke(AF, theme.accent, 2.2)
+	local AG = glow(AF, theme.accent, 12)
+	local hue = 0
+	pulse(AG, function()
+		if theme.rainbow then
+			hue = (hue + 0.012) % 1
+			local c = Color3.fromHSV(hue, 0.88, 1)
+			AS.Color = c
+			return c
+		end
+		return theme.accent
+	end)
+
+	-- header bar
+	local hb = Instance.new("Frame", AF)
+	hb.Size = UDim2.new(1, 0, 0, 44)
+	hb.BackgroundColor3 = theme.card
+	hb.BorderSizePixel = 0
+	corner(hb, 18)
+	local hfix = Instance.new("Frame", hb)
+	hfix.Size = UDim2.new(1, 0, 0, 18)
+	hfix.Position = UDim2.new(0, 0, 1, -18)
+	hfix.BackgroundColor3 = theme.card
+	hfix.BorderSizePixel = 0
+	for i, col in ipairs({Color3.fromRGB(255, 95, 86), Color3.fromRGB(255, 189, 46), Color3.fromRGB(39, 201, 63)}) do
+		local d = Instance.new("Frame", hb)
+		d.Size = UDim2.fromOffset(11, 11)
+		d.Position = UDim2.fromOffset(16 + (i-1)*16, 16)
+		d.BackgroundColor3 = col
+		d.BorderSizePixel = 0
+		corner(d, 6)
+	end
+	label(hb, {
+		Size = UDim2.new(1, -90, 1, 0), Position = UDim2.fromOffset(72, 0),
+		Text = "Nova Hub  ·  Access Center  ·  Muscle Legends",
+		Font = Enum.Font.GothamSemibold, TextSize = 13, TextColor3 = theme.muted, TextXAlignment = Enum.TextXAlignment.Left,
+	})
+
+	-- LEFT panel
+	local left = Instance.new("Frame", AF)
+	left.Size = UDim2.fromOffset(188, 348)
+	left.Position = UDim2.fromOffset(16, 56)
+	left.BackgroundColor3 = theme.card
+	left.BorderSizePixel = 0
+	corner(left, 14)
+	stroke(left, theme.stroke, 1)
+
+	local av = Instance.new("ImageLabel", left)
+	av.Size = UDim2.fromOffset(68, 68)
+	av.Position = UDim2.fromOffset(18, 18)
+	av.BackgroundColor3 = theme.input
+	av.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId .. "&width=150&height=150&format=png"
+	corner(av, 34)
+	stroke(av, theme.accent, 2)
+
+	label(left, { Size=UDim2.new(1,-16,0,18), Position=UDim2.fromOffset(8,96), Text=LocalPlayer.DisplayName, Font=Enum.Font.GothamBold, TextSize=14, TextColor3=theme.text, TextTruncate=Enum.TextTruncate.AtEnd })
+	label(left, { Size=UDim2.new(1,-16,0,16), Position=UDim2.fromOffset(8,114), Text="@"..LocalPlayer.Name, Font=Enum.Font.Gotham, TextSize=12, TextColor3=theme.muted, TextTruncate=Enum.TextTruncate.AtEnd })
+
+	local function meta(y, t, v, c)
+		label(left, { Size=UDim2.new(1,-18,0,12), Position=UDim2.fromOffset(12,y), Text=t, Font=Enum.Font.GothamBold, TextSize=10, TextColor3=theme.muted, TextXAlignment=Enum.TextXAlignment.Left })
+		label(left, { Size=UDim2.new(1,-18,0,16), Position=UDim2.fromOffset(12,y+13), Text=v, Font=Enum.Font.GothamBold, TextSize=12, TextColor3=c or theme.text, TextXAlignment=Enum.TextXAlignment.Left })
+	end
+	meta(140, "USER ID", tostring(LocalPlayer.UserId))
+	meta(178, "LOADER", "Nova Hub", theme.accent)
+	meta(216, "GAME", "Muscle Legends", theme.accent)
+	meta(254, "THEME", themeName)
+	meta(292, "CREDITS", "SGA x AHMAD", theme.accent)
+
+	-- RIGHT
+	local right = Instance.new("Frame", AF)
+	right.Size = UDim2.fromOffset(368, 348)
+	right.Position = UDim2.fromOffset(216, 56)
+	right.BackgroundTransparency = 1
+
+	local head = Instance.new("Frame", right)
+	head.Size = UDim2.new(1, 0, 0, 58)
+	head.BackgroundColor3 = theme.card
+	head.BorderSizePixel = 0
+	corner(head, 12)
+	stroke(head, theme.stroke, 1)
+	label(head, { Size=UDim2.new(1,-100,0,22), Position=UDim2.fromOffset(14,10), Text="NOVA HUB", Font=Enum.Font.GothamBold, TextSize=17, TextColor3=theme.text, TextXAlignment=Enum.TextXAlignment.Left })
+	label(head, { Size=UDim2.new(1,-100,0,16), Position=UDim2.fromOffset(14,34), Text="Secure access  ·  Muscle Legends loader", Font=Enum.Font.Gotham, TextSize=11, TextColor3=theme.muted, TextXAlignment=Enum.TextXAlignment.Left })
+	local on = Instance.new("Frame", head)
+	on.Size = UDim2.fromOffset(84, 24)
+	on.Position = UDim2.new(1, -96, 0.5, -12)
+	on.BackgroundColor3 = Color3.fromRGB(16, 72, 42)
+	on.BorderSizePixel = 0
+	corner(on, 8)
+	label(on, { Size=UDim2.fromScale(1,1), Text="● ONLINE", Font=Enum.Font.GothamBold, TextSize=10, TextColor3=Color3.fromRGB(110, 255, 165) })
+
+	label(right, { Size=UDim2.new(1,0,0,14), Position=UDim2.fromOffset(0,70), Text="ACTIVE ACCESS", Font=Enum.Font.GothamBold, TextSize=11, TextColor3=theme.muted, TextXAlignment=Enum.TextXAlignment.Left })
+	label(right, { Size=UDim2.new(1,0,0,16), Position=UDim2.fromOffset(0,86), Text="Enter your Nova Hub key to unlock the loader.", Font=Enum.Font.Gotham, TextSize=12, TextColor3=theme.text, TextXAlignment=Enum.TextXAlignment.Left })
+
+	local pill = Instance.new("Frame", right)
+	pill.Size = UDim2.new(1, 0, 0, 40)
+	pill.Position = UDim2.fromOffset(0, 112)
+	pill.BackgroundColor3 = theme.card
+	pill.BorderSizePixel = 0
+	corner(pill, 10)
+	stroke(pill, theme.stroke, 1)
+	local statusLbl = label(pill, {
+		Size=UDim2.new(1,-16,1,0), Position=UDim2.fromOffset(14,0),
+		Text="Waiting for key  ·  No active license",
+		Font=Enum.Font.Gotham, TextSize=12, TextColor3=theme.muted, TextXAlignment=Enum.TextXAlignment.Left,
+	})
+
+	local GetKey = Instance.new("TextButton", right)
+	GetKey.Size = UDim2.new(0.48, -6, 0, 44)
+	GetKey.Position = UDim2.fromOffset(0, 164)
+	GetKey.BackgroundColor3 = theme.danger
+	GetKey.Text = "Get Key"
+	GetKey.Font = Enum.Font.GothamBold
+	GetKey.TextSize = 14
+	GetKey.TextColor3 = Color3.new(1,1,1)
+	GetKey.AutoButtonColor = false
+	corner(GetKey, 11)
+	stroke(GetKey, Color3.fromRGB(255, 140, 140), 1)
+
+	local Redeem = Instance.new("TextButton", right)
+	Redeem.Size = UDim2.new(0.48, -6, 0, 44)
+	Redeem.Position = UDim2.new(0.52, 0, 0, 164)
+	Redeem.BackgroundColor3 = theme.btn
+	Redeem.Text = "Redeem"
+	Redeem.Font = Enum.Font.GothamBold
+	Redeem.TextSize = 14
+	Redeem.TextColor3 = theme.btnText
+	Redeem.AutoButtonColor = false
+	corner(Redeem, 11)
+	stroke(Redeem, theme.accent, 1.3)
+
+	label(right, { Size=UDim2.new(1,0,0,14), Position=UDim2.fromOffset(0,220), Text="LICENSE KEY", Font=Enum.Font.GothamBold, TextSize=10, TextColor3=theme.muted, TextXAlignment=Enum.TextXAlignment.Left })
+
+	local Box = Instance.new("TextBox", right)
+	Box.Size = UDim2.new(1, 0, 0, 44)
+	Box.Position = UDim2.fromOffset(0, 238)
+	Box.BackgroundColor3 = theme.input
+	Box.PlaceholderText = "Paste your Nova Hub key here..."
+	Box.Text = ""
+	Box.Font = Enum.Font.Gotham
+	Box.TextSize = 14
+	Box.TextColor3 = theme.text
+	Box.PlaceholderColor3 = theme.muted
+	Box.ClearTextOnFocus = false
+	Box.TextXAlignment = Enum.TextXAlignment.Left
+	corner(Box, 11)
+	stroke(Box, theme.accent2, 1.3)
+	Instance.new("UIPadding", Box).PaddingLeft = UDim.new(0, 14)
+
+	local Status = label(right, {
+		Size=UDim2.new(1,0,0,16), Position=UDim2.fromOffset(0,288),
+		Text="Key required  ·  5 attempts max",
+		Font=Enum.Font.Gotham, TextSize=11, TextColor3=theme.muted, TextXAlignment=Enum.TextXAlignment.Left,
+	})
+
+	local DiscordBtn = Instance.new("TextButton", right)
+	DiscordBtn.Size = UDim2.new(1, 0, 0, 36)
+	DiscordBtn.Position = UDim2.fromOffset(0, 308)
+	DiscordBtn.BackgroundColor3 = theme.card
+	DiscordBtn.Text = "Discord  ·  " .. GET_KEY_LINK
+	DiscordBtn.Font = Enum.Font.Gotham
+	DiscordBtn.TextSize = 11
+	DiscordBtn.TextColor3 = theme.accent
+	DiscordBtn.AutoButtonColor = false
+	corner(DiscordBtn, 10)
+	stroke(DiscordBtn, theme.stroke, 1)
+
+	local function locked()
+		return os.clock() < (getgenv().NovaHub_KeyLockUntil or 0)
+	end
+	local function Shake()
+		local base = AF.Position
+		for i = 1, 10 do
+			AF.Position = base + UDim2.fromOffset((i%2==0) and -8 or 8, 0)
+			task.wait(0.014)
+		end
+		AF.Position = base
+	end
+	local function success()
+		getgenv().KEY_PASSED = true
+		Status.Text = "KEY ACCEPTED — loading Muscle Legends..."
+		Status.TextColor3 = theme.ok
+		statusLbl.Text = "License active  ·  Loading Nova Hub"
+		statusLbl.TextColor3 = theme.ok
+		TweenService:Create(AF, TweenInfo.new(0.32), { BackgroundTransparency=1, Size=UDim2.fromOffset(30,30) }):Play()
+		TweenService:Create(Dim, TweenInfo.new(0.32), { BackgroundTransparency=1 }):Play()
+		task.wait(0.4)
+		pcall(function() Gui:Destroy() end)
+	end
+	local function verify()
+		if locked() then
+			Status.Text = "LOCKED — wait " .. math.ceil(getgenv().NovaHub_KeyLockUntil - os.clock()) .. "s"
+			Status.TextColor3 = theme.danger
+			Shake()
+			return
+		end
+		local typed = tostring(Box.Text or ""):gsub("^%s+",""):gsub("%s+$","")
+		if typed == "" then
+			Status.Text = "Enter a key first"
+			Status.TextColor3 = theme.danger
+			Shake()
+			return
+		end
+		if typed == CORRECT_KEY then
+			success()
+			return
+		end
+		getgenv().NovaHub_KeyAttempts = (getgenv().NovaHub_KeyAttempts or 0) + 1
+		local left = MAX_ATTEMPTS - getgenv().NovaHub_KeyAttempts
+		Box.Text = ""
+		if left <= 0 then
+			getgenv().NovaHub_KeyLockUntil = os.clock() + LOCKOUT_SECONDS
+			getgenv().NovaHub_KeyAttempts = 0
+			Status.Text = "Too many attempts — locked " .. LOCKOUT_SECONDS .. "s"
+		else
+			Status.Text = "Wrong key — " .. left .. " attempts left"
+		end
+		Status.TextColor3 = theme.danger
+		statusLbl.Text = "Invalid license"
+		statusLbl.TextColor3 = theme.danger
+		Shake()
+	end
+	Redeem.MouseButton1Click:Connect(verify)
+	Box.FocusLost:Connect(function(e) if e then verify() end end)
+
+	local function copy()
+		local ok = false
+		for _, fn in ipairs({
+			function() setclipboard(GET_KEY_LINK) end,
+			function() toclipboard(GET_KEY_LINK) end,
+			function() set_clipboard(GET_KEY_LINK) end,
+		}) do
+			if pcall(fn) then ok = true break end
+		end
+		Status.Text = ok and "Discord invite copied" or GET_KEY_LINK
+		Status.TextColor3 = theme.accent
+	end
+	GetKey.MouseButton1Click:Connect(copy)
+	DiscordBtn.MouseButton1Click:Connect(copy)
+
+	for _, b in ipairs({GetKey, Redeem}) do
+		b.MouseEnter:Connect(function() TweenService:Create(b, TweenInfo.new(0.1), {BackgroundTransparency=0.1}):Play() end)
+		b.MouseLeave:Connect(function() TweenService:Create(b, TweenInfo.new(0.1), {BackgroundTransparency=0}):Play() end)
+	end
+
+	TweenService:Create(AF, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = UDim2.fromOffset(600, 420),
+	}):Play()
+end
+
+-- theme cards
+local function card(name, x, y)
+	local t = THEMES[name]
+	local c = Instance.new("TextButton", Grid)
+	c.Size = UDim2.fromOffset(248, 84)
+	c.Position = UDim2.fromOffset(x, y)
+	c.BackgroundColor3 = t.previewBg
+	c.Text = ""
+	c.AutoButtonColor = false
+	corner(c, 14)
+	local st = stroke(c, t.stroke, 1.5)
+	local g = glow(c, t.accent, 0)
+	g.Transparency = 1
+
+	local chrome = Instance.new("Frame", c)
+	chrome.Size = UDim2.new(1, -16, 0, 48)
+	chrome.Position = UDim2.fromOffset(8, 8)
+	chrome.BackgroundColor3 = t.panel
+	chrome.BorderSizePixel = 0
+	corner(chrome, 9)
+	local bar = Instance.new("Frame", chrome)
+	bar.Size = UDim2.new(0.62, 0, 0, 8)
+	bar.Position = UDim2.fromOffset(10, 10)
+	bar.BackgroundColor3 = t.previewBar
+	bar.BorderSizePixel = 0
+	corner(bar, 4)
+	for i = 1, 2 do
+		local ln = Instance.new("Frame", chrome)
+		ln.Size = UDim2.new(0.78, 0, 0, 5)
+		ln.Position = UDim2.fromOffset(10, 24 + (i-1)*10)
+		ln.BackgroundColor3 = t.input
+		ln.BorderSizePixel = 0
+		corner(ln, 2)
+	end
+	label(c, {
+		Size = UDim2.new(1,0,0,18), Position = UDim2.new(0,0,1,-22),
+		Text = name, Font = Enum.Font.GothamSemibold, TextSize = 12,
+		TextColor3 = (name=="Light") and Color3.fromRGB(35,38,48) or Color3.fromRGB(235,235,240),
+	})
+
+	c.MouseEnter:Connect(function()
+		g.Thickness = 7
+		g.Transparency = 0.5
+		g.Color = t.accent
+		st.Color = t.accent
+		TweenService:Create(c, TweenInfo.new(0.12), {Size=UDim2.fromOffset(252,88)}):Play()
+	end)
+	c.MouseLeave:Connect(function()
+		g.Thickness = 0
+		g.Transparency = 1
+		st.Color = t.stroke
+		TweenService:Create(c, TweenInfo.new(0.12), {Size=UDim2.fromOffset(248,84)}):Play()
+	end)
+	c.MouseButton1Click:Connect(function() openAccess(name) end)
+end
+
+local i = 0
+for row = 0, 2 do
+	for col = 0, 1 do
+		i = i + 1
+		if themeNames[i] then card(themeNames[i], col*264, row*92) end
+	end
+end
+
+label(ThemeFrame, {
+	Size=UDim2.new(1,-20,0,16), Position=UDim2.new(0,10,1,-22),
+	Text="Credits: SGA x AHMAD  ·  Muscle Legends",
+	Font=Enum.Font.Gotham, TextSize=11, TextColor3=Color3.fromRGB(140,145,160),
+})
+
+TweenService:Create(ThemeFrame, TweenInfo.new(0.42, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	Size = UDim2.fromOffset(580, 430),
+}):Play()
+
+repeat task.wait(0.05) until getgenv().KEY_PASSED == true
+
+-- load Nova Hub Muscle Legends
+
+-- Nova Hub | Muscle Legends | Made by SGA x AHMAD
+
+local getgenv = getgenv or function()
+    return _G
+end
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local RemoteEvents = ReplicatedStorage:WaitForChild("rEvents", 5)
+local MuscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
+    or ReplicatedStorage:FindFirstChild("muscleEvent")
+    or ReplicatedStorage:WaitForChild("muscleEvent", 5)
+
+local PetShopFolder = ReplicatedStorage:FindFirstChild("cPetShopFolder")
+local PetShopRemote = ReplicatedStorage:FindFirstChild("cPetShopRemote")
+
+getgenv().autoRep = false
+getgenv().autoMachineLift = false
+getgenv().autoRebirth = false
+getgenv().autoBuyPet = false
+getgenv().autoHatch = false
+getgenv().autoSell = false
+getgenv().autoEvolve = false
+getgenv().autoTitan = false
+getgenv().autoQuest = false
+getgenv().autoSpin = false
+getgenv().doubleEquip = false
+getgenv().evolveMode = "Both"
+getgenv().titanMode = "Both"
+getgenv().punchTiny = false
+getgenv().punchFrozen = false
+getgenv().punchMythical = false
+getgenv().punchHell = false
+getgenv().punchLegend = false
+getgenv().punchMuscleKing = false
+getgenv().punchJungle = false
+getgenv().punchIndustrial = false
+getgenv().autoKillSelected = false
+getgenv().autoKillEveryone = false
+getgenv().selectedKillPlayer = nil
+getgenv().selectedSpectatePlayer = nil
+getgenv().selectedWhitelistPlayer = nil
+getgenv().whitelistNames = {}
+
+local startTime = os.time()
+local uniquePetsEquipped = false
+local omegaPetsEquipped = false
+
+local gyms = {
+    {"Spawn", CFrame.new(2, 8, 115)},
+    {"Secret Spot", CFrame.new(1947, 2, 6191)},
+    {"Tiny Island", CFrame.new(-34, 7, 1903)},
+    {"Frozen Island", CFrame.new(-2600, 4, -404)},
+    {"Mythical Island", CFrame.new(2255, 7, 1071)},
+    {"Hell Island", CFrame.new(-6768, 7, -1287)},
+    {"Legend Island", CFrame.new(4604, 991, -3887)},
+    {"Muscle King Island", CFrame.new(-8646, 17, -5738)},
+    {"Jungle Island", CFrame.new(-8659, 6, 2384)},
+    {"Industrial Island", CFrame.new(-5437.2, 60.5, 4929.2)},
+    {"Brawl Lava", CFrame.new(4471, 119, -8836)},
+    {"Brawl Desert", CFrame.new(960, 17, -7398)},
+    {"Brawl Regular", CFrame.new(-1849, 20, -6335)}
+}
+
+LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+local function createAfkDisplay(character)
+    if not character then
+        return
+    end
+    local head = character:WaitForChild("Head", 5)
+    if not head or head:FindFirstChild("AFK_Tag") then
+        return
+    end
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "AFK_Tag"
+    billboard.Size = UDim2.new(0, 170, 0, 28)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = head
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = "Nova Hub ANTI-AFK [00:00:00]"
+    label.TextColor3 = Color3.fromRGB(0, 255, 200)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 12
+    label.TextStrokeTransparency = 0.2
+    label.Parent = billboard
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = 1.4
+    stroke.Color = Color3.fromRGB(0, 0, 0)
+    stroke.Parent = label
+    task.spawn(function()
+        while billboard and billboard.Parent do
+            local e = os.time() - startTime
+            local h = math.floor(e / 3600)
+            local m = math.floor((e % 3600) / 60)
+            local s = e % 60
+            label.Text = string.format("Nova Hub ANTI-AFK [%02d:%02d:%02d]", h, m, s)
+            task.wait(1)
+        end
+    end)
+end
+
+if LocalPlayer.Character then
+    createAfkDisplay(LocalPlayer.Character)
+end
+LocalPlayer.CharacterAdded:Connect(createAfkDisplay)
+
+local function isProteinOrConsumable(name)
+    local n = string.lower(tostring(name or ""))
+    return string.find(n, "protein")
+        or string.find(n, "shake")
+        or string.find(n, "potion")
+        or string.find(n, "boost")
+        or string.find(n, "food")
+        or string.find(n, "drink")
+end
+
+local function getEquippedTool()
+    local char = LocalPlayer.Character
+    if not char then
+        return
+    end
+    local tool = char:FindFirstChildOfClass("Tool")
+    if tool then
+        local n = string.lower(tool.Name)
+        if not string.find(n, "punch") and not isProteinOrConsumable(tool.Name) then
+            return tool
+        end
+    end
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        for _, item in ipairs(backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                local n = string.lower(item.Name)
+                if not string.find(n, "punch") and not isProteinOrConsumable(item.Name) then
+                    local hum = char:FindFirstChildOfClass("Humanoid")
+                    if hum then
+                        hum:EquipTool(item)
+                    end
+                    return item
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function unequipProtein()
+    pcall(function()
+        local char = LocalPlayer.Character
+        if not char then
+            return
+        end
+        local tool = char:FindFirstChildOfClass("Tool")
+        if tool and isProteinOrConsumable(tool.Name) then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum:UnequipTools()
+            end
+        end
+    end)
+end
+
+local function equipPunch()
+    local char = LocalPlayer.Character
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if not char then
+        return nil
+    end
+    local punch = char:FindFirstChild("Punch")
+    if punch then
+        return punch
+    end
+    if backpack then
+        punch = backpack:FindFirstChild("Punch")
+        if punch then
+            char.Humanoid:EquipTool(punch)
+            return punch
+        end
+    end
+    return nil
+end
+
+local function massTogglePets(rarity, state)
+    pcall(function()
+        local equipRemote = RemoteEvents:FindFirstChild("equipPetEvent")
+        local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+        local rarityFolder = petsFolder and petsFolder:FindFirstChild(rarity)
+        if equipRemote and rarityFolder then
+            for _, pet in ipairs(rarityFolder:GetChildren()) do
+                equipRemote:FireServer(state and "equipPet" or "unequipPet", pet)
+                task.wait(0.02)
+            end
+        end
+    end)
+end
+
+local function massSellPets(rarity)
+    pcall(function()
+        local sellRemote = RemoteEvents:FindFirstChild("sellPetEvent")
+        local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+        local rarityFolder = petsFolder and petsFolder:FindFirstChild(rarity)
+        if sellRemote and rarityFolder then
+            for _, pet in ipairs(rarityFolder:GetChildren()) do
+                sellRemote:FireServer("sellPet", pet)
+            end
+        end
+    end)
+end
+
+local function teleportTo(cframe)
+    local char = LocalPlayer.Character
+    if not char then
+        return
+    end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if root then
+        root.CFrame = cframe
+    end
+end
+
+local function getRock(rockName)
+    local folder = workspace:FindFirstChild("machinesFolder")
+    if not folder then
+        return nil
+    end
+    local rock = folder:FindFirstChild(rockName)
+    if rock then
+        return rock
+    end
+    for _, obj in ipairs(folder:GetChildren()) do
+        if string.find(string.lower(obj.Name), string.lower(rockName)) then
+            return obj
+        end
+    end
+    return nil
+end
+
+local function getRockCFrame(rock)
+    if not rock then
+        return nil
+    end
+    if rock:IsA("Model") then
+        local primary = rock.PrimaryPart or rock:FindFirstChildWhichIsA("BasePart")
+        if primary then
+            return primary.CFrame
+        end
+    elseif rock:IsA("BasePart") then
+        return rock.CFrame
+    end
+    for _, part in ipairs(rock:GetDescendants()) do
+        if part:IsA("BasePart") then
+            return part.CFrame
+        end
+    end
+    return nil
+end
+
+local function punchRockLoop(flagName, rockName)
+    task.spawn(function()
+        while getgenv()[flagName] do
+            pcall(function()
+                local rock = getRock(rockName)
+                local rockCF = getRockCFrame(rock)
+                local char = LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if rockCF and root then
+                    root.CFrame = rockCF * CFrame.new(0, 0, 4)
+                end
+                local punch = equipPunch()
+                if punch then
+                    punch:Activate()
+                end
+                if MuscleEvent then
+                    MuscleEvent:FireServer("punch")
+                    MuscleEvent:FireServer("rep")
+                end
+            end)
+            task.wait(0.12)
+        end
+    end)
+end
+
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+-- Apply key-system theme to the hub UI
+local _sel = tostring(getgenv().NovaHub_SelectedTheme or "Crimson")
+local THEME_MAP = {
+	Light = {
+		Accent = "#2D7DFF", Background = "#F5F7FC", Outline = "#D2D7E1",
+		Button = "#2D7DFF", Text = "#141820", Placeholder = "#6E7687", Icon = "#2D7DFF",
+	},
+	["Obsidian Violet"] = {
+		Accent = "#9650FF", Background = "#0C0A12", Outline = "#3C2D5A",
+		Button = "#823CE6", Text = "#F0EBFF", Placeholder = "#968CB0", Icon = "#9650FF",
+	},
+	Gold = {
+		Accent = "#E6B43C", Background = "#120E08", Outline = "#5A461E",
+		Button = "#C89628", Text = "#FFF5DC", Placeholder = "#B4A078", Icon = "#E6B43C",
+	},
+	Crimson = {
+		Accent = "#DC1E37", Background = "#100608", Outline = "#501923",
+		Button = "#BE1932", Text = "#FFEBE0", Placeholder = "#B48C96", Icon = "#DC1E37",
+	},
+	Blue = {
+		Accent = "#288CFF", Background = "#080C16", Outline = "#283C64",
+		Button = "#2378F0", Text = "#E6F0FF", Placeholder = "#8CA0C8", Icon = "#288CFF",
+	},
+	Purple = {
+		Accent = "#AA50FF", Background = "#0E0816", Outline = "#46286E",
+		Button = "#8C3CE6", Text = "#F5EBFF", Placeholder = "#AA96C8", Icon = "#AA50FF",
+	},
+	Rainbow = {
+		Accent = "#FF5A8C", Background = "#0C0C0E", Outline = "#464650",
+		Button = "#32323C", Text = "#FFFFFF", Placeholder = "#AAAAB4", Icon = "#FF5A8C",
+	},
+}
+local tm = THEME_MAP[_sel] or THEME_MAP.Crimson
+pcall(function()
+	local function hexToColor(h)
+		h = h:gsub("#", "")
+		return Color3.fromRGB(tonumber(h:sub(1,2),16), tonumber(h:sub(3,4),16), tonumber(h:sub(5,6),16))
+	end
+	local name = "NovaHub_" .. _sel:gsub("%s", "")
+	WindUI:AddTheme({
+		Name = name,
+		Accent = hexToColor(tm.Accent),
+		Background = hexToColor(tm.Background),
+		Outline = hexToColor(tm.Outline),
+		Button = hexToColor(tm.Button),
+		Text = hexToColor(tm.Text),
+		Placeholder = hexToColor(tm.Placeholder),
+		Icon = hexToColor(tm.Icon),
+	})
+	WindUI:SetTheme(name)
+end)
+
+local Window = WindUI:CreateWindow({
+    Title = "Nova Hub | Muscle Legends",
+    Author = "SGA x AHMAD",
+    Folder = "NovaHubConfigs",
+    Size = UDim2.fromOffset(580, 520),
+    Transparent = true,
+    Theme = ("NovaHub_" .. _sel:gsub("%s", "")),
+})
+
+local MainTab = Window:Tab({Title = "Main", Icon = "home"})
+local PackFarmTab = Window:Tab({Title = "PACK FARM", Icon = "package"})
+local PetTab = Window:Tab({Title = "Pets", Icon = "paw-print"})
+local BossTab = Window:Tab({Title = "BOSS FIGHT", Icon = "skull"})
+local TeleportTab = Window:Tab({Title = "Teleports", Icon = "map-pin"})
+local MiscTab = Window:Tab({Title = "Misc", Icon = "settings"})
+local RocksTab = Window:Tab({Title = "Rocks", Icon = "mountain"})
+local KillingTab = Window:Tab({Title = "KILLING", Icon = "swords"})
+local StatTab = Window:Tab({Title = "STAT", Icon = "bar-chart-2"})
+local StatSpyTab = Window:Tab({Title = "STAT SPY", Icon = "scan-eye"})
+local CreditsTab = Window:Tab({Title = "Credits", Icon = "info"})
+
+MainTab:Section({Title = "Exercise Farm"})
+
+-- Exercise tools from DAN public source
+local exerciseList = {"Weight", "Pushups", "Situps", "Handstands", "Fast Punch", "Stomp", "Ground Slam"}
+getgenv().selectedExercise = "Weight"
+getgenv().autoExercise = false
+
+local function equipExerciseTool(toolName)
+    local char = LocalPlayer.Character
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not char or not hum then
+        return false
+    end
+    if char:FindFirstChild(toolName) then
+        return true
+    end
+    if backpack then
+        local tool = backpack:FindFirstChild(toolName)
+        if tool then
+            hum:EquipTool(tool)
+            return true
+        end
+        -- giveTool fallback
+        local give = RemoteEvents and RemoteEvents:FindFirstChild("giveTool")
+        if give then
+            pcall(function()
+                give:FireServer(toolName)
+            end)
+            task.wait(0.1)
+            tool = backpack:FindFirstChild(toolName) or char:FindFirstChild(toolName)
+            if tool and tool.Parent == backpack then
+                hum:EquipTool(tool)
+            end
+            return tool ~= nil
+        end
+    end
+    return false
+end
+
+local function doExerciseRep()
+    local player = LocalPlayer
+    local toolName = getgenv().selectedExercise or "Weight"
+    local ev = player:FindFirstChild("muscleEvent") or MuscleEvent
+    if toolName == "Fast Punch" then
+        equipExerciseTool("Punch")
+        if ev then
+            ev:FireServer("punch", "rightHand")
+            ev:FireServer("punch", "leftHand")
+        end
+        local punch = player.Character and player.Character:FindFirstChild("Punch")
+        if punch then
+            punch:Activate()
+        end
+    elseif toolName == "Stomp" then
+        equipExerciseTool("Stomp")
+        if ev then
+            ev:FireServer("stomp")
+        end
+        local t = player.Character and player.Character:FindFirstChild("Stomp")
+        if t then
+            t:Activate()
+        end
+    elseif toolName == "Ground Slam" then
+        equipExerciseTool("Ground Slam")
+        if ev then
+            ev:FireServer("slam")
+        end
+        local t = player.Character and player.Character:FindFirstChild("Ground Slam")
+        if t then
+            t:Activate()
+        end
+    else
+        -- Weight / Pushups / Situps / Handstands
+        equipExerciseTool(toolName)
+        if ev then
+            ev:FireServer("rep")
+        end
+    end
+end
+
+MainTab:Dropdown({
+    Title = "Select Exercise",
+    Values = exerciseList,
+    Value = "Weight",
+    Callback = function(Value)
+        getgenv().selectedExercise = Value
+    end
+})
+
+MainTab:Toggle({
+    Title = "Auto Exercise",
+    Desc = "Equip selected tool and train",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoExercise = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoExercise do
+                    pcall(doExerciseRep)
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+MainTab:Section({Title = "Auto Farm Settings"})
+
+local function getNearestMachineCFrame()
+    local folder = workspace:FindFirstChild("machinesFolder")
+    local myChar = LocalPlayer.Character
+    local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    if not folder or not myRoot then
+        return nil
+    end
+    local best, bestDist = nil, math.huge
+    for _, obj in ipairs(folder:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            local d = (obj.Position - myRoot.Position).Magnitude
+            if d < bestDist then
+                bestDist = d
+                best = obj
+            end
+        end
+    end
+    if best then
+        return best.CFrame * CFrame.new(0, 0, 3)
+    end
+    return nil
+end
+
+local function fireRep()
+    local ev = LocalPlayer:FindFirstChild("muscleEvent") or MuscleEvent
+    if ev then
+        ev:FireServer("rep")
+    end
+end
+
+MainTab:Toggle({
+    Title = "Auto Fast Rep",
+    Desc = "No delay - very fast training",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoRep = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoRep do
+                    pcall(function()
+                        unequipProtein()
+                        for i = 1, 25 do
+                            fireRep()
+                        end
+                    end)
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+MainTab:Toggle({
+    Title = "Auto Fast Machine Lift",
+    Desc = "Machine + no delay ultra fast rep",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoMachineLift = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoMachineLift do
+                    pcall(function()
+                        unequipProtein()
+                        local cf = getNearestMachineCFrame()
+                        local char = LocalPlayer.Character
+                        local root = char and char:FindFirstChild("HumanoidRootPart")
+                        if cf and root then
+                            root.CFrame = cf
+                        end
+                        for i = 1, 30 do
+                            fireRep()
+                        end
+                    end)
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+local function invokeREvent(remoteName, ...)
+    local rEvents = ReplicatedStorage:FindFirstChild("rEvents")
+    local remote = rEvents and rEvents:FindFirstChild(remoteName)
+    if remote and remote:IsA("RemoteFunction") then
+        return remote:InvokeServer(...)
+    end
+end
+
+-- Muscle Gym Auto TP position from source (cframe9)
+local MUSCLE_KING_GYM_CF = CFrame.new(
+    -8751.244141, 120.948402, -5860.950195,
+    0.28799805, -1.3e-7, 0.957630992,
+    2.8e-8, 1, 1.27e-7,
+    -0.957630992, -9e-9, 0.28799805
+)
+
+-- Muscle King Mountain rock from source rock table
+local KING_ROCK_CF = CFrame.new(
+    -9037.712891, 5.536252, -6058.991699,
+    0.160788447, 7e-8, -0.986988902,
+    4.7e-8, 1, 7.9e-8,
+    0.986988902, -5.9e-8, 0.160788447
+)
+
+getgenv().autoKing = false
+getgenv().autoMuscleGymTp = false
+
+getgenv().rebirthTarget = 0 -- 0 = infinite
+
+MainTab:Toggle({
+    Title = "Fast Auto Rebirth",
+    Desc = "Auto rebirth every 0.5s (need Strength)",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoRebirth = Value
+        if Value then
+            task.spawn(function()
+                local ls = LocalPlayer:FindFirstChild("leaderstats")
+                local rebirths = ls and ls:FindFirstChild("Rebirths")
+                while getgenv().autoRebirth do
+                    pcall(function()
+                        local target = tonumber(getgenv().rebirthTarget) or 0
+                        if target > 0 and rebirths and rebirths.Value >= target then
+                            getgenv().autoRebirth = false
+                            WindUI:Notify({
+                                Title = "Auto Rebirth",
+                                Content = "Reached target " .. tostring(target),
+                                Duration = 3
+                            })
+                            return
+                        end
+                        -- exact DAN public call
+                        ReplicatedStorage.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+                    end)
+                    task.wait(0.5)
+                end
+            end)
+            WindUI:Notify({
+                Title = "Auto Rebirth",
+                Content = "ON | 0.5s | needs enough Strength",
+                Duration = 3
+            })
+        end
+    end
+})
+
+--------------------------------------------------------------------
+-- PACK FARM (Swift Samurai / Tribal Overlord source)
+--------------------------------------------------------------------
+local TRAINING_PET = "Swift Samurai"
+local REBIRTH_PET = "Tribal Overlord"
+local PET_STACK = 8
+
+getgenv().packFastFarm = false
+getgenv().packFastRebirth = false
+getgenv().packFarmGen = 0
+getgenv().packRebGen = 0
+
+local function packMuscleEv()
+    return LocalPlayer:FindFirstChild("muscleEvent") or MuscleEvent
+end
+
+local function packEquipRemote()
+    return (RemoteEvents and RemoteEvents:FindFirstChild("equipPetEvent"))
+        or (ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("equipPetEvent"))
+end
+
+local function packPetsFolder()
+    return LocalPlayer:FindFirstChild("petsFolder")
+end
+
+local function packGetRequiredStrength()
+    local ls = LocalPlayer:FindFirstChild("leaderstats")
+    local reb = ls and ls:FindFirstChild("Rebirths")
+    local v = reb and tonumber(reb.Value) or 0
+    return 5000 + v * 2550
+end
+
+local function packGetStrength()
+    local ls = LocalPlayer:FindFirstChild("leaderstats")
+    local s = ls and ls:FindFirstChild("Strength")
+    return s and tonumber(s.Value) or 0
+end
+
+local function packGetPetsByName(name)
+    local pets = {}
+    local folder = packPetsFolder()
+    if not folder then
+        return pets
+    end
+    local target = string.lower(name)
+    for _, sub in ipairs(folder:GetChildren()) do
+        if sub:IsA("Folder") then
+            for _, pet in ipairs(sub:GetChildren()) do
+                if string.lower(pet.Name) == target then
+                    pets[#pets + 1] = pet
+                end
+            end
+        end
+    end
+    return pets
+end
+
+local function packUnequipAll()
+    local equip = packEquipRemote()
+    local folder = packPetsFolder()
+    if not equip or not folder then
+        return
+    end
+    for _, sub in ipairs(folder:GetChildren()) do
+        if sub:IsA("Folder") then
+            for _, pet in ipairs(sub:GetChildren()) do
+                pcall(function()
+                    equip:FireServer("unequipPet", pet)
+                end)
+            end
+        end
+    end
+    task.wait(0.15)
+end
+
+local function packEquipAmount(petName, amount)
+    local equip = packEquipRemote()
+    if not equip then
+        return 0
+    end
+    local pets = packGetPetsByName(petName)
+    local equipped = 0
+    for _, pet in ipairs(pets) do
+        if equipped >= amount then
+            break
+        end
+        pcall(function()
+            equip:FireServer("equipPet", pet)
+        end)
+        equipped = equipped + 1
+        task.wait(0.04)
+    end
+    return equipped
+end
+
+local function packEquipTraining()
+    packUnequipAll()
+    return packEquipAmount(TRAINING_PET, PET_STACK)
+end
+
+local function packEquipRebirthPets()
+    packUnequipAll()
+    return packEquipAmount(REBIRTH_PET, PET_STACK)
+end
+
+local function packTrainFast()
+    local ev = packMuscleEv()
+    if not ev then
+        return
+    end
+    for _ = 1, 30 do
+        pcall(function()
+            ev:FireServer("rep")
+        end)
+    end
+end
+
+local function packTrainRebirth()
+    local ev = packMuscleEv()
+    if not ev then
+        return
+    end
+    for _ = 1, 10 do
+        pcall(function()
+            ev:FireServer("rep")
+        end)
+    end
+end
+
+local function packDoRebirth()
+    local required = packGetRequiredStrength()
+    if packGetStrength() < required then
+        return false
+    end
+    packEquipRebirthPets()
+    task.wait(0.25)
+    local ls = LocalPlayer:FindFirstChild("leaderstats")
+    local rebStat = ls and ls:FindFirstChild("Rebirths")
+    local old = rebStat and rebStat.Value or 0
+    local started = tick()
+    local remote = ReplicatedStorage:FindFirstChild("rEvents")
+        and ReplicatedStorage.rEvents:FindFirstChild("rebirthRemote")
+    while getgenv().packFastRebirth and rebStat and rebStat.Value <= old and tick() - started < 8 do
+        pcall(function()
+            if remote then
+                remote:InvokeServer("rebirthRequest")
+            end
+        end)
+        task.wait(0.05)
+    end
+    return rebStat and rebStat.Value > old
+end
+
+local function startPackFastFarm()
+    getgenv().packFarmGen = (getgenv().packFarmGen or 0) + 1
+    local gen = getgenv().packFarmGen
+    task.spawn(function()
+        packEquipTraining()
+        while getgenv().packFastFarm and gen == getgenv().packFarmGen do
+            packTrainFast()
+            task.wait(0.01)
+        end
+    end)
+end
+
+local function startPackFastRebirth()
+    getgenv().packRebGen = (getgenv().packRebGen or 0) + 1
+    local gen = getgenv().packRebGen
+    task.spawn(function()
+        packEquipTraining()
+        while getgenv().packFastRebirth and gen == getgenv().packRebGen do
+            local required = packGetRequiredStrength()
+            if packGetStrength() < required then
+                packTrainRebirth()
+                task.wait(0.02)
+            else
+                local ok = packDoRebirth()
+                if not getgenv().packFastRebirth or gen ~= getgenv().packRebGen then
+                    break
+                end
+                task.wait(ok and 0.15 or 0.25)
+                packEquipTraining()
+            end
+        end
+    end)
+end
+
+PackFarmTab:Section({Title = "REBIRTHS"})
+PackFarmTab:Paragraph({
+    Title = "Pets",
+    Desc = "Training: 8 Swift Samurai | Rebirth: 8 Tribal Overlord"
+})
+
+PackFarmTab:Toggle({
+    Title = "Fast Farm",
+    Desc = "Equip Swift Samurai + fast rep",
+    Value = false,
+    Callback = function(Value)
+        getgenv().packFastFarm = Value
+        getgenv().packFarmGen = (getgenv().packFarmGen or 0) + 1
+        if Value then
+            if getgenv().packFastRebirth then
+                getgenv().packFastRebirth = false
+                getgenv().packRebGen = (getgenv().packRebGen or 0) + 1
+            end
+            startPackFastFarm()
+        end
+    end
+})
+
+PackFarmTab:Toggle({
+    Title = "Fast Rebirth",
+    Desc = "Train -> Tribal Overlord x8 -> rebirth when strength ready",
+    Value = false,
+    Callback = function(Value)
+        getgenv().packFastRebirth = Value
+        getgenv().packRebGen = (getgenv().packRebGen or 0) + 1
+        if Value then
+            if getgenv().packFastFarm then
+                getgenv().packFastFarm = false
+                getgenv().packFarmGen = (getgenv().packFarmGen or 0) + 1
+            end
+            startPackFastRebirth()
+        end
+    end
+})
+
+PackFarmTab:Button({
+    Title = "Equip training pets (8 Swift Samurai)",
+    Callback = function()
+        local n = packEquipTraining()
+        WindUI:Notify({Title = "Pack", Content = n .. "/8 Swift Samurai", Duration = 3})
+    end
+})
+
+PackFarmTab:Button({
+    Title = "Equip rebirth pets (8 Tribal Overlord)",
+    Callback = function()
+        local n = packEquipRebirthPets()
+        WindUI:Notify({Title = "Pack", Content = n .. "/8 Tribal Overlord", Duration = 3})
+    end
+})
+
+MainTab:Toggle({
+    Title = "Auto King (Rock Farm)",
+    Desc = "Stay on Muscle King Mountain and punch",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoKing = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoKing do
+                    pcall(function()
+                        local char = LocalPlayer.Character
+                        local root = char and char:FindFirstChild("HumanoidRootPart")
+                        if root then
+                            root.CFrame = KING_ROCK_CF * CFrame.new(0, 0, 4)
+                        end
+                        local punch = equipPunch()
+                        if punch then
+                            punch:Activate()
+                        end
+                        local ev = LocalPlayer:FindFirstChild("muscleEvent") or MuscleEvent
+                        if ev then
+                            ev:FireServer("punch")
+                            ev:FireServer("rep")
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+MainTab:Toggle({
+    Title = "Muscle Gym Auto TP",
+    Desc = "Keep TP to Muscle King Gym",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoMuscleGymTp = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoMuscleGymTp do
+                    task.wait(0.2)
+                    pcall(function()
+                        local char = LocalPlayer.Character
+                        local root = char and char:FindFirstChild("HumanoidRootPart")
+                        if root then
+                            root.CFrame = MUSCLE_KING_GYM_CF
+                        end
+                    end)
+                end
+            end)
+        end
+    end
+})
+
+MainTab:Button({
+    Title = "TP Muscle King Gym",
+    Callback = function()
+        pcall(function()
+            local char = LocalPlayer.Character
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            if root then
+                root.CFrame = MUSCLE_KING_GYM_CF
+            end
+        end)
+    end
+})
+
+-- Pets tab
+local allPets = {
+    -- Industrial / Apex update
+    "Apex Overlord", "Core Pup", "Plasma Ravager", "Reactor Beast", "Titan Reactor", "Volt Talon",
+    -- Radioactive / Ultra Titans packs (Sept update pets)
+    "Biohazard Ape", "Biohazard Overlord", "Nuclear Hydra", "Omega Overlord",
+    "Powercore Hound", "Radio Rat", "Sludge Croc", "Titanium Hydra", "Toxic Hound",
+    -- Jungle / older shop pets
+    "Aether Spirit Bunny", "Blue Birdie", "Blue Bunny", "Blue Firecaster", "Blue Phoenix",
+    "Crimson Falcon", "Cybernetic Showdown Dragon", "Dark Golem", "Dark Legends Manticore",
+    "Dark Vampy", "Darkstar Hunter", "Eternal Strike Leviathan", "Frostwave Legends Penguin",
+    "Golden Phoenix", "Golden Viking", "Green Butterfly", "Infernal Dragon", "Jungle Captain",
+    "Lightning Strike Phantom", "Magic Butterfly", "Mighty Monster", "Muscle Sensei",
+    "Neon Guardian", "Orange Hedgehog", "Orange Pegasus", "Phantom Genesis Dragon",
+    "Purple Dragon", "Purple Falcon", "Red Dragon", "Red Firecaster", "Red Kitty", "Silver Dog",
+    "Swift Samurai", "Tribal Overlord", "Ultimate Supernova Pegasus", "Ultra Birdie",
+    "White Pegasus", "Wild Wizards", "Yellow Butterfly"
+}
+table.sort(allPets)
+
+local allAuras = {
+    "Advanced Aura", "Astral Electro", "Azure Tundra", "Azure Tundra Aura", "Basic Aura",
+    "Blue Aura", "Dark Electro", "Electro", "Enchanted Mirage", "Entropic Blast",
+    "Entropic Blast Aura", "Epic Aura", "Eternal Megastrike Aura", "Grand SuperNova Aura",
+    "Grand Supernova", "Green Aura", "Lightning", "Muscle King Aura", "Power Lightning",
+    "Purple Aura", "Purple Nova", "Rare Aura", "Red Aura", "Supernova", "Ultra Inferno",
+    "Ultra Inferno Aura", "Ultra Mirage", "Unique Aura", "Unstable Mirage", "Yellow Aura"
+}
+table.sort(allAuras)
+
+-- merge live shop folder names from shared.runtime or root
+pcall(function()
+    local folders = {}
+    local shared = ReplicatedStorage:FindFirstChild("shared")
+    local runtime = shared and shared:FindFirstChild("runtime")
+    if runtime and runtime:FindFirstChild("cPetShopFolder") then
+        table.insert(folders, runtime.cPetShopFolder)
+    end
+    if ReplicatedStorage:FindFirstChild("cPetShopFolder") then
+        table.insert(folders, ReplicatedStorage.cPetShopFolder)
+    end
+    local seen = {}
+    for _, n in ipairs(allPets) do
+        seen[n] = true
+    end
+    for _, folder in ipairs(folders) do
+        for _, child in ipairs(folder:GetChildren()) do
+            if not seen[child.Name] then
+                allPets[#allPets + 1] = child.Name
+                seen[child.Name] = true
+            end
+        end
+    end
+    table.sort(allPets)
+end)
+
+getgenv().selectedBuyPet = allPets[1]
+getgenv().selectedHatchAura = allAuras[1]
+getgenv().autoBuyPet = false
+getgenv().autoHatchAura = false
+getgenv().autoSellAll = false
+getgenv().autoEvolveAll = false
+
+local function buyPetShop(petName)
+    if not petName then
+        return false
+    end
+    local ok = false
+    pcall(function()
+        local remote = ReplicatedStorage:FindFirstChild("rEvents")
+            and ReplicatedStorage.rEvents:FindFirstChild("cPetShopRemote")
+        if not remote then
+            remote = ReplicatedStorage:FindFirstChild("cPetShopRemote")
+        end
+        local petObj = nil
+        local shared = ReplicatedStorage:FindFirstChild("shared")
+        local runtime = shared and shared:FindFirstChild("runtime")
+        local folder = runtime and runtime:FindFirstChild("cPetShopFolder")
+        if folder then
+            petObj = folder:FindFirstChild(petName)
+        end
+        if not petObj then
+            folder = ReplicatedStorage:FindFirstChild("cPetShopFolder")
+            petObj = folder and folder:FindFirstChild(petName)
+        end
+        if remote and petObj then
+            if remote:IsA("RemoteFunction") then
+                remote:InvokeServer(petObj)
+            else
+                remote:FireServer(petObj)
+            end
+            ok = true
+            return
+        end
+        -- fallback: DAN public style root remote + folder
+        if not remote then
+            remote = ReplicatedStorage:FindFirstChild("cPetShopRemote")
+        end
+        if remote and petObj and remote:IsA("RemoteFunction") then
+            remote:InvokeServer(petObj)
+            ok = true
+        end
+    end)
+    return ok
+end
+
+-- keep old multi-try path disabled; single correct InvokeServer only
+local function buyPetShop_DISABLED_OLD(petName)
+    if not petName then
+        return false
+    end
+    local ok = false
+    pcall(function()
+        local folder = ReplicatedStorage:FindFirstChild("cPetShopFolder") or PetShopFolder
+        local remote = ReplicatedStorage:FindFirstChild("cPetShopRemote") or PetShopRemote
+        if not remote then
+            return
+        end
+        local petObj = folder and (folder:FindFirstChild(petName) or folder:FindFirstChild(petName, true))
+        if remote:IsA("RemoteFunction") then
+            if petObj then
+                pcall(function() remote:InvokeServer(petObj) end)
+            end
+            ok = true
+        elseif remote:IsA("RemoteEvent") then
+            if petObj then
+                pcall(function() remote:FireServer(petObj) end)
+                pcall(function() remote:FireServer("buy", petObj) end)
+            end
+            pcall(function() remote:FireServer(petName) end)
+            pcall(function() remote:FireServer("buy", petName) end)
+            ok = true
+        end
+    end)
+    return ok
+end
+
+local function buyAura(auraName)
+    if not auraName then
+        return false
+    end
+    local ok = false
+    pcall(function()
+        local remote = ReplicatedStorage:FindFirstChild("cPetShopRemote")
+            or ReplicatedStorage:FindFirstChild("cAuraShopRemote")
+            or (RemoteEvents and RemoteEvents:FindFirstChild("buyAuraRemote"))
+        if remote and remote:IsA("RemoteFunction") then
+            pcall(function() remote:InvokeServer(auraName) end)
+            pcall(function() remote:InvokeServer("buy", auraName) end)
+            pcall(function() remote:InvokeServer("buyAura", auraName) end)
+            ok = true
+        elseif remote and remote:IsA("RemoteEvent") then
+            pcall(function() remote:FireServer(auraName) end)
+            pcall(function() remote:FireServer("buyAura", auraName) end)
+            ok = true
+        end
+    end)
+    return ok
+end
+
+local function sellAllPets()
+    pcall(function()
+        local sellRemote = RemoteEvents and RemoteEvents:FindFirstChild("sellPetEvent")
+        local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+        if not sellRemote or not petsFolder then
+            return
+        end
+        for _, rarityFolder in ipairs(petsFolder:GetChildren()) do
+            for _, pet in ipairs(rarityFolder:GetChildren()) do
+                sellRemote:FireServer("sellPet", pet)
+            end
+        end
+    end)
+end
+
+local function evolveAllPets()
+    pcall(function()
+        local evolveRemote = RemoteEvents and RemoteEvents:FindFirstChild("petEvolveEvent")
+        local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+        if not evolveRemote or not petsFolder then
+            return
+        end
+        for _, rarityFolder in ipairs(petsFolder:GetChildren()) do
+            for _, pet in ipairs(rarityFolder:GetChildren()) do
+                evolveRemote:FireServer("evolvePet", pet)
+                evolveRemote:FireServer("evolveTitan", pet)
+            end
+        end
+    end)
+end
+
+PetTab:Section({Title = "Auto Buy Pet"})
+PetTab:Paragraph({
+    Title = "Pet Shop",
+    Desc = "Select a pet A-Z then buy."
+})
+
+PetTab:Dropdown({
+    Title = "Pet selector (A-Z)",
+    Values = allPets,
+    Value = allPets[1],
+    Callback = function(Value)
+        getgenv().selectedBuyPet = Value
+    end
+})
+
+PetTab:Button({
+    Title = "Buy selected pet",
+    Callback = function()
+        local name = getgenv().selectedBuyPet
+        local ok = buyPetShop(name)
+        WindUI:Notify({
+            Title = "Buy Pet",
+            Content = ok and ("Bought request: " .. tostring(name)) or "Buy failed",
+            Duration = 2
+        })
+    end
+})
+
+PetTab:Toggle({
+    Title = "Auto buy pet",
+    Desc = "Keeps buying the selected pet",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoBuyPet = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoBuyPet do
+                    buyPetShop(getgenv().selectedBuyPet)
+                    task.wait(0.2)
+                end
+            end)
+        end
+    end
+})
+
+PetTab:Section({Title = "Aura"})
+
+PetTab:Dropdown({
+    Title = "Aura selector (A-Z)",
+    Values = allAuras,
+    Value = allAuras[1],
+    Callback = function(Value)
+        getgenv().selectedHatchAura = Value
+    end
+})
+
+PetTab:Button({
+    Title = "Buy selected aura",
+    Callback = function()
+        local name = getgenv().selectedHatchAura
+        local ok = buyAura(name)
+        WindUI:Notify({
+            Title = "Buy Aura",
+            Content = ok and ("Requested: " .. tostring(name)) or "Aura remote missing",
+            Duration = 2
+        })
+    end
+})
+
+PetTab:Toggle({
+    Title = "Auto buy aura",
+    Desc = "Keeps buying the selected aura",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoHatchAura = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoHatchAura do
+                    buyAura(getgenv().selectedHatchAura)
+                    task.wait(0.2)
+                end
+            end)
+        end
+    end
+})
+
+PetTab:Section({Title = "Sell / Evolve"})
+
+PetTab:Toggle({
+    Title = "Auto sell all pets",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoSellAll = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoSellAll do
+                    sellAllPets()
+                    task.wait(0.6)
+                end
+            end)
+        end
+    end
+})
+
+PetTab:Toggle({
+    Title = "Auto evolve all pets",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoEvolveAll = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoEvolveAll do
+                    evolveAllPets()
+                    task.wait(0.6)
+                end
+            end)
+        end
+    end
+})
+
+PetTab:Button({
+    Title = "Sell all pets once",
+    Callback = function()
+        sellAllPets()
+        WindUI:Notify({Title = "Pets", Content = "Sold all pets", Duration = 2})
+    end
+})
+
+PetTab:Button({
+    Title = "Evolve all pets once",
+    Callback = function()
+        evolveAllPets()
+        WindUI:Notify({Title = "Pets", Content = "Evolve all sent", Duration = 2})
+    end
+})
+
+--------------------------------------------------------------------
+-- BOSS FIGHT TAB
+--------------------------------------------------------------------
+BossTab:Section({Title = "Boss Fight"})
+BossTab:Paragraph({
+    Title = "Auto Boss",
+    Desc = "Low lag lock + attack (no chest)"
+})
+
+local bossRarities = {"Any", "Common", "Rare", "Epic", "Legendary", "Mythic", "Rainbow"}
+getgenv().selectedBossRarity = "Any"
+getgenv().autoKillBoss = false
+getgenv().bossSpawnInfo = "Scanning..."
+getgenv().lockedBoss = nil
+getgenv().bossHeight = 68
+getgenv().bossRange = 10
+getgenv()._bossCache = nil
+getgenv()._bossCacheT = 0
+getgenv()._bossParts = nil
+
+local playerNameSet = {}
+local function refreshPlayerNames()
+    playerNameSet = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        playerNameSet[plr.Name] = true
+        if plr.Character then
+            playerNameSet[plr.Character.Name] = true
+        end
+    end
+end
+
+local function getBossRoot(model)
+    if not model then
+        return nil
+    end
+    return model:FindFirstChild("HumanoidRootPart")
+        or model:FindFirstChild("Torso")
+        or model:FindFirstChild("UpperTorso")
+        or model:FindFirstChild("Root")
+        or model.PrimaryPart
+        or model:FindFirstChildWhichIsA("BasePart", true)
+end
+
+local function isBossPet(model)
+	if not model then return true end
+	local n = string.lower(model.Name)
+	if string.find(n, "pet") or string.find(n, "evolved") then
+		return true
+	end
+	for _, d in ipairs(model:GetDescendants()) do
+		if d:IsA("TextLabel") or d:IsA("TextButton") then
+			local t = string.lower(tostring(d.Text or ""))
+			if string.find(t, "pet") or string.find(t, "evolved") then
+				return true
+			end
+		elseif d:IsA("BillboardGui") then
+			for _, c in ipairs(d:GetDescendants()) do
+				if c:IsA("TextLabel") or c:IsA("TextButton") then
+					local t = string.lower(tostring(c.Text or ""))
+					if string.find(t, "pet") or string.find(t, "evolved") then
+						return true
+					end
+				end
+			end
+		end
+	end
+	local p = model.Parent
+	for _ = 1, 8 do
+		if not p then break end
+		if string.find(string.lower(p.Name), "pet") then
+			return true
+		end
+		p = p.Parent
+	end
+	return false
+end
+
+local function isLivingBoss(model)
+	if not model or not model:IsA("Model") or not model.Parent then
+		return false
+	end
+	if model == LocalPlayer.Character then
+		return false
+	end
+	if Players:GetPlayerFromCharacter(model) then
+		return false
+	end
+	if playerNameSet[model.Name] then
+		return false
+	end
+	if isBossPet(model) then
+		return false
+	end
+	local hum = model:FindFirstChildOfClass("Humanoid")
+	if not hum or hum.Health <= 0 then
+		return false
+	end
+	local root = getBossRoot(model)
+	if not root or not root.Parent then
+		return false
+	end
+	if root.Position.Y < -50 then
+		return false
+	end
+	return true, hum, root
+end
+
+local function clearBossTarget()
+	getgenv().lockedBoss = nil
+	getgenv()._bossCache = nil
+	getgenv()._bossParts = nil
+end
+
+local function rarityMatches(name)
+	local rarity = getgenv().selectedBossRarity or "Any"
+	if rarity == "Any" then
+		return true
+	end
+	local n, r = string.lower(name), string.lower(rarity)
+	if r == "legendary" or r == "legend" then
+		return string.find(n, "legend") ~= nil
+	end
+	if r == "mythic" or r == "myth" then
+		return string.find(n, "myth") ~= nil
+	end
+	if r == "rainbow" then
+		return string.find(n, "rainbow") ~= nil or string.find(n, "admin") ~= nil
+	end
+	return string.find(n, r) ~= nil
+end
+
+-- Real boss fights always have this hitbox. Pets do not.
+local function findBossHitbox(boss)
+	if boss then
+		for _, n in ipairs({"BossDamageHitbox", "BossHitbox", "DamageHitbox"}) do
+			local hb = boss:FindFirstChild(n, true)
+			if hb and hb:IsA("BasePart") then
+				return hb
+			end
+		end
+	end
+	for _, n in ipairs({"BossDamageHitbox", "BossHitbox"}) do
+		local hb = workspace:FindFirstChild(n, true)
+		if hb and hb:IsA("BasePart") then
+			return hb
+		end
+	end
+	return nil
+end
+
+local function modelNearPart(part, maxDist)
+	if not part then
+		return nil
+	end
+	local best, bestD = nil, maxDist or 80
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if obj:IsA("Humanoid") and obj.Health > 0 then
+			local model = obj.Parent
+			if model and model:IsA("Model") and isLivingBoss(model) then
+				local root = getBossRoot(model)
+				if root then
+					local d = (root.Position - part.Position).Magnitude
+					if d < bestD then
+						bestD = d
+						best = model
+					end
+				end
+			end
+		end
+	end
+	return best
+end
+
+local function findBossModel()
+	refreshPlayerNames()
+
+	if getgenv().lockedBoss and getgenv().lockedBoss.Parent and isLivingBoss(getgenv().lockedBoss) then
+		local hb = findBossHitbox(getgenv().lockedBoss)
+		-- keep lock only if real boss hitbox still exists nearby or on model
+		if hb or findBossHitbox() then
+			return getgenv().lockedBoss
+		end
+	end
+	getgenv().lockedBoss = nil
+
+	-- 1) hitbox first = only when a real boss fight is active
+	local hb = findBossHitbox()
+	if hb then
+		local model = hb:FindFirstAncestorOfClass("Model")
+		if model and isLivingBoss(model) then
+			getgenv().lockedBoss = model
+			return model
+		end
+		local near = modelNearPart(hb, 120)
+		if near then
+			getgenv().lockedBoss = near
+			return near
+		end
+	end
+
+	-- 2) named boss models (still require not pet + high hp)
+	for _, name in ipairs({
+		"Boss", "BossArena", "CommonBoss", "RareBoss", "EpicBoss",
+		"LegendaryBoss", "MythicBoss", "RainbowBoss", "CurrentBoss"
+	}) do
+		local m = workspace:FindFirstChild(name, true)
+		if m then
+			if not m:IsA("Model") then
+				m = m:FindFirstAncestorOfClass("Model") or m
+			end
+			if m:IsA("Model") and isLivingBoss(m) then
+				local hum = m:FindFirstChildOfClass("Humanoid")
+				if hum and hum.MaxHealth >= 1000 then
+					getgenv().lockedBoss = m
+					return m
+				end
+			end
+		end
+	end
+
+	-- 3) folders that only exist for boss content
+	for _, folderName in ipairs({"Bosses", "BossArena", "Boss", "Raids", "Raid"}) do
+		local folder = workspace:FindFirstChild(folderName)
+		if folder then
+			for _, obj in ipairs(folder:GetDescendants()) do
+				if obj:IsA("Model") and isLivingBoss(obj) then
+					local hum = obj:FindFirstChildOfClass("Humanoid")
+					if hum and hum.MaxHealth >= 1000 then
+						getgenv().lockedBoss = obj
+						return obj
+					end
+				end
+			end
+		end
+	end
+
+	-- no real boss up (lobby / pets only)
+	return nil
+end
+
+local function bossPunch()
+	local punch = equipPunch()
+	local ev = LocalPlayer:FindFirstChild("muscleEvent") or MuscleEvent
+	if punch then
+		pcall(function()
+			punch:Activate()
+		end)
+	end
+	if ev then
+		ev:FireServer("punch", "leftHand")
+		ev:FireServer("punch", "rightHand")
+		ev:FireServer("punch")
+	end
+end
+
+local function bossPunchFast()
+	-- keep Punch equipped forever while fighting; low-lag remote spam
+	local char = LocalPlayer.Character
+	local punch = char and char:FindFirstChild("Punch")
+	if not punch then
+		punch = equipPunch()
+	end
+	local ev = LocalPlayer:FindFirstChild("muscleEvent") or MuscleEvent
+	if punch then
+		pcall(function() punch:Activate() end)
+	end
+	if ev then
+		for _ = 1, 8 do
+			ev:FireServer("punch", "leftHand")
+			ev:FireServer("punch", "rightHand")
+			ev:FireServer("punch")
+		end
+	end
+end
+
+local function bossHeavy()
+    local ev = LocalPlayer:FindFirstChild("muscleEvent") or MuscleEvent
+    if not ev then
+        return
+    end
+    pcall(function()
+        local bag = LocalPlayer:FindFirstChild("Backpack")
+        local char = LocalPlayer.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if bag and hum then
+            local stomp = bag:FindFirstChild("Stomp") or char:FindFirstChild("Stomp")
+            local slam = bag:FindFirstChild("Ground Slam") or char:FindFirstChild("Ground Slam")
+            if stomp and stomp.Parent == bag then
+                hum:EquipTool(stomp)
+            elseif slam and slam.Parent == bag then
+                hum:EquipTool(slam)
+            end
+        end
+        ev:FireServer("stomp")
+        ev:FireServer("slam")
+        equipPunch()
+    end)
+end
+
+local function ensureBossAntiKnock(myRoot)
+    if not myRoot then
+        return
+    end
+    local bv = myRoot:FindFirstChild("DAN_BOSS_BV")
+    if not bv then
+        bv = Instance.new("BodyVelocity")
+        bv.Name = "DAN_BOSS_BV"
+        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+        bv.P = 1250
+        bv.Parent = myRoot
+    end
+    bv.Velocity = Vector3.new(0, 0, 0)
+end
+
+local function clearBossAntiKnock(myRoot)
+    if myRoot then
+        local bv = myRoot:FindFirstChild("DAN_BOSS_BV")
+        if bv then
+            bv:Destroy()
+        end
+    end
+end
+
+local function bossStick(myRoot, bossRoot)
+	local h = tonumber(getgenv().bossHeight) or 68
+	local range = tonumber(getgenv().bossRange) or 6
+	-- stay above boss and follow
+	local pos = bossRoot.Position + Vector3.new(0, h, 0)
+	myRoot.CFrame = CFrame.new(pos, bossRoot.Position)
+	pcall(function()
+		myRoot.AssemblyLinearVelocity = Vector3.zero
+	end)
+	ensureBossAntiKnock(myRoot)
+end
+
+local function bossDodge(myRoot, bossRoot)
+    local h = tonumber(getgenv().bossHeight) or 10
+    local range = tonumber(getgenv().bossRange) or 8
+    local side = Vector3.new(1, 0, 0)
+    local away = (myRoot.Position - bossRoot.Position)
+    if away.Magnitude > 0.1 then
+        side = away:Cross(Vector3.new(0, 1, 0))
+        if side.Magnitude > 0.1 then
+            side = side.Unit
+        end
+    end
+    local dir = (math.random(0, 1) == 0) and 1 or -1
+    local pos = bossRoot.Position + side * (range + 6) * dir + Vector3.new(0, h, 0)
+    myRoot.CFrame = CFrame.new(pos, bossRoot.Position)
+    ensureBossAntiKnock(myRoot)
+end
+
+-- Cache boss body parts (no workspace scan every frame = less lag)
+local function refreshBossParts(bossModel, hitbox)
+	local targets = {}
+	if hitbox then
+		targets[#targets + 1] = hitbox
+	end
+	if bossModel then
+		for _, p in ipairs(bossModel:GetDescendants()) do
+			if p:IsA("BasePart") then
+				targets[#targets + 1] = p
+			end
+		end
+	end
+	getgenv()._bossParts = targets
+	return targets
+end
+
+local function ensureHugeHitbox(myRoot)
+	if not myRoot then return end
+	local box = myRoot:FindFirstChild("DAN_HUGE_HB")
+	if not box then
+		box = Instance.new("Part")
+		box.Name = "DAN_HUGE_HB"
+		box.Anchored = false
+		box.CanCollide = false
+		box.Massless = true
+		box.Transparency = 1
+		box.Size = Vector3.new(80, 80, 80)
+		box.Parent = myRoot
+		local w = Instance.new("WeldConstraint")
+		w.Part0 = myRoot
+		w.Part1 = box
+		w.Parent = box
+	end
+	box.CFrame = myRoot.CFrame
+	return box
+end
+
+local function hitBossCached(myRoot)
+	local targets = getgenv()._bossParts
+	if not myRoot or not targets then return end
+	local huge = ensureHugeHitbox(myRoot)
+	if firetouchinterest then
+		for i = 1, #targets do
+			local part = targets[i]
+			if part and part.Parent then
+				pcall(firetouchinterest, part, myRoot, 0)
+				pcall(firetouchinterest, part, myRoot, 1)
+				if huge then
+					pcall(firetouchinterest, part, huge, 0)
+					pcall(firetouchinterest, part, huge, 1)
+				end
+			end
+		end
+	end
+end
+
+local function bossHitCycle(myRoot, targetPart, boss, hitbox)
+	if not myRoot or not targetPart then return end
+	equipPunch()
+	-- always follow boss at height
+	bossStick(myRoot, targetPart)
+	hitBossCached(myRoot)
+	bossPunchFast()
+	-- quick touch then stay high
+	myRoot.CFrame = CFrame.new(targetPart.Position + Vector3.new(0, 6, 0), targetPart.Position)
+	hitBossCached(myRoot)
+	bossPunchFast()
+	bossStick(myRoot, targetPart)
+	hitBossCached(myRoot)
+	bossPunchFast()
+end
+
+-- Hide game boss reward / menu popup (the panel in screenshot)
+getgenv().hideBossUI = true
+local function hideBossPopup()
+    if getgenv().hideBossUI == false then
+        return
+    end
+    local pg = LocalPlayer:FindFirstChild("PlayerGui")
+    if not pg then
+        return
+    end
+    for _, gui in ipairs(pg:GetChildren()) do
+        local n = string.lower(gui.Name)
+        if string.find(n, "boss") or string.find(n, "reward") or string.find(n, "chest") then
+            pcall(function()
+                if gui:IsA("ScreenGui") or gui:IsA("GuiMain") then
+                    gui.Enabled = false
+                end
+            end)
+        end
+        for _, d in ipairs(gui:GetDescendants()) do
+            if d:IsA("TextLabel") or d:IsA("TextButton") then
+                local t = string.lower(d.Text or "")
+                if string.find(t, "click for rewards") or string.find(t, "chest rewards")
+                    or string.find(t, "common boss") or string.find(t, "spawn rate") then
+                    local root = d
+                    for _ = 1, 8 do
+                        if root.Parent and root.Parent ~= pg then
+                            root = root.Parent
+                        else
+                            break
+                        end
+                    end
+                    pcall(function()
+                        if root:IsA("ScreenGui") then
+                            root.Enabled = false
+                        elseif root:IsA("Frame") or root:IsA("ImageLabel") then
+                            root.Visible = false
+                        end
+                    end)
+                end
+            end
+        end
+    end
+end
+
+BossTab:Dropdown({
+    Title = "Boss rarity filter",
+    Values = bossRarities,
+    Value = "Any",
+    Callback = function(Value)
+        getgenv().selectedBossRarity = Value
+        getgenv().lockedBoss = nil
+    end
+})
+
+BossTab:Dropdown({
+    Title = "Fight height",
+    Values = {"54", "58", "62", "68", "72"},
+    Value = "68",
+    Callback = function(Value)
+        local n = tonumber(Value)
+        if n then
+            getgenv().bossHeight = n
+        end
+    end
+})
+
+BossTab:Dropdown({
+    Title = "Distance from boss",
+    Values = {"6", "8", "10", "12", "15"},
+    Value = "10",
+    Callback = function(Value)
+        local n = tonumber(Value)
+        if n then
+            getgenv().bossRange = n
+        end
+    end
+})
+
+BossTab:Button({
+    Title = "Find & TP to boss",
+    Callback = function()
+        getgenv().lockedBoss = nil
+        local boss = findBossModel()
+        local hitbox = findBossHitbox(boss)
+        local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local root = boss and getBossRoot(boss) or hitbox
+        if root and myRoot then
+            refreshBossParts(boss, hitbox)
+            bossStick(myRoot, root)
+        end
+        hideBossPopup()
+    end
+})
+
+BossTab:Toggle({
+    Title = "Auto Boss",
+    Desc = "Low lag follow + fast punch",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoKillBoss = Value
+        if Value then
+            task.spawn(function()
+                local lastHealth = nil
+                local tickN = 0
+                local cachedBoss, cachedHitbox, cachedRoot = nil, nil, nil
+                local lastScan, lastPopup, lastEquip = 0, 0, 0
+                while getgenv().autoKillBoss do
+                    pcall(function()
+                        local now = tick()
+                        -- scan boss less often (less lag)
+                        if now - lastScan > 0.35 or not cachedBoss or not cachedBoss.Parent then
+                            lastScan = now
+                            cachedBoss = findBossModel()
+                            cachedHitbox = findBossHitbox(cachedBoss)
+                            if cachedBoss and isLivingBoss(cachedBoss) then
+                                cachedRoot = getBossRoot(cachedBoss)
+                                if now - lastScan > 0.34 then
+                                    refreshBossParts(cachedBoss, cachedHitbox)
+                                end
+                            else
+                                cachedBoss, cachedHitbox, cachedRoot = nil, cachedHitbox, nil
+                            end
+                        end
+
+                        if now - lastPopup > 2 then
+                            lastPopup = now
+                            hideBossPopup()
+                        end
+
+                        local boss, hitbox = cachedBoss, cachedHitbox
+                        if not boss and not hitbox then
+                            clearBossTarget()
+                            return
+                        end
+                        if boss and not isLivingBoss(boss) then
+                            clearBossTarget()
+                            cachedBoss = nil
+                            return
+                        end
+
+                        local char = LocalPlayer.Character
+                        local myRoot = char and char:FindFirstChild("HumanoidRootPart")
+                        local myHum = char and char:FindFirstChildOfClass("Humanoid")
+                        if not myRoot then
+                            return
+                        end
+
+                        local targetPart = cachedRoot or (boss and getBossRoot(boss)) or hitbox
+                        if not targetPart or not targetPart.Parent then
+                            clearBossTarget()
+                            cachedBoss = nil
+                            return
+                        end
+                        if targetPart.Position.Y < -50 then
+                            clearBossTarget()
+                            cachedBoss = nil
+                            return
+                        end
+
+                        -- keep Punch equipped the whole fight
+                        local held = char and char:FindFirstChild("Punch")
+                        if not held then
+                            equipPunch()
+                        end
+
+                        bossStick(myRoot, targetPart)
+
+                        -- only touch hitbox (not every boss part)
+                        if hitbox and firetouchinterest then
+                            pcall(firetouchinterest, hitbox, myRoot, 0)
+                            pcall(firetouchinterest, hitbox, myRoot, 1)
+                            local huge = myRoot:FindFirstChild("DAN_HUGE_HB")
+                            if huge then
+                                pcall(firetouchinterest, hitbox, huge, 0)
+                                pcall(firetouchinterest, hitbox, huge, 1)
+                            else
+                                ensureHugeHitbox(myRoot)
+                            end
+                        else
+                            hitBossCached(myRoot)
+                        end
+
+                        -- fast punch (optimized)
+                        bossPunchFast()
+
+                        if myHum and lastHealth and myHum.Health < lastHealth - 2 then
+                            bossDodge(myRoot, targetPart)
+                            bossStick(myRoot, targetPart)
+                        end
+                        if myHum then
+                            lastHealth = myHum.Health
+                        end
+                    end)
+                    -- tight loop for punch rate, scans already throttled
+                    task.wait(0.03)
+                end
+            end)
+        else
+            clearBossTarget()
+            local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if myRoot then
+                local bv = myRoot:FindFirstChild("DAN_BOSS_BV")
+                if bv then bv:Destroy() end
+            end
+        end
+    end
+})
+
+BossTab:Toggle({
+    Title = "Hide boss popup UI",
+    Desc = "Hides reward / boss menu panel",
+    Value = true,
+    Callback = function(Value)
+        getgenv().hideBossUI = Value
+        if Value then
+            hideBossPopup()
+        end
+    end
+})
+
+local bossSpawnParagraph = BossTab:Paragraph({
+    Title = "Boss status / spawn",
+    Desc = "Scanning..."
+})
+
+task.spawn(function()
+    while true do
+        local info = "No timer found"
+        pcall(function()
+            local found = {}
+            local boss = findBossModel()
+            if boss then
+                local hum = boss:FindFirstChildOfClass("Humanoid")
+                local hp = hum and (math.floor(hum.Health) .. "/" .. math.floor(hum.MaxHealth)) or "?"
+                table.insert(found, "TARGET: " .. boss.Name .. " HP " .. hp)
+            end
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                local n = string.lower(obj.Name)
+                if string.find(n, "boss") or string.find(n, "spawn") or string.find(n, "timer") or string.find(n, "raid") then
+                    if obj:IsA("StringValue") or obj:IsA("NumberValue") or obj:IsA("IntValue") then
+                        table.insert(found, obj.Name .. "=" .. tostring(obj.Value))
+                    elseif obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                        local t = obj.Text
+                        if t and #t > 0 and #t < 80 then
+                            local low = string.lower(t)
+                            if string.find(low, "boss") or string.find(low, "spawn") or string.find(t, ":") then
+                                table.insert(found, t)
+                            end
+                        end
+                    end
+                end
+            end
+            local pg = LocalPlayer:FindFirstChild("PlayerGui")
+            if pg then
+                for _, obj in ipairs(pg:GetDescendants()) do
+                    if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                        local t = obj.Text or ""
+                        local low = string.lower(t)
+                        if (string.find(low, "boss") or string.find(low, "spawn") or string.find(low, "raid")) and #t < 100 then
+                            table.insert(found, t)
+                        end
+                    end
+                end
+            end
+            if #found > 0 then
+                info = table.concat(found, " | ")
+                if #info > 200 then
+                    info = string.sub(info, 1, 200) .. "..."
+                end
+            else
+                info = "No active boss / timer not found"
+            end
+        end)
+        getgenv().bossSpawnInfo = info
+        pcall(function()
+            if bossSpawnParagraph and bossSpawnParagraph.SetDesc then
+                bossSpawnParagraph:SetDesc(info)
+            end
+        end)
+        task.wait(3)
+    end
+end)
+
+BossTab:Button({
+    Title = "Refresh boss status",
+    Callback = function()
+        WindUI:Notify({
+            Title = "Boss Status",
+            Content = tostring(getgenv().bossSpawnInfo or "Scanning..."),
+            Duration = 4
+        })
+    end
+})
+
+TeleportTab:Section({Title = "Teleport Locations"})
+
+for _, gymInfo in ipairs(gyms) do
+    TeleportTab:Button({
+        Title = "Teleport to " .. gymInfo[1],
+        Callback = function()
+            teleportTo(gymInfo[2])
+        end
+    })
+end
+
+MiscTab:Section({Title = "Quests & Rewards"})
+
+MiscTab:Toggle({
+    Title = "Auto Claim Quest",
+    Desc = "Automatically claims available quests",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoQuest = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoQuest do
+                    pcall(function()
+                        local r = RemoteEvents:FindFirstChild("questRemote")
+                            or RemoteEvents:FindFirstChild("claimQuestRemote")
+                            or RemoteEvents:FindFirstChild("questsEvent")
+                        if r then
+                            if r:IsA("RemoteEvent") then
+                                r:FireServer("claimQuest")
+                                r:FireServer("claimAll")
+                            else
+                                r:InvokeServer("claimQuest")
+                                r:InvokeServer("claimAll")
+                            end
+                        end
+                    end)
+                    task.wait(2)
+                end
+            end)
+        end
+    end
+})
+
+MiscTab:Toggle({
+    Title = "Auto Spin (Fortune)",
+    Desc = "Automatically spins the daily fortune wheel",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoSpin = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoSpin do
+                    pcall(function()
+                        local Event = ReplicatedStorage.rEvents.openFortuneWheelRemote
+                        local chances = ReplicatedStorage.shared.catalogs.fortuneWheelChances["Fortune Wheel"]
+                        Event:InvokeServer("openFortuneWheel", chances)
+                    end)
+                    task.wait(3)
+                end
+            end)
+        end
+    end
+})
+
+MiscTab:Section({Title = "Tools"})
+
+MiscTab:Toggle({
+    Title = "Double Equip (Weight + Pushups)",
+    Desc = "Keeps both Weight and Pushups ready",
+    Value = false,
+    Callback = function(Value)
+        getgenv().doubleEquip = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().doubleEquip do
+                    pcall(function()
+                        local char = LocalPlayer.Character
+                        local bp = LocalPlayer:FindFirstChild("Backpack")
+                        if not char or not bp then
+                            return
+                        end
+                        local w = bp:FindFirstChild("Weight") or char:FindFirstChild("Weight")
+                        local p = bp:FindFirstChild("Pushups")
+                            or char:FindFirstChild("Pushups")
+                            or bp:FindFirstChild("Push Ups")
+                            or char:FindFirstChild("Push Ups")
+                        if w and w.Parent == bp then
+                            char.Humanoid:EquipTool(w)
+                            task.wait(0.15)
+                        end
+                        if p and p.Parent == bp then
+                            char.Humanoid:EquipTool(p)
+                        end
+                    end)
+                    task.wait(0.8)
+                end
+            end)
+        end
+    end
+})
+
+RocksTab:Section({Title = "MUST HAVE THE REQUIREMENT FOR THE ROCK"})
+RocksTab:Paragraph({
+    Title = "Requirement Info",
+    Desc = "You need enough Durability. Only enable 1 rock at a time."
+})
+RocksTab:Section({Title = "Auto Punch Rocks"})
+
+RocksTab:Paragraph({Title = "Tiny Island Rock", Desc = "Requirement: 0 Durability"})
+RocksTab:Toggle({
+    Title = "Auto Punch Tiny Island Rock",
+    Value = false,
+    Callback = function(Value)
+        getgenv().punchTiny = Value
+        if Value then
+            punchRockLoop("punchTiny", "Tiny Rock")
+        end
+    end
+})
+
+RocksTab:Paragraph({Title = "Frozen Island Rock", Desc = "Requirement: 150K Durability"})
+RocksTab:Toggle({
+    Title = "Auto Punch Frozen Island Rock",
+    Value = false,
+    Callback = function(Value)
+        getgenv().punchFrozen = Value
+        if Value then
+            punchRockLoop("punchFrozen", "Frozen Rock")
+        end
+    end
+})
+
+RocksTab:Paragraph({Title = "Mythical Island Rock", Desc = "Requirement: 400K Durability"})
+RocksTab:Toggle({
+    Title = "Auto Punch Mythical Island Rock",
+    Value = false,
+    Callback = function(Value)
+        getgenv().punchMythical = Value
+        if Value then
+            punchRockLoop("punchMythical", "Mythical Rock")
+        end
+    end
+})
+
+RocksTab:Paragraph({Title = "Hell Island Rock", Desc = "Requirement: 750K Durability"})
+RocksTab:Toggle({
+    Title = "Auto Punch Hell Island Rock",
+    Value = false,
+    Callback = function(Value)
+        getgenv().punchHell = Value
+        if Value then
+            punchRockLoop("punchHell", "Inferno Rock")
+        end
+    end
+})
+
+RocksTab:Paragraph({Title = "Legend Rock", Desc = "Requirement: 1M Durability"})
+RocksTab:Toggle({
+    Title = "Auto Punch Legend Rock",
+    Value = false,
+    Callback = function(Value)
+        getgenv().punchLegend = Value
+        if Value then
+            punchRockLoop("punchLegend", "Rock Of Legends")
+        end
+    end
+})
+
+RocksTab:Paragraph({Title = "Muscle King Rock", Desc = "Requirement: 5M Durability"})
+RocksTab:Toggle({
+    Title = "Auto Punch Muscle King Rock",
+    Value = false,
+    Callback = function(Value)
+        getgenv().punchMuscleKing = Value
+        if Value then
+            punchRockLoop("punchMuscleKing", "Muscle King Mountain")
+        end
+    end
+})
+
+RocksTab:Paragraph({Title = "Jungle Rock", Desc = "Requirement: 10M Durability"})
+RocksTab:Toggle({
+    Title = "Auto Punch Jungle Rock",
+    Value = false,
+    Callback = function(Value)
+        getgenv().punchJungle = Value
+        if Value then
+            punchRockLoop("punchJungle", "Ancient Jungle Rock")
+        end
+    end
+})
+
+RocksTab:Paragraph({Title = "Industrial Rock", Desc = "Requirement: Check in-game"})
+RocksTab:Toggle({
+    Title = "Auto Punch Industrial Rock",
+    Value = false,
+    Callback = function(Value)
+        getgenv().punchIndustrial = Value
+        if Value then
+            punchRockLoop("punchIndustrial", "Industrial Rock")
+        end
+    end
+})
+
+
+--------------------------------------------------------------------
+-- STAT TRACKING (local player gains)
+--------------------------------------------------------------------
+local function readLocalStats()
+    local stats = {
+        Strength = 0,
+        Durability = 0,
+        Rebirths = 0,
+        Kills = 0,
+        Brawls = 0
+    }
+    pcall(function()
+        local ls = LocalPlayer:FindFirstChild("leaderstats")
+        if ls then
+            for _, v in ipairs(ls:GetChildren()) do
+                local n = string.lower(v.Name)
+                local val = tonumber(v.Value) or 0
+                if string.find(n, "stren") then
+                    stats.Strength = val
+                elseif string.find(n, "dura") then
+                    stats.Durability = val
+                elseif string.find(n, "rebirth") then
+                    stats.Rebirths = val
+                elseif string.find(n, "kill") then
+                    stats.Kills = val
+                elseif string.find(n, "brawl") then
+                    stats.Brawls = val
+                end
+            end
+        end
+        -- Muscle Legends often stores more under player folders
+        for _, folderName in ipairs({"MuscleStats", "stats", "Stats", "playerStats"}) do
+            local f = LocalPlayer:FindFirstChild(folderName)
+            if f then
+                for _, v in ipairs(f:GetDescendants()) do
+                    if v:IsA("NumberValue") or v:IsA("IntValue") then
+                        local n = string.lower(v.Name)
+                        local val = tonumber(v.Value) or 0
+                        if string.find(n, "stren") and val > stats.Strength then
+                            stats.Strength = val
+                        elseif string.find(n, "dura") and val > stats.Durability then
+                            stats.Durability = val
+                        elseif string.find(n, "rebirth") and val > stats.Rebirths then
+                            stats.Rebirths = val
+                        end
+                    end
+                end
+            end
+        end
+    end)
+    return stats
+end
+
+local function formatNum(n)
+    n = tonumber(n) or 0
+    local abs = math.abs(n)
+    if abs >= 1e12 then
+        return string.format("%.2fT", n / 1e12)
+    elseif abs >= 1e9 then
+        return string.format("%.2fB", n / 1e9)
+    elseif abs >= 1e6 then
+        return string.format("%.2fM", n / 1e6)
+    elseif abs >= 1e3 then
+        return string.format("%.2fK", n / 1e3)
+    end
+    return string.format("%.0f", n)
+end
+
+local statStart = readLocalStats()
+local statStartTime = os.clock()
+local lastStatSnapshot = {
+    Strength = statStart.Strength,
+    Durability = statStart.Durability
+}
+
+local function ratesFor(delta, seconds)
+    if seconds <= 0 then
+        return 0, 0, 0, 0, 0, 0
+    end
+    local perSec = delta / seconds
+    return perSec * 60, perSec * 3600, perSec * 86400, perSec * 604800, perSec * 2592000, perSec * 31536000
+end
+
+StatTab:Section({Title = "Your Gain Rates"})
+StatTab:Paragraph({
+    Title = "How it works",
+    Desc = "Tracks Strength & Durability from when the script loaded. Farm to see rates update."
+})
+
+local strengthPara = StatTab:Paragraph({
+    Title = "Strength Rates",
+    Desc = "Loading..."
+})
+local duraPara = StatTab:Paragraph({
+    Title = "Durability Rates",
+    Desc = "Loading..."
+})
+local summaryPara = StatTab:Paragraph({
+    Title = "Session Summary",
+    Desc = "Loading..."
+})
+
+StatTab:Button({
+    Title = "Reset STAT Timer",
+    Callback = function()
+        statStart = readLocalStats()
+        statStartTime = os.clock()
+        lastStatSnapshot = {
+            Strength = statStart.Strength,
+            Durability = statStart.Durability
+        }
+        WindUI:Notify({
+            Title = "STAT",
+            Content = "Timer reset!",
+            Duration = 2
+        })
+    end
+})
+
+StatTab:Button({
+    Title = "Refresh STAT Now",
+    Callback = function()
+        local now = readLocalStats()
+        local elapsed = math.max(os.clock() - statStartTime, 1)
+        local dStr = now.Strength - statStart.Strength
+        local dDur = now.Durability - statStart.Durability
+        local sMin, sHr, sDay, sWk, sMo, sYr = ratesFor(dStr, elapsed)
+        local dMin, dHr, dDay, dWk, dMo, dYr = ratesFor(dDur, elapsed)
+        pcall(function()
+            strengthPara:SetDesc(
+                "Per min: " .. formatNum(sMin) ..
+                "\nPer hour: " .. formatNum(sHr) ..
+                "\nPer day: " .. formatNum(sDay) ..
+                "\nPer week: " .. formatNum(sWk) ..
+                "\nPer month: " .. formatNum(sMo) ..
+                "\nPer year: " .. formatNum(sYr)
+            )
+        end)
+        pcall(function()
+            duraPara:SetDesc(
+                "Per min: " .. formatNum(dMin) ..
+                "\nPer hour: " .. formatNum(dHr) ..
+                "\nPer day: " .. formatNum(dDay) ..
+                "\nPer week: " .. formatNum(dWk) ..
+                "\nPer month: " .. formatNum(dMo) ..
+                "\nPer year: " .. formatNum(dYr)
+            )
+        end)
+        pcall(function()
+            summaryPara:SetDesc(
+                "Elapsed: " .. string.format("%.0fs", elapsed) ..
+                "\nStrength gained: " .. formatNum(dStr) ..
+                "\nDurability gained: " .. formatNum(dDur) ..
+                "\nCurrent STR: " .. formatNum(now.Strength) ..
+                "\nCurrent DUR: " .. formatNum(now.Durability)
+            )
+        end)
+    end
+})
+
+task.spawn(function()
+    while true do
+        task.wait(3)
+        local now = readLocalStats()
+        local elapsed = math.max(os.clock() - statStartTime, 1)
+        local dStr = now.Strength - statStart.Strength
+        local dDur = now.Durability - statStart.Durability
+        local sMin, sHr, sDay, sWk, sMo, sYr = ratesFor(dStr, elapsed)
+        local dMin, dHr, dDay, dWk, dMo, dYr = ratesFor(dDur, elapsed)
+        pcall(function()
+            strengthPara:SetDesc(
+                "Per min: " .. formatNum(sMin) ..
+                " | Per hour: " .. formatNum(sHr) ..
+                " | Per day: " .. formatNum(sDay) ..
+                "\nPer week: " .. formatNum(sWk) ..
+                " | Per month: " .. formatNum(sMo) ..
+                " | Per year: " .. formatNum(sYr)
+            )
+        end)
+        pcall(function()
+            duraPara:SetDesc(
+                "Per min: " .. formatNum(dMin) ..
+                " | Per hour: " .. formatNum(dHr) ..
+                " | Per day: " .. formatNum(dDay) ..
+                "\nPer week: " .. formatNum(dWk) ..
+                " | Per month: " .. formatNum(dMo) ..
+                " | Per year: " .. formatNum(dYr)
+            )
+        end)
+        pcall(function()
+            summaryPara:SetDesc(
+                "Elapsed: " .. string.format("%.0fs", elapsed) ..
+                " | STR +" .. formatNum(dStr) ..
+                " | DUR +" .. formatNum(dDur) ..
+                "\nNow STR: " .. formatNum(now.Strength) ..
+                " | Now DUR: " .. formatNum(now.Durability)
+            )
+        end)
+    end
+end)
+
+--------------------------------------------------------------------
+-- STAT SPY (other players)
+--------------------------------------------------------------------
+local function readPlayerStats(player)
+    local stats = {
+        Strength = nil,
+        Durability = nil,
+        Agility = nil,
+        Rebirths = nil,
+        Kills = nil,
+        Brawls = nil
+    }
+    if not player then
+        return stats
+    end
+    pcall(function()
+        local function applyName(n, val)
+            local low = string.lower(tostring(n))
+            if string.find(low, "stren") then
+                stats.Strength = val
+            elseif string.find(low, "dura") then
+                stats.Durability = val
+            elseif string.find(low, "agil") or string.find(low, "speed") then
+                stats.Agility = val
+            elseif string.find(low, "rebirth") then
+                stats.Rebirths = val
+            elseif string.find(low, "kill") then
+                stats.Kills = val
+            elseif string.find(low, "brawl") then
+                stats.Brawls = val
+            else
+                stats[tostring(n)] = val
+            end
+        end
+        local ls = player:FindFirstChild("leaderstats")
+        if ls then
+            for _, v in ipairs(ls:GetChildren()) do
+                if v:IsA("NumberValue") or v:IsA("IntValue") or v:IsA("StringValue") then
+                    applyName(v.Name, v.Value)
+                end
+            end
+        end
+        for _, folderName in ipairs({"MuscleStats", "stats", "Stats", "playerStats", "Data", "data"}) do
+            local f = player:FindFirstChild(folderName)
+            if f then
+                for _, v in ipairs(f:GetDescendants()) do
+                    if v:IsA("NumberValue") or v:IsA("IntValue") then
+                        applyName(v.Name, v.Value)
+                    end
+                end
+            end
+        end
+        -- common alternate attribute names
+        for _, attr in ipairs({"Durability", "durability", "Dura", "dura", "Strength", "strength", "Agility", "agility"}) do
+            local ok, val = pcall(function()
+                return player:GetAttribute(attr)
+            end)
+            if ok and val ~= nil then
+                applyName(attr, val)
+            end
+        end
+    end)
+    return stats
+end
+
+local function playerList()
+    local names = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then
+            names[#names + 1] = p.Name
+        end
+    end
+    table.sort(names)
+    if #names == 0 then
+        names[1] = "(no other players)"
+    end
+    return names
+end
+
+local selectedSpyPlayer = nil
+local spyNames = playerList()
+
+StatSpyTab:Section({Title = "Spy Other Players"})
+StatSpyTab:Paragraph({
+    Title = "Info",
+    Desc = "Select a player then view their visible stats (leaderstats / public values)."
+})
+
+local spyDropdown = StatSpyTab:Dropdown({
+    Title = "Select Player",
+    Values = spyNames,
+    Value = spyNames[1],
+    Callback = function(Option)
+        selectedSpyPlayer = Option
+    end
+})
+
+local spyResult = StatSpyTab:Paragraph({
+    Title = "Player Stats",
+    Desc = "Select a player and press Refresh / Spy"
+})
+
+StatSpyTab:Button({
+    Title = "Refresh Player List",
+    Callback = function()
+        spyNames = playerList()
+        pcall(function()
+            if spyDropdown.Refresh then
+                spyDropdown:Refresh(spyNames)
+            elseif spyDropdown.SetValues then
+                spyDropdown:SetValues(spyNames)
+            end
+        end)
+        selectedSpyPlayer = spyNames[1]
+        WindUI:Notify({
+            Title = "STAT SPY",
+            Content = "Player list refreshed (" .. tostring(#spyNames) .. ")",
+            Duration = 2
+        })
+    end
+})
+
+StatSpyTab:Button({
+    Title = "Spy Selected Player",
+    Callback = function()
+        local name = selectedSpyPlayer or spyNames[1]
+        if not name or name == "(no other players)" then
+            WindUI:Notify({
+                Title = "STAT SPY",
+                Content = "No player selected",
+                Duration = 2
+            })
+            return
+        end
+        local plr = Players:FindFirstChild(name)
+        if not plr then
+            WindUI:Notify({
+                Title = "STAT SPY",
+                Content = "Player left the server",
+                Duration = 2
+            })
+            return
+        end
+        local stats = readPlayerStats(plr)
+        local lines = {"Player: " .. plr.Name .. " (@" .. plr.DisplayName .. ")"}
+        local order = {"Strength", "Durability", "Agility", "Rebirths", "Kills", "Brawls"}
+        local shown = {}
+        local count = 0
+        for _, key in ipairs(order) do
+            if stats[key] ~= nil then
+                lines[#lines + 1] = key .. ": " .. formatNum(stats[key])
+                shown[key] = true
+                count = count + 1
+            end
+        end
+        for k, v in pairs(stats) do
+            if not shown[k] and v ~= nil then
+                lines[#lines + 1] = tostring(k) .. ": " .. formatNum(v)
+                count = count + 1
+            end
+        end
+        if count == 0 then
+            lines[#lines + 1] = "No public stats found (may be hidden server-side)"
+        end
+        if stats.Durability == nil then
+            lines[#lines + 1] = "Durability: (not visible on this player)"
+        end
+        pcall(function()
+            spyResult:SetDesc(table.concat(lines, "\n"))
+        end)
+        WindUI:Notify({
+            Title = "STAT SPY",
+            Content = "Spyed " .. plr.Name,
+            Duration = 2
+        })
+    end
+})
+
+Players.PlayerAdded:Connect(function()
+    task.wait(0.5)
+    spyNames = playerList()
+end)
+Players.PlayerRemoving:Connect(function()
+    task.wait(0.2)
+    spyNames = playerList()
+end)
+
+
+-- ===================== KILLING TAB =====================
+local function killPlayerList()
+    local names = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            names[#names + 1] = plr.Name
+        end
+    end
+    table.sort(names)
+    if #names == 0 then
+        names[1] = "No players"
+    end
+    return names
+end
+
+local function getPlayerByName(name)
+    if not name or name == "No players" then
+        return nil
+    end
+    return Players:FindFirstChild(name)
+end
+
+local function punchTarget(plr)
+    if not plr or not plr.Character then
+        return
+    end
+    local targetRoot = plr.Character:FindFirstChild("HumanoidRootPart")
+    local myChar = LocalPlayer.Character
+    local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    if not targetRoot or not myRoot then
+        return
+    end
+    myRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 3)
+    local punch = equipPunch()
+    if punch then
+        punch:Activate()
+    end
+    if MuscleEvent then
+        MuscleEvent:FireServer("punch")
+        MuscleEvent:FireServer("rep")
+    end
+end
+
+local function isWhitelisted(name)
+    if not name then
+        return false
+    end
+    for _, n in ipairs(getgenv().whitelistNames) do
+        if n == name then
+            return true
+        end
+    end
+    return false
+end
+
+KillingTab:Section({Title = "Kill Selected Player"})
+
+local killNames = killPlayerList()
+local killDropdown = KillingTab:Dropdown({
+    Title = "Player Selector to kill",
+    Values = killNames,
+    Value = killNames[1],
+    Callback = function(Value)
+        getgenv().selectedKillPlayer = Value
+    end
+})
+
+KillingTab:Button({
+    Title = "Refresh",
+    Callback = function()
+        killNames = killPlayerList()
+        pcall(function()
+            killDropdown:Refresh(killNames)
+        end)
+        WindUI:Notify({
+            Title = "KILLING",
+            Content = "Player list refreshed",
+            Duration = 2
+        })
+    end
+})
+
+KillingTab:Toggle({
+    Title = "Auto kill selected player",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoKillSelected = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoKillSelected do
+                    pcall(function()
+                        local plr = getPlayerByName(getgenv().selectedKillPlayer)
+                        if plr then
+                            punchTarget(plr)
+                        end
+                    end)
+                    task.wait(0.15)
+                end
+            end)
+        end
+    end
+})
+
+KillingTab:Section({Title = "Spectate"})
+
+local spectateNames = killPlayerList()
+local spectateDropdown = KillingTab:Dropdown({
+    Title = "Select player here to spectate",
+    Values = spectateNames,
+    Value = spectateNames[1],
+    Callback = function(Value)
+        getgenv().selectedSpectatePlayer = Value
+    end
+})
+
+KillingTab:Button({
+    Title = "Refresh Spectate List",
+    Callback = function()
+        spectateNames = killPlayerList()
+        pcall(function()
+            spectateDropdown:Refresh(spectateNames)
+        end)
+        WindUI:Notify({
+            Title = "KILLING",
+            Content = "Spectate list refreshed",
+            Duration = 2
+        })
+    end
+})
+
+KillingTab:Toggle({
+    Title = "Spectate selected player",
+    Value = false,
+    Callback = function(Value)
+        pcall(function()
+            local cam = workspace.CurrentCamera
+            if Value then
+                local plr = getPlayerByName(getgenv().selectedSpectatePlayer)
+                if plr and plr.Character then
+                    local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+                    if hum then
+                        cam.CameraSubject = hum
+                    end
+                end
+            else
+                local myChar = LocalPlayer.Character
+                local hum = myChar and myChar:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    cam.CameraSubject = hum
+                end
+            end
+        end)
+    end
+})
+
+KillingTab:Section({Title = "Auto Kill Everyone"})
+
+KillingTab:Toggle({
+    Title = "Auto kill everyone",
+    Value = false,
+    Callback = function(Value)
+        getgenv().autoKillEveryone = Value
+        if Value then
+            task.spawn(function()
+                while getgenv().autoKillEveryone do
+                    pcall(function()
+                        for _, plr in ipairs(Players:GetPlayers()) do
+                            if not getgenv().autoKillEveryone then
+                                break
+                            end
+                            if plr ~= LocalPlayer and not isWhitelisted(plr.Name) then
+                                punchTarget(plr)
+                                task.wait(0.12)
+                            end
+                        end
+                    end)
+                    task.wait(0.05)
+                end
+            end)
+        end
+    end
+})
+
+KillingTab:Section({Title = "Whitelist (safe from Auto kill everyone)"})
+
+local wlNames = killPlayerList()
+local wlDropdown = KillingTab:Dropdown({
+    Title = "Whitelist SELECTOR",
+    Values = wlNames,
+    Value = wlNames[1],
+    Callback = function(Value)
+        getgenv().selectedWhitelistPlayer = Value
+    end
+})
+
+KillingTab:Button({
+    Title = "Refresh Whitelist List",
+    Callback = function()
+        wlNames = killPlayerList()
+        pcall(function()
+            wlDropdown:Refresh(wlNames)
+        end)
+        WindUI:Notify({
+            Title = "KILLING",
+            Content = "Whitelist list refreshed",
+            Duration = 2
+        })
+    end
+})
+
+KillingTab:Button({
+    Title = "Whitelist player",
+    Callback = function()
+        local name = getgenv().selectedWhitelistPlayer
+        if name and name ~= "No players" and not isWhitelisted(name) then
+            table.insert(getgenv().whitelistNames, name)
+            WindUI:Notify({
+                Title = "KILLING",
+                Content = name .. " whitelisted (safe)",
+                Duration = 2
+            })
+        end
+    end
+})
+
+KillingTab:Button({
+    Title = "Clear Whitelist",
+    Callback = function()
+        getgenv().whitelistNames = {}
+        WindUI:Notify({
+            Title = "KILLING",
+            Content = "Whitelist cleared",
+            Duration = 2
+        })
+    end
+})
+
+Players.PlayerAdded:Connect(function()
+    task.wait(0.4)
+    killNames = killPlayerList()
+    spectateNames = killPlayerList()
+    wlNames = killPlayerList()
+end)
+Players.PlayerRemoving:Connect(function()
+    task.wait(0.2)
+    killNames = killPlayerList()
+    spectateNames = killPlayerList()
+    wlNames = killPlayerList()
+end)
+
+CreditsTab:Section({Title = "Nova Hub | Muscle Legends"})
+CreditsTab:Paragraph({Title = "Made by", Desc = "SGA / SUN GOD NIKA"})
+CreditsTab:Paragraph({Title = "Version", Desc = "2.1"})
+CreditsTab:Paragraph({Title = "Game", Desc = "Muscle Legends"})
+CreditsTab:Paragraph({Title = "UI Library", Desc = "WindUI by Footagesus"})
+
+CreditsTab:Button({
+    Title = "Copy Creator Name",
+    Callback = function()
+        pcall(function()
+            setclipboard("SGA")
+        end)
+        WindUI:Notify({
+            Title = "Credits",
+            Content = "SGA copied!",
+            Duration = 2
+        })
+    end
+})
+
+WindUI:Notify({
+    Title = "Nova Hub | Muscle Legends",
+    Content = "v2.1 loaded",
+    Duration = 4
+})
+
+print("Nova Hub v2.1 loaded | Made by SGA x AHMAD")
