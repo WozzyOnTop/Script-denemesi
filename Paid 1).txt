@@ -665,6 +665,358 @@ task.spawn(function()
 end)
 
 
+--// BOSS TAB
+local Boss = window:AddTab("Boss")
+
+Boss:AddLabel("👹 Boss Farming:")
+Boss.StatusLabel = Boss:AddLabel("Status: Waiting for Boss")
+Boss.BossLabel = Boss:AddLabel("Boss: None")
+Boss.HealthLabel = Boss:AddLabel("Health: 0 / 0")
+Boss.NextBossLabel = Boss:AddLabel("Next Boss: N/A")
+
+Boss.runtime = {
+    events = nil,
+    bossFolder = nil,
+    currentHealth = 0,
+    health = 0,
+    maxHealth = 0,
+    generation = 0
+}
+
+Boss.Data = {
+    Running = false,
+    Generation = 0,
+    ContinueTraining = true,
+    Phase = "Waiting",
+    TrainingSnapshot = nil,
+    PunchInterval = 0.3,
+    LastPunch = 0,
+    AttackSequence = nil,
+    EvadeUntil = 0,
+    EvadeDistance = 230,
+    PunchBehindDistance = 45,
+    StompHealthThreshold = 0.35,
+    DodgeStomps = false
+}
+
+function Boss.findActiveBoss()
+    local ok, result = pcall(function()
+        local workspace = game:GetService("Workspace")
+        local CollectionService = game:GetService("CollectionService")
+
+        for _, candidate in ipairs(workspace:GetDescendants()) do
+            if candidate:IsA("Model") then
+                if CollectionService:HasTag(candidate, "BossEventBoss") then
+                    return candidate
+                end
+
+                local humanoid = candidate:FindFirstChildOfClass("Humanoid")
+                if humanoid and humanoid.Health > 0 then
+                    local name = string.lower(candidate.Name)
+                    if string.find(name, "boss") then
+                        return candidate
+                    end
+                end
+            end
+        end
+    end)
+
+    return ok and result or nil
+end
+
+function Boss.getBossHealth(boss)
+    if not boss then return 0 end
+
+    local humanoid = boss:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        return humanoid.Health
+    end
+
+    return 0
+end
+
+function Boss.getBossMaxHealth(boss)
+    if not boss then return 0 end
+
+    local humanoid = boss:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        return humanoid.MaxHealth
+    end
+
+    return 0
+end
+
+function Boss.formatCountdown(seconds)
+    seconds = math.max(0, tonumber(seconds) or 0)
+    return string.format("%02d:%02d", math.floor(seconds / 60), math.floor(seconds % 60))
+end
+
+function Boss.leaveExerciseMachine()
+    pcall(function()
+        local farming = tabs and tabs.farming
+        if not farming then return end
+
+        if farming.Configs then
+            for _, config in ipairs(farming.Configs) do
+                if config then
+                    pcall(function()
+                        if config.Name == "Exercise" and config.Set then
+                            config:Set(false)
+                        end
+                    end)
+                end
+            end
+        end
+    end)
+end
+
+function Boss.pauseTraining()
+    local farming = tabs and tabs.farming
+    if not farming then
+        return
+    end
+
+    pcall(function()
+        if farming.StopAll then
+            farming:StopAll()
+        end
+    end)
+
+    Boss.leaveExerciseMachine()
+end
+
+function Boss.resumeTraining()
+    local farming = tabs and tabs.farming
+    if not farming then
+        return
+    end
+
+    pcall(function()
+        if farming.StartAll then
+            farming:StartAll()
+        end
+    end)
+end
+
+function Boss.getBossHeadPosition(boss)
+    if not boss then return nil end
+
+    local head = boss:FindFirstChild("Head")
+        or boss:FindFirstChild("HumanoidRootPart")
+        or boss.PrimaryPart
+
+    return head and head.Position or nil
+end
+
+function Boss.getAliveCharacter()
+    local player = game:GetService("Players").LocalPlayer
+    if not player then return nil end
+
+    local character = player.Character
+    if not character then return nil end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if humanoid and humanoid.Health > 0 and root then
+        return character, humanoid, root
+    end
+
+    return nil
+end
+
+function Boss.evadeAttack(boss)
+    if not Boss.Data.DodgeStomps then
+        return
+    end
+
+    pcall(function()
+        local character, humanoid, root = Boss.getAliveCharacter()
+        local bossPosition = Boss.getBossHeadPosition(boss)
+
+        if not character or not humanoid or not root or not bossPosition then
+            return
+        end
+
+        local direction = root.Position - bossPosition
+
+        if direction.Magnitude < 1 then
+            direction = Vector3.new(0, 0, 1)
+        end
+
+        direction = direction.Unit
+
+        root.CFrame = CFrame.new(
+            bossPosition + direction * Boss.Data.EvadeDistance
+        )
+    end)
+end
+
+function Boss.attack(boss)
+    if not boss then return end
+
+    pcall(function()
+        local now = tick()
+
+        if now - Boss.Data.LastPunch < Boss.Data.PunchInterval then
+            return
+        end
+
+        Boss.Data.LastPunch = now
+
+        local events = Boss.runtime.events
+        if not events then return end
+
+        local attackEvent =
+            events:FindFirstChild("punchEvent")
+            or events:FindFirstChild("punch")
+
+        if attackEvent and attackEvent:IsA("RemoteEvent") then
+            attackEvent:FireServer()
+        end
+    end)
+end
+
+function Boss.findChest()
+    local ok, result = pcall(function()
+        local workspace = game:GetService("Workspace")
+
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("Model") or obj:IsA("BasePart") then
+                local name = string.lower(obj.Name)
+
+                if string.find(name, "chest") then
+                    return obj
+                end
+            end
+        end
+    end)
+
+    return ok and result or nil
+end
+
+function Boss.collectChest(chest)
+    if not chest then return end
+
+    pcall(function()
+        local character, humanoid, root = Boss.getAliveCharacter()
+        if not root then return end
+
+        local part
+
+        if chest:IsA("BasePart") then
+            part = chest
+        elseif chest:IsA("Model") then
+            part = chest.PrimaryPart
+                or chest:FindFirstChildWhichIsA("BasePart")
+        end
+
+        if not part then return end
+
+        root.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+    end)
+end
+
+Boss.ContinueSwitch = Boss:AddSwitch("Continue Training", {
+    Title = "Continue Training",
+    Default = true,
+    Callback = function(value)
+        pcall(function()
+            Boss.Data.ContinueTraining = value
+        end)
+    end
+})
+
+task.defer(function()
+    pcall(function()
+        if Boss.ContinueSwitch then
+            Boss.ContinueSwitch:Set(true)
+        end
+    end)
+end)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            local boss = Boss.findActiveBoss()
+
+            if boss then
+                local health = Boss.getBossHealth(boss)
+                local maxHealth = Boss.getBossMaxHealth(boss)
+
+                Boss.runtime.currentHealth = health
+                Boss.runtime.health = health
+                Boss.runtime.maxHealth = maxHealth
+
+                Boss.BossLabel:Set("Boss: " .. boss.Name)
+                Boss.HealthLabel:Set(
+                    string.format(
+                        "Health: %s / %s",
+                        math.floor(health),
+                        math.floor(maxHealth)
+                    )
+                )
+
+                Boss.StatusLabel:Set("Status: Boss Active")
+            else
+                Boss.BossLabel:Set("Boss: None")
+                Boss.HealthLabel:Set("Health: 0 / 0")
+                Boss.StatusLabel:Set("Status: Waiting for Boss")
+            end
+        end)
+    end
+end)
+
+Boss.AutoFarmSwitch = Boss:AddSwitch("Auto Boss Farm", {
+    Title = "Auto Boss Farm",
+    Default = false,
+
+    Callback = function(value)
+        pcall(function()
+            Boss.Data.Running = value
+            Boss.Data.Generation = Boss.Data.Generation + 1
+
+            local generation = Boss.Data.Generation
+
+            if not value then
+                Boss.pauseTraining()
+                Boss.StatusLabel:Set("Status: Stopped")
+                return
+            end
+
+            task.spawn(function()
+                while Boss.Data.Running
+                    and Boss.Data.Generation == generation do
+
+                    local boss = Boss.findActiveBoss()
+
+                    if boss then
+                        Boss.pauseTraining()
+
+                        Boss.StatusLabel:Set("Status: Attacking Boss")
+
+                        Boss.evadeAttack(boss)
+                        Boss.attack(boss)
+
+                        task.wait(0.1)
+                    else
+                        Boss.StatusLabel:Set("Status: Waiting for Boss")
+
+                        if Boss.Data.ContinueTraining then
+                            Boss.resumeTraining()
+                        end
+
+                        task.wait(1)
+                    end
+                end
+            end)
+        end)
+    end
+})
+
+
+
+
 local LookDura = window:AddTab("Stats")
 local SelectPlayerName = ""
 
