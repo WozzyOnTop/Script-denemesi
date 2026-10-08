@@ -131,7 +131,7 @@ local function OpenKryvexHubLoader()
 
     -- Butonlarınızı ve Script linklerinizi buraya ekleyin:
     CreateHubBtn("Muscle Legends", "https://raw.githubusercontent.com/KryvexOnTop/KryvexPublic/main/Kryvex%20Public")
-    CreateHubBtn("Murder Mystery 2", " ")
+    CreateHubBtn("Murder Mystery 2", "https://github.com/WozzyOnTop/Script-denemesi/raw/refs/heads/main/Mm2")
 
     local loaderEntry = TweenService:Create(LoaderFrame, TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, -190, 0.5, -130)
