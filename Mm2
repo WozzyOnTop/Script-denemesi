@@ -1,6 +1,7 @@
 --[[
   Kryvex Hub - Murder Mystery 2
   WindUI Edition | Kırmızı Tema | Key Yok
+  By WozzyLaco 🏴
   Discord: https://discord.gg/DaPqFrT4P
 ]]
 
@@ -468,7 +469,7 @@ end)
 -- ==================== WINDUI ARAYÜZÜ ====================
 local Window = WindUI:CreateWindow({
     Title = "Kryvex Hub",
-    Author = "MM2 | Kryvex",
+    Author = "By WozzyLaco 🏴",
     Folder = "KryvexHub",
     Icon = "crown",
     IconThemed = true,
@@ -484,7 +485,6 @@ local Window = WindUI:CreateWindow({
     HideSearchBar = false,
 })
 
--- Renk temasını kırmızı yap
 WindUI:SetTheme("Crimson")
 
 Window:Tag({
@@ -813,7 +813,7 @@ ServerTab:Button({
     Title = "Copy Discord", Icon = "copy",
     Callback = function()
         pcall(function() if setclipboard then setclipboard(DISCORD) end end)
-        notify("Discord", "Kopyalandı")
+        notify("Discord", "Kopyalandı: " .. DISCORD)
     end,
 })
 
@@ -835,17 +835,6 @@ MiscTab:Paragraph({
             Callback = function()
                 pcall(function() if setclipboard then setclipboard(DISCORD) end end)
                 notify("Discord", "Kopyalandı: " .. DISCORD)
-            end,
-        },
-        {
-            Title = "Join Discord",
-            Icon = "external-link",
-            Variant = "Primary",
-            Callback = function()
-                pcall(function()
-                    if setclipboard then setclipboard(DISCORD) end
-                end)
-                notify("Discord", "Link kopyalandı, tarayıcıya yapıştır!")
             end,
         },
     },
@@ -886,11 +875,11 @@ PresetsTab:Button({
 -- ==================== BAŞLANGIÇ ====================
 WindUI:Notify({
     Title = "Kryvex Hub",
-    Content = "Yüklendi! RightShift ile aç/kapat",
+    Content = "Yüklendi! RightShift ile aç/kapat | By WozzyLaco 🏴",
     Icon = "crown",
     Duration = 5,
 })
 
-print("[Kryvex Hub] WindUI ile yüklendi!")
-print("[Kryvex Hub] Tema: Crimson (Kırmızı)")
+print("[Kryvex Hub] Yüklendi!")
+print("[Kryvex Hub] By WozzyLaco 🏴")
 print("[Kryvex Hub] Discord: " .. DISCORD)
