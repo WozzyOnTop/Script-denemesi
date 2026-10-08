@@ -1,7 +1,7 @@
 --[[
   Kryvex Hub - Murder Mystery 2
   WindUI Edition | Kırmızı Tema | Key Yok
-  Discord: https://discord.gg/R6zhZX7tpT
+  Discord: https://discord.gg/DaPqFrT4P
 ]]
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
@@ -15,7 +15,7 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local LP = Players.LocalPlayer
-local DISCORD = "https://discord.gg/R6zhZX7tpT"
+local DISCORD = "https://discord.gg/DaPqFrT4P"
 
 -- ==================== YARDIMCI FONKSİYONLAR ====================
 local function notify(title, text)
