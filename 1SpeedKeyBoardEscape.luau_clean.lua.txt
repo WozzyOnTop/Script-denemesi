@@ -1,0 +1,536 @@
+local runService = game:GetService("RunService")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local userInputService = game:GetService("UserInputService")
+local players = game:GetService("Players")
+local virtualUser = game:GetService("VirtualUser")
+local coreGui = game:GetService("CoreGui")
+
+if not game:IsLoaded() then
+  game.Loaded:Wait()
+end
+
+local v1, v2 = pcall(function() return require("./src/Init") end)
+local horizonLibary
+
+if v1 then
+  horizonLibary = v2
+elseif (cloneref and cloneref(runService) or runService):IsStudio() then
+  horizonLibary = require(replicatedStorage:WaitForChild("WindUI"):WaitForChild("Init"))
+else
+  horizonLibary = loadstring(game:HttpGet("https://raw.githubusercontent.com/LIAM893134/HorizonGUI/refs/heads/main/HorizonLibary.luau"))()
+end
+
+local localPlayer = players.LocalPlayer
+local currentCamera = workspace.CurrentCamera
+
+local v3 = {
+  WinPos = Vector3.new(-6809.3223, 531.2539, 1468.8073),
+  WinSpeed = 300,
+  WinHeight = 900,
+  Fly = false,
+  FlySpeed = 300,
+  Noclip = false,
+  AutoWalk = false,
+  AutoWin = false,
+  WalkSpeed = 16,
+  JumpPower = 50,
+  InfiniteJump = false,
+}
+
+Color3.fromHex("#0400ff")
+
+local function f1(p1)
+  local g = p1.G
+  local b = p1.B
+  local r = p1.R
+  local v4 = (r + g + b) / 3
+  return math.abs(r - v4) + math.abs(g - v4) + math.abs(b - v4) < 0.08 or v4 < 0.05 or v4 > 0.95
+end
+
+local connect = nil
+local bodyVelocity, bodyGyro
+
+local function f2()
+  v3.Fly = false
+
+  if connect then
+    connect:Disconnect()
+    connect = nil
+  end
+
+  if bodyVelocity then
+    bodyVelocity:Destroy()
+    bodyVelocity = nil
+  end
+
+  if bodyGyro then
+    bodyGyro:Destroy()
+    bodyGyro = nil
+  end
+
+  local humanoid = localPlayer.Character
+    and localPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+  if humanoid then
+    humanoid.PlatformStand = false
+    humanoid:ChangeState(Enum.HumanoidStateType.Running)
+  end
+end
+
+local function f3()
+  local character = localPlayer.Character
+  local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+
+  local humanoid2 = character
+  humanoid2 = character and character:FindFirstChildOfClass("Humanoid")
+
+  local v5 = not humanoidRootPart
+  local v6 = humanoid2
+
+  if v5 or not v6 then
+    return
+  end
+
+  if bodyVelocity then
+    bodyVelocity:Destroy()
+  end
+
+  if bodyGyro then
+    bodyGyro:Destroy()
+  end
+
+  if connect then
+    connect:Disconnect()
+  end
+
+  v6.PlatformStand = true
+
+  bodyGyro = Instance.new("BodyGyro")
+  bodyGyro.MaxTorque = Vector3.new(9000000000, 9000000000, 9000000000)
+  bodyGyro.P = 50000
+  bodyGyro.CFrame = humanoidRootPart.CFrame
+  bodyGyro.Parent = humanoidRootPart
+
+  bodyVelocity = Instance.new("BodyVelocity")
+  bodyVelocity.MaxForce = Vector3.new(9000000000, 9000000000, 9000000000)
+  bodyVelocity.Velocity = Vector3.zero
+  bodyVelocity.Parent = humanoidRootPart
+
+  connect = runService.RenderStepped:Connect(function()
+    if not v3.Fly then
+      return
+    else
+      local cframe = currentCamera.CFrame
+      local flySpeed = v3.FlySpeed
+      local zero = Vector3.zero
+
+      if userInputService:IsKeyDown(Enum.KeyCode.W) then
+        zero = zero + cframe.LookVector * flySpeed
+      end
+
+      if userInputService:IsKeyDown(Enum.KeyCode.S) then
+        zero = zero - cframe.LookVector * flySpeed
+      end
+
+      if userInputService:IsKeyDown(Enum.KeyCode.A) then
+        zero = zero - cframe.RightVector * flySpeed
+      end
+
+      if userInputService:IsKeyDown(Enum.KeyCode.D) then
+        zero = zero + cframe.RightVector * flySpeed
+      end
+
+      if userInputService:IsKeyDown(Enum.KeyCode.Space) then
+        zero = zero + Vector3.yAxis * flySpeed
+      end
+
+      if userInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+        zero = zero - Vector3.yAxis * flySpeed
+      end
+
+      bodyVelocity.Velocity = zero
+      bodyGyro.CFrame = cframe
+      return
+    end
+  end)
+end
+
+local window = horizonLibary:CreateWindow({
+  Title = "Silence | Have a nice day: " .. localPlayer.DisplayName,
+  Icon = "keyboard",
+  Folder = "Silence HUB",
+  NewElements = true,
+  Topbar = { Height = 44, ButtonsType = "Mac" },
+  OpenButton = {
+    Title = "Open Silence HUB ",
+    Enabled = true,
+    Draggable = true,
+    OnlyMobile = false,
+    Scale = 0.5,
+    Color = ColorSequence.new(Color3.fromHex("#7775F2"), Color3.fromHex("#30a0ff")),
+  },
+})
+
+local color
+
+task.delay(1, function()
+  local v7 = {}
+
+  local function f4(p2)
+    for key, value in pairs(p2:GetDescendants()) do
+      local v8 = value
+
+      pcall(function()
+        local v9 = {}
+
+        if v8:IsA("Frame") or v8:IsA("TextButton") or v8:IsA("ImageButton") then
+          table.insert(v9, v8.BackgroundColor3)
+        end
+
+        if v8:IsA("ImageLabel") or v8:IsA("ImageButton") then
+          table.insert(v9, v8.ImageColor3)
+        end
+
+        if v8:IsA("UIStroke") then
+          table.insert(v9, v8.Color)
+        end
+
+        for key2, value2 in pairs(v9) do
+          if not f1(value2) then
+            local v10 = math.floor(value2.R * 20) .. "_" .. math.floor(value2.G * 20) .. "_"
+              .. math.floor(value2.B * 20)
+
+            v7[v10] = v7[v10] or { count = 0, color = value2 }
+
+            local v11 = v7[v10]
+            v11.count = v11.count + 1
+          end
+        end
+      end)
+    end
+  end
+
+  f4(coreGui)
+
+  pcall(function() f4(players.LocalPlayer.PlayerGui) end)
+  local count = 0
+  local v12
+
+  for key3, value3 in pairs(v7) do
+    if value3.count > count then
+      count = value3.count
+      v12 = key3
+    end
+  end
+
+  if v12 and v7[v12] then
+    color = v7[v12].color
+  end
+end)
+
+local autoFarmTab = window:Tab({ Title = "Auto Farm", Icon = "sprout" })
+local movementTab = window:Tab({ Title = "Movement", Icon = "wind" })
+local playerTab = window:Tab({ Title = "Player", Icon = "user" })
+local miscTab = window:Tab({ Title = "Misc", Icon = "wrench" })
+
+autoFarmTab:Toggle({
+  Title = "Auto Walk",
+  Value = false,
+  Callback = function(value4)
+    v3.AutoWalk = value4
+
+    if value4 then
+      task.spawn(function()
+        while v3.AutoWalk do
+          local character2 = localPlayer.Character
+          local humanoid3 = character2 and character2:FindFirstChildOfClass("Humanoid")
+
+          if humanoid3 then
+            humanoid3:Move(Vector3.new(0, 0, 1), true)
+            task.wait(0.1)
+            humanoid3:Move(Vector3.new(0, 0, -1), true)
+          end
+
+          task.wait(0.1)
+        end
+      end)
+    end
+  end,
+})
+
+autoFarmTab:Space()
+
+autoFarmTab:Toggle({
+  Title = "Auto Win (Smooth Travel)",
+  Value = false,
+  Callback = function(value5)
+    v3.AutoWin = value5
+
+    if value5 then
+      task.spawn(function()
+        while v3.AutoWin do
+          local character3 = localPlayer.Character
+          local humanoidRootPart2 = character3 and character3:FindFirstChild("HumanoidRootPart")
+
+          if humanoidRootPart2 and v3.WinPos then
+            if (humanoidRootPart2.Position - v3.WinPos).Magnitude > 5 then
+              v3.Fly = true
+              f3()
+              local noclip = v3.Noclip
+              v3.Noclip = true
+              horizonLibary:Notify({ Title = "Auto Win", Content = "Rising up...", Duration = 2 })
+              local cframe2 = humanoidRootPart2.CFrame
+              local v13 = cframe2 * CFrame.new(0, v3.WinHeight, 0)
+
+              for i = 0, 1, 0.05 do
+                if not v3.AutoWin or not humanoidRootPart2.Parent then
+                  break
+                end
+
+                humanoidRootPart2.CFrame = cframe2:Lerp(v13, i)
+                task.wait(0.02)
+              end
+
+              if not v3.AutoWin or not humanoidRootPart2.Parent then
+                v3.Noclip = noclip
+                return
+              else
+                task.wait(0.2)
+
+                horizonLibary:Notify({
+                  Title = "Auto Win",
+                  Content = "Traveling...",
+                  Duration = 2,
+                })
+
+                local cframe3 = humanoidRootPart2.CFrame
+
+                local vector = Vector3.new(
+                  v3.WinPos.X, humanoidRootPart2.Position.Y, v3.WinPos.Z
+                )
+
+                local cframe4 = CFrame.new(vector)
+
+                local v14 = math.max(1, math.floor((humanoidRootPart2.Position - vector).Magnitude
+                  / (v3.WinSpeed / 30)))
+
+                for j = 1, v14 do
+                  if not v3.AutoWin or not humanoidRootPart2.Parent then
+                    break
+                  end
+
+                  humanoidRootPart2.CFrame = cframe3:Lerp(cframe4, j / v14)
+                  task.wait(0.03)
+                end
+
+                if not v3.AutoWin or not humanoidRootPart2.Parent then
+                  v3.Noclip = noclip
+                  return
+                end
+
+                task.wait(0.2)
+
+                horizonLibary:Notify({
+                  Title = "Auto Win",
+                  Content = "Descending...",
+                  Duration = 2,
+                })
+
+                local cframe5 = humanoidRootPart2.CFrame
+                local cframe6 = CFrame.new(v3.WinPos)
+
+                for k = 0, 1, 0.01 do
+                  if not v3.AutoWin or not humanoidRootPart2.Parent then
+                    break
+                  end
+
+                  humanoidRootPart2.CFrame = cframe5:Lerp(cframe6, k)
+                  task.wait(0.01)
+                end
+
+                if humanoidRootPart2.Parent then
+                  humanoidRootPart2.CFrame = cframe6
+                end
+
+                v3.Noclip = noclip
+                f2()
+
+                horizonLibary:Notify({
+                  Title = "Auto Win",
+                  Content = "Arrived! Resetting in 3s...",
+                  Duration = 3,
+                })
+
+                task.wait(3)
+
+                local humanoid4 = localPlayer.Character
+                  and localPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+                if humanoid4 then
+                  humanoid4.Health = 0
+                end
+
+                horizonLibary:Notify({
+                  Title = "Auto Win",
+                  Content = "Next loop in 5s...",
+                  Duration = 5,
+                })
+
+                task.wait(5)
+              end
+            end
+          end
+
+          task.wait(0.1)
+        end
+      end)
+    end
+  end,
+})
+
+movementTab:Toggle({
+  Title = "Fly (WASD + Space / Ctrl)",
+  Value = false,
+  Callback = function(value6)
+    v3.Fly = value6
+
+    if value6 then
+      f3()
+    else
+      f2()
+    end
+  end,
+})
+
+movementTab:Space()
+
+movementTab:Slider({
+  Title = "Fly Speed",
+  Step = 10,
+  Value = { Min = 10, Max = 2000, Default = 300 },
+  Callback = function(value7) v3.FlySpeed = value7 end,
+})
+
+localPlayer.CharacterAdded:Connect(function()
+  task.wait(1)
+
+  if v3.Fly then
+    f3()
+  end
+end)
+
+movementTab:Space()
+
+movementTab:Toggle({
+  Title = "Noclip",
+  Value = false,
+  Callback = function(value8) v3.Noclip = value8 end,
+})
+
+playerTab:Slider({
+  Title = "Walk Speed",
+  Step = 1,
+  Value = { Min = 16, Max = 1000, Default = 16 },
+  Callback = function(value9)
+    v3.WalkSpeed = value9
+
+    local humanoid5 = localPlayer.Character
+      and localPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid5 then
+      humanoid5.WalkSpeed = value9
+    end
+  end,
+})
+
+playerTab:Space()
+
+playerTab:Slider({
+  Title = "Jump Power",
+  Step = 1,
+  Value = { Min = 50, Max = 1000, Default = 50 },
+  Callback = function(value10)
+    v3.JumpPower = value10
+
+    local humanoid6 = localPlayer.Character
+      and localPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid6 then
+      humanoid6.UseJumpPower = true
+      humanoid6.JumpPower = value10
+    end
+  end,
+})
+
+playerTab:Space()
+
+playerTab:Toggle({
+  Title = "Infinite Jump",
+  Value = false,
+  Callback = function(value11) v3.InfiniteJump = value11 end,
+})
+
+userInputService.JumpRequest:Connect(function()
+  if v3.InfiniteJump then
+    local humanoid7 = localPlayer.Character
+      and localPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid7 then
+      humanoid7:ChangeState("Jumping")
+    end
+  end
+end)
+
+miscTab:Button({
+  Title = "Enable Anti-AFK",
+  Icon = "shield",
+  Justify = "Center",
+  Callback = function()
+    localPlayer.Idled:Connect(function()
+      virtualUser:Button2Down(Vector2.new(0, 0), currentCamera.CFrame)
+      task.wait(1)
+      virtualUser:Button2Up(Vector2.new(0, 0), currentCamera.CFrame)
+    end)
+
+    horizonLibary:Notify({ Title = "Anti-AFK", Content = "Active!", Duration = 3 })
+  end,
+})
+
+miscTab:Space()
+
+miscTab:Button({
+  Title = "Unload Hub",
+  Icon = "x",
+  Color = Color3.fromHex("#EF4F1D"),
+  Justify = "Center",
+  Callback = function()
+    v3.AutoWalk = false
+    v3.AutoWin = false
+    v3.InfiniteJump = false
+    v3.Noclip = false
+
+    f2()
+    window:Destroy()
+  end,
+})
+
+miscTab:AddParagraph({ Title = "Silence HUB", Content = "Made  by Liam <3 " })
+
+miscTab:AddButton({
+  Title = "Copy Discord Link",
+  Icon = "link",
+  Justify = "Center",
+  Callback = function()
+    if setclipboard then
+      setclipboard("https://discord.gg/ru7A4M2K")
+
+      horizonLibary:Notify({
+        Title = "Discord",
+        Content = "Link copied to clipboard!",
+        Duration = 3,
+      })
+    end
+  end,
+})
+
+horizonLibary:Notify({ Title = "Hub Loaded!", Content = "Silence is ready.", Duration = 5 })
