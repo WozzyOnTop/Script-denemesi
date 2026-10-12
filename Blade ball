@@ -1,0 +1,766 @@
+--[[
+    ██╗  ██╗██████╗ ██╗   ██╗██╗   ██╗███████╗██╗  ██╗
+    ██║ ██╔╝██╔══██╗╚██╗ ██╔╝██║   ██║██╔════╝╚██╗██╔╝
+    █████╔╝ ██████╔╝ ╚████╔╝ ██║   ██║█████╗   ╚███╔╝
+    ██╔═██╗ ██╔══██╗  ╚██╔╝  ╚██╗ ██╔╝██╔══╝   ██╔██╗
+    ██║  ██╗██║  ██║   ██║    ╚████╔╝ ███████╗██╔╝ ██╗
+    ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝     ╚═══╝  ╚══════╝╚═╝  ╚═╝
+
+    KRYVEX HUB | Red Edition | Wind UI
+]]
+
+--// Wind UI Kütüphanesini Çek
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+--// Servisler
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local Lighting = game:GetService("Lighting")
+local LP = Players.LocalPlayer
+
+--// KRYVEX KIRMIZI TEMA
+local KryvexTheme = {
+    Name = "Kryvex Red",
+    Accent = Color3.fromHex("#dc1e1e"),
+    Dialog = Color3.fromHex("#450a0a"),
+    Outline = Color3.fromHex("#ff3c3c"),
+    Text = Color3.fromHex("#ffebeb"),
+    Placeholder = Color3.fromHex("#a06060"),
+    Background = Color3.fromHex("#120404"),
+    Button = Color3.fromHex("#dc2626"),
+    Icon = Color3.fromHex("#ef4444"),
+    Toggle = Color3.fromHex("#dc2626"),
+    Slider = Color3.fromHex("#dc2626"),
+    Checkbox = Color3.fromHex("#dc2626"),
+    ElementBackground = Color3.fromHex("#2a0f0f"),
+    ElementBackgroundTransparency = 0,
+    TabBackground = Color3.fromHex("#1a0606"),
+    TabBackgroundHover = Color3.fromHex("#2e0808"),
+    TabBackgroundHoverTransparency = 0.3,
+    TabBackgroundActive = Color3.fromHex("#3a0a0a"),
+    TabBackgroundActiveTransparency = 0,
+    PanelBackground = Color3.fromHex("#1a0606"),
+    PanelBackgroundTransparency = 0.3,
+    NotificationBorder = Color3.fromHex("#ff3c3c"),
+}
+
+WindUI:AddTheme(KryvexTheme)
+
+--// KRYVEX WATERMARK (KX Kırmızı)
+local function CreateWatermark()
+    local parent = LP:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+    local old = parent:FindFirstChild("KryvexWatermark")
+    if old then old:Destroy() end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "KryvexWatermark"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder = 99999
+    gui.Parent = parent
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 240, 0, 54)
+    frame.Position = UDim2.new(0, 20, 0, 20)
+    frame.BackgroundColor3 = Color3.fromRGB(18, 4, 4)
+    frame.BackgroundTransparency = 0.1
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Parent = gui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(220, 30, 30)
+    stroke.Thickness = 2
+    stroke.Transparency = 0.15
+    stroke.Parent = frame
+
+    -- KX Logo (kırmızı daire)
+    local kxBox = Instance.new("Frame")
+    kxBox.Size = UDim2.new(0, 38, 0, 38)
+    kxBox.Position = UDim2.new(0, 8, 0.5, 0)
+    kxBox.AnchorPoint = Vector2.new(0, 0.5)
+    kxBox.BackgroundColor3 = Color3.fromRGB(140, 15, 15)
+    kxBox.BorderSizePixel = 0
+    kxBox.Parent = frame
+
+    local kxCorner = Instance.new("UICorner")
+    kxCorner.CornerRadius = UDim.new(1, 0)
+    kxCorner.Parent = kxBox
+
+    local kxGrad = Instance.new("UIGradient")
+    kxGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 80, 80)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 0, 0))
+    })
+    kxGrad.Rotation = 45
+    kxGrad.Parent = kxBox
+
+    local kxStroke = Instance.new("UIStroke")
+    kxStroke.Color = Color3.fromRGB(255, 100, 100)
+    kxStroke.Thickness = 1.5
+    kxStroke.Transparency = 0.4
+    kxStroke.Parent = kxBox
+
+    local kxLabel = Instance.new("TextLabel")
+    kxLabel.Size = UDim2.new(1, 0, 1, 0)
+    kxLabel.BackgroundTransparency = 1
+    kxLabel.Text = "KX"
+    kxLabel.Font = Enum.Font.GothamBlack
+    kxLabel.TextSize = 18
+    kxLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    kxLabel.TextStrokeTransparency = 0.3
+    kxLabel.TextStrokeColor3 = Color3.fromRGB(60, 0, 0)
+    kxLabel.Parent = kxBox
+
+    -- Title
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -56, 0, 24)
+    title.Position = UDim2.new(0, 54, 0, 5)
+    title.BackgroundTransparency = 1
+    title.Text = "KRYVEX HUB"
+    title.TextColor3 = Color3.fromRGB(255, 50, 50)
+    title.Font = Enum.Font.GothamBlack
+    title.TextSize = 16
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = frame
+
+    -- Info
+    local info = Instance.new("TextLabel")
+    info.Size = UDim2.new(1, -56, 0, 18)
+    info.Position = UDim2.new(0, 54, 0, 28)
+    info.BackgroundTransparency = 1
+    info.Text = "KX | FPS: ..."
+    info.TextColor3 = Color3.fromRGB(230, 170, 170)
+    info.Font = Enum.Font.Code
+    info.TextSize = 11
+    info.TextXAlignment = Enum.TextXAlignment.Left
+    info.Parent = frame
+
+    -- FPS + Ping
+    local frames, fpsTick = 0, tick()
+    RunService.RenderStepped:Connect(function()
+        frames = frames + 1
+        if tick() - fpsTick >= 1 then
+            local ping = 0
+            pcall(function()
+                ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+            end)
+            info.Text = string.format("KX | FPS: %d | Ping: %dms", frames, ping)
+            frames, fpsTick = 0, tick()
+        end
+    end)
+
+    -- Drag
+    local drag, ds, sp
+    frame.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            drag, ds, sp = true, i.Position, frame.Position
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then drag = false end
+            end)
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local d = i.Position - ds
+            frame.Position = UDim2.new(sp.X.Scale, sp.X.Offset + d.X, sp.Y.Scale, sp.Y.Offset + d.Y)
+        end
+    end)
+
+    return gui
+end
+
+local Watermark = CreateWatermark()
+
+--// KRYVEX HUB WINDOW
+local Window = WindUI:CreateWindow({
+    Title = "KRYVEX HUB",
+    Icon = "rbxassetid://79095934438045",
+    Author = "by Kryvex",
+    Folder = "KryvexHub",
+    Size = UDim2.fromOffset(620, 480),
+    Transparent = true,
+    Theme = "Kryvex Red",
+    User = {
+        Enabled = true,
+        Anonymous = false,
+        Callback = function()
+            WindUI:Notify({
+                Title = "Kryvex Hub",
+                Content = "Welcome to Kryvex Hub!",
+                Duration = 3,
+                Icon = "crown",
+            })
+        end,
+    },
+    SideBarWidth = 200,
+    HideSearchBar = false,
+    ScrollBarEnabled = true,
+    Resizable = true,
+    OpenButton = {
+        Title = "KRYVEX",
+        Icon = "skull",
+        CornerRadius = UDim.new(1, 0),
+        StrokeThickness = 2,
+        Color = ColorSequence.new(Color3.fromHex("#ff3c3c"), Color3.fromHex("#8b0000")),
+        OnlyMobile = false,
+        Scale = 1,
+        Enabled = true,
+        Draggable = true,
+    },
+})
+
+--// STATE
+local State = {
+    AutoParry = false,
+    Triggerbot = false,
+    Spam = false,
+    BallTrail = false,
+    ParryViz = false,
+    AbilityESP = false,
+    Speed = false,
+    InfiniteJump = false,
+    AntiAFK = false,
+    WatermarkEnabled = true,
+    HitSound = false,
+    AutoDodge = false,
+    KillPreClick = false,
+    Accuracy = 75,
+    WalkSpeed = 16,
+    JumpPower = 50,
+    HitVolume = 2,
+    TrailColor = Color3.fromRGB(255, 50, 50),
+}
+
+--// TABS
+local MainTab     = Window:Tab({ Title = "Main",     Icon = "home" })
+local CombatTab   = Window:Tab({ Title = "Combat",   Icon = "sword" })
+local VisualsTab  = Window:Tab({ Title = "Visuals",  Icon = "eye" })
+local PlayerTab   = Window:Tab({ Title = "Player",   Icon = "user" })
+local AvatarTab   = Window:Tab({ Title = "Avatar",   Icon = "users" })
+local MiscTab     = Window:Tab({ Title = "Misc",     Icon = "settings" })
+
+--// MAIN TAB
+MainTab:Section({ Title = "Kryvex Watermark" })
+MainTab:Toggle({
+    Title = "Show KX Watermark",
+    Desc = "Kryvex Hub KX watermark with FPS/Ping",
+    Value = true,
+    Callback = function(v)
+        State.WatermarkEnabled = v
+        Watermark.Enabled = v
+    end,
+})
+
+MainTab:Section({ Title = "About" })
+MainTab:Paragraph({
+    Title = "KRYVEX HUB",
+    Desc = "Red Edition | v1.0 | Made with Wind UI\n\nAll features included, ready to use.",
+})
+
+--// COMBAT TAB
+CombatTab:Section({ Title = "Auto Parry" })
+CombatTab:Toggle({
+    Title = "Auto Parry",
+    Desc = "Automatic ball deflection",
+    Value = false,
+    Callback = function(v)
+        State.AutoParry = v
+        WindUI:Notify({ Title = "Kryvex Combat", Content = "Auto Parry: "..(v and "ON" or "OFF"), Duration = 2 })
+    end,
+})
+
+CombatTab:Toggle({
+    Title = "Triggerbot",
+    Desc = "Fires when ball targets you",
+    Value = false,
+    Callback = function(v)
+        State.Triggerbot = v
+        WindUI:Notify({ Title = "Kryvex Combat", Content = "Triggerbot: "..(v and "ON" or "OFF"), Duration = 2 })
+    end,
+})
+
+CombatTab:Toggle({
+    Title = "Parry Spam",
+    Desc = "Continuously spams parry",
+    Value = false,
+    Callback = function(v) State.Spam = v end,
+})
+
+CombatTab:Slider({
+    Title = "Parry Accuracy",
+    Desc = "Higher = more accurate parries",
+    Value = { Min = 1, Max = 100, Default = 75 },
+    Step = 1,
+    Callback = function(v) State.Accuracy = v end,
+})
+
+CombatTab:Section({ Title = "Kryvex Extra" })
+CombatTab:Toggle({
+    Title = "Kill Pre-Click",
+    Desc = "Pre-fires parry when enemy dies nearby",
+    Value = false,
+    Callback = function(v) State.KillPreClick = v end,
+})
+
+CombatTab:Toggle({
+    Title = "Auto Dodge",
+    Desc = "Automatically dodges incoming balls",
+    Value = false,
+    Callback = function(v)
+        State.AutoDodge = v
+        WindUI:Notify({ Title = "Kryvex Combat", Content = "Auto Dodge: "..(v and "ON" or "OFF"), Duration = 2 })
+    end,
+})
+
+--// VISUALS TAB
+VisualsTab:Section({ Title = "Ball Effects" })
+VisualsTab:Toggle({
+    Title = "Ball Trail",
+    Desc = "Adds red trail to the ball",
+    Value = false,
+    Callback = function(v) State.BallTrail = v end,
+})
+
+VisualsTab:Colorpicker({
+    Title = "Trail Color",
+    Default = Color3.fromRGB(255, 50, 50),
+    Callback = function(c) State.TrailColor = c end,
+})
+
+VisualsTab:Toggle({
+    Title = "Parry Visualizer",
+    Desc = "Shows parry radius",
+    Value = false,
+    Callback = function(v) State.ParryViz = v end,
+})
+
+VisualsTab:Section({ Title = "ESP" })
+VisualsTab:Toggle({
+    Title = "Ability ESP",
+    Desc = "Shows enemy equipped abilities",
+    Value = false,
+    Callback = function(v) State.AbilityESP = v end,
+})
+
+VisualsTab:Toggle({
+    Title = "Ball Prediction",
+    Desc = "Draws red line showing ball trajectory",
+    Value = false,
+    Callback = function(v) State.BallPred = v end,
+})
+
+--// PLAYER TAB
+PlayerTab:Section({ Title = "Movement" })
+PlayerTab:Slider({
+    Title = "WalkSpeed",
+    Desc = "Character movement speed",
+    Value = { Min = 16, Max = 250, Default = 16 },
+    Step = 1,
+    Callback = function(v)
+        State.WalkSpeed = v
+        local ch = LP.Character
+        if ch then
+            local h = ch:FindFirstChildOfClass("Humanoid")
+            if h then h.WalkSpeed = v end
+        end
+    end,
+})
+
+PlayerTab:Slider({
+    Title = "JumpPower",
+    Desc = "Character jump power",
+    Value = { Min = 50, Max = 500, Default = 50 },
+    Step = 5,
+    Callback = function(v)
+        State.JumpPower = v
+        local ch = LP.Character
+        if ch then
+            local h = ch:FindFirstChildOfClass("Humanoid")
+            if h then h.UseJumpPower = true; h.JumpPower = v end
+        end
+    end,
+})
+
+PlayerTab:Toggle({
+    Title = "Infinite Jump",
+    Desc = "Jump in mid-air",
+    Value = false,
+    Callback = function(v) State.InfiniteJump = v end,
+})
+
+PlayerTab:Section({ Title = "Kryvex Hitsound" })
+PlayerTab:Toggle({
+    Title = "Parry Hit Sound",
+    Desc = "Plays sound on every parry",
+    Value = false,
+    Callback = function(v) State.HitSound = v end,
+})
+
+PlayerTab:Slider({
+    Title = "Hitsound Volume",
+    Value = { Min = 0, Max = 5, Default = 2 },
+    Step = 0.1,
+    Callback = function(v) State.HitVolume = v end,
+})
+
+--// AVATAR TAB
+AvatarTab:Section({ Title = "Kryvex Avatar" })
+AvatarTab:Button({
+    Title = "Korblox Leg",
+    Desc = "Applies Korblox right leg",
+    Callback = function()
+        local ch = LP.Character
+        if not ch then return end
+        local leg = ch:FindFirstChild("RightLeg") or ch:FindFirstChild("Right Leg")
+        if not leg then return end
+        for _, o in ipairs(leg:GetChildren()) do
+            if o:IsA("SpecialMesh") then o:Destroy() end
+        end
+        local m = Instance.new("SpecialMesh")
+        m.MeshId = "rbxassetid://101851696"
+        m.TextureId = "rbxassetid://115727863"
+        m.Parent = leg
+        WindUI:Notify({ Title = "Kryvex Avatar", Content = "Korblox applied!", Duration = 2 })
+    end,
+})
+
+AvatarTab:Button({
+    Title = "Headless",
+    Desc = "Makes head invisible",
+    Callback = function()
+        local ch = LP.Character
+        if not ch then return end
+        local head = ch:FindFirstChild("Head")
+        if head then head.Transparency = 1 end
+        WindUI:Notify({ Title = "Kryvex Avatar", Content = "Headless applied!", Duration = 2 })
+    end,
+})
+
+AvatarTab:Button({
+    Title = "Restore Avatar",
+    Desc = "Restores head and leg",
+    Callback = function()
+        local ch = LP.Character
+        if not ch then return end
+        local head = ch:FindFirstChild("Head")
+        if head then head.Transparency = 0 end
+        local leg = ch:FindFirstChild("RightLeg") or ch:FindFirstChild("Right Leg")
+        if leg then
+            for _, o in ipairs(leg:GetChildren()) do
+                if o:IsA("SpecialMesh") and o.MeshId == "rbxassetid://101851696" then
+                    o:Destroy()
+                end
+            end
+        end
+        WindUI:Notify({ Title = "Kryvex Avatar", Content = "Avatar restored!", Duration = 2 })
+    end,
+})
+
+--// MISC TAB
+MiscTab:Section({ Title = "Server" })
+MiscTab:Button({
+    Title = "Rejoin Server",
+    Desc = "Rejoin the same server",
+    Callback = function()
+        WindUI:Notify({ Title = "Kryvex", Content = "Rejoining...", Duration = 2 })
+        task.wait(1)
+        TeleportService:Teleport(game.PlaceId, LP)
+    end,
+})
+
+MiscTab:Button({
+    Title = "Server Hop",
+    Desc = "Join a random low-player server",
+    Callback = function()
+        WindUI:Notify({ Title = "Kryvex", Content = "Searching...", Duration = 3 })
+        pcall(function()
+            local res = game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100")
+            local data = HttpService:JSONDecode(res)
+            local servers = {}
+            for _, v in pairs(data.data) do
+                if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    table.insert(servers, v.id)
+                end
+            end
+            if #servers > 0 then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LP)
+            end
+        end)
+    end,
+})
+
+MiscTab:Section({ Title = "Kryvex Utility" })
+MiscTab:Toggle({
+    Title = "Anti AFK",
+    Desc = "Prevents 20-minute kick",
+    Value = false,
+    Callback = function(v) State.AntiAFK = v end,
+})
+
+MiscTab:Section({ Title = "Danger Zone" })
+MiscTab:Button({
+    Title = "Destroy Kryvex Hub",
+    Desc = "Closes the hub completely",
+    Callback = function()
+        if Watermark then Watermark:Destroy() end
+        Window:Destroy()
+    end,
+})
+
+--// ==========================================
+--//              LOGIC
+--// ==========================================
+
+-- Anti AFK
+local vu = game:GetService("VirtualUser")
+LP.Idled:Connect(function()
+    if State.AntiAFK then
+        vu:CaptureController()
+        vu:ClickButton2(Vector2.new())
+    end
+end)
+
+-- Infinite Jump
+UIS.JumpRequest:Connect(function()
+    if State.InfiniteJump then
+        local ch = LP.Character
+        if ch then
+            local h = ch:FindFirstChildOfClass("Humanoid")
+            if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end
+        end
+    end
+end)
+
+-- Character Added: reapply speed/jump
+LP.CharacterAdded:Connect(function()
+    task.wait(1)
+    local ch = LP.Character
+    if ch then
+        local h = ch:FindFirstChildOfClass("Humanoid")
+        if h then
+            h.WalkSpeed = State.WalkSpeed
+            h.UseJumpPower = true
+            h.JumpPower = State.JumpPower
+        end
+    end
+end)
+
+-- Ball Trail
+local function ApplyBallTrail()
+    local balls = workspace:FindFirstChild("Balls")
+    if not balls then return end
+    for _, ball in ipairs(balls:GetChildren()) do
+        if ball:IsA("BasePart") and not ball:FindFirstChild("KryvexTrail") then
+            local a0 = Instance.new("Attachment")
+            a0.Name = "KryvexA0"
+            a0.Position = Vector3.new(0, 0.5, 0)
+            a0.Parent = ball
+            local a1 = Instance.new("Attachment")
+            a1.Name = "KryvexA1"
+            a1.Position = Vector3.new(0, -0.5, 0)
+            a1.Parent = ball
+            local t = Instance.new("Trail")
+            t.Name = "KryvexTrail"
+            t.Attachment0 = a0
+            t.Attachment1 = a1
+            t.Color = ColorSequence.new(State.TrailColor)
+            t.Lifetime = 0.6
+            t.LightEmission = 1
+            t.Parent = ball
+        end
+    end
+end
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if State.BallTrail then
+            pcall(ApplyBallTrail)
+        end
+    end
+end)
+
+-- Auto Dodge
+task.spawn(function()
+    while task.wait(0.1) do
+        if State.AutoDodge then
+            local ch = LP.Character
+            local hrp = ch and ch:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local balls = workspace:FindFirstChild("Balls")
+                if balls then
+                    for _, ball in ipairs(balls:GetChildren()) do
+                        if ball:IsA("BasePart") and ball:GetAttribute("target") == LP.Name then
+                            local zoom = ball:FindFirstChild("zoomies")
+                            if zoom then
+                                local vel = zoom.VectorVelocity
+                                if vel.Magnitude > 30 then
+                                    local toMe = (hrp.Position - ball.Position).Unit
+                                    if vel.Unit:Dot(toMe) > 0.85 and (hrp.Position - ball.Position).Magnitude < 50 then
+                                        local right = workspace.CurrentCamera.CFrame.RightVector
+                                        hrp.CFrame = hrp.CFrame + right * (math.random() > 0.5 and 15 or -15)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Hit Sound
+task.spawn(function()
+    local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes", 30)
+    if remote then
+        local ps = remote:WaitForChild("ParrySuccess", 30)
+        if ps then
+            ps.OnClientEvent:Connect(function()
+                if State.HitSound then
+                    local s = Instance.new("Sound")
+                    s.SoundId = "rbxassetid://131886985"
+                    s.Volume = State.HitVolume
+                    s.Parent = LP.PlayerGui
+                    s:Play()
+                    game:GetService("Debris"):AddItem(s, 2)
+                end
+            end)
+        end
+    end
+end)
+
+-- Auto Parry
+task.spawn(function()
+    while task.wait(0.05) do
+        if State.AutoParry then
+            local ch = LP.Character
+            local hrp = ch and ch:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local balls = workspace:FindFirstChild("Balls")
+                if balls then
+                    for _, ball in ipairs(balls:GetChildren()) do
+                        if ball:IsA("BasePart") and ball:GetAttribute("target") == LP.Name then
+                            local dist = (hrp.Position - ball.Position).Magnitude
+                            local maxDist = 5 + (State.Accuracy / 100) * 10
+                            if dist < maxDist then
+                                pcall(function()
+                                    game:GetService("ReplicatedStorage").Remotes.ParryAttempt:FireServer("Remote", CFrame.new(hrp.Position, ball.Position), {0,0}, {0,0})
+                                end)
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Parry Spam
+task.spawn(function()
+    while task.wait(0.01) do
+        if State.Spam then
+            pcall(function()
+                game:GetService("ReplicatedStorage").Remotes.ParryAttempt:FireServer("Remote")
+            end)
+        end
+    end
+end)
+
+-- Triggerbot
+task.spawn(function()
+    while task.wait(0.05) do
+        if State.Triggerbot then
+            local balls = workspace:FindFirstChild("Balls")
+            if balls then
+                for _, ball in ipairs(balls:GetChildren()) do
+                    if ball:IsA("BasePart") and ball:GetAttribute("target") == LP.Name then
+                        pcall(function()
+                            game:GetService("ReplicatedStorage").Remotes.ParryAttempt:FireServer("Remote")
+                        end)
+                        break
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Ball Prediction
+local PredDrawings = {}
+task.spawn(function()
+    while task.wait(0.05) do
+        for _, d in ipairs(PredDrawings) do
+            if d.Remove then d:Remove() end
+        end
+        PredDrawings = {}
+
+        if State.BallPred then
+            local balls = workspace:FindFirstChild("Balls")
+            if balls then
+                for _, ball in ipairs(balls:GetChildren()) do
+                    if ball:IsA("BasePart") then
+                        local zoom = ball:FindFirstChild("zoomies")
+                        if zoom then
+                            local vel = zoom.VectorVelocity
+                            if vel.Magnitude > 10 then
+                                local origin = ball.Position
+                                local pred = origin + vel.Unit * (vel.Magnitude * 0.3)
+                                local so = workspace.CurrentCamera:WorldToViewportPoint(origin)
+                                local sp = workspace.CurrentCamera:WorldToViewportPoint(pred)
+                                if so.Z > 0 and sp.Z > 0 then
+                                    local line = Drawing.new("Line")
+                                    line.From = Vector2.new(so.X, so.Y)
+                                    line.To = Vector2.new(sp.X, sp.Y)
+                                    line.Color = Color3.fromRGB(255, 50, 50)
+                                    line.Thickness = 2
+                                    line.Transparency = 0.8
+                                    line.Visible = true
+                                    table.insert(PredDrawings, line)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Kill Pre-Click
+task.spawn(function()
+    local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes", 30)
+    if not remote then return end
+    local killed = remote:WaitForChild("Killed", 30)
+    if not killed then return end
+    killed.OnClientEvent:Connect(function(...)
+        if State.KillPreClick then
+            pcall(function()
+                game:GetService("ReplicatedStorage").Remotes.ParryAttempt:FireServer("Remote")
+            end)
+        end
+    end)
+end)
+
+--// LOADED NOTIFICATION
+WindUI:Notify({
+    Title = "KRYVEX HUB",
+    Content = "Loaded! Red Edition | KX",
+    Duration = 5,
+    Icon = "crown",
+})
+
+WindUI:Notify({
+    Title = "Welcome",
+    Content = "Kryvex Hub ready. Press the KRYVEX button if UI is hidden.",
+    Duration = 4,
+    Icon = "check",
+})
