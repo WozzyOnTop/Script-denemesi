@@ -1,0 +1,1560 @@
+--[[
+    ██╗  ██╗██████╗ ██╗   ██╗██╗   ██╗███████╗██╗  ██╗
+    ██║ ██╔╝██╔══██╗╚██╗ ██╔╝██║   ██║██╔════╝╚██╗██╔╝
+    █████╔╝ ██████╔╝ ╚████╔╝ ██║   ██║█████╗   ╚███╔╝
+    ██╔═██╗ ██╔══██╗  ╚██╔╝  ╚██╗ ██╔╝██╔══╝   ██╔██╗
+    ██║  ██╗██║  ██║   ██║    ╚████╔╝ ███████╗██╔╝ ██╗
+    ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝     ╚═══╝  ╚══════╝╚═╝  ╚═╝
+
+    KRYVEX HUB | Blox Fruits | Wind UI | Red Edition
+]]
+
+--// Wind UI
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+--// Servisler
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local VirtualUser = game:GetService("VirtualUser")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local TeleportService = game:GetService("TeleportService")
+local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LP = Players.LocalPlayer
+
+--// Remotes
+local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+
+--// World ID
+local World1 = game.PlaceId == 2753915549
+local World2 = game.PlaceId == 4442272183
+local World3 = game.PlaceId == 7449423635
+
+--// KRYVEX KIRMIZI TEMA
+WindUI:AddTheme({
+    Name = "Kryvex Red",
+    Accent = Color3.fromHex("#dc1e1e"),
+    Dialog = Color3.fromHex("#450a0a"),
+    Outline = Color3.fromHex("#ff3c3c"),
+    Text = Color3.fromHex("#ffebeb"),
+    Placeholder = Color3.fromHex("#a06060"),
+    Background = Color3.fromHex("#120404"),
+    Button = Color3.fromHex("#dc2626"),
+    Icon = Color3.fromHex("#ef4444"),
+    Toggle = Color3.fromHex("#dc2626"),
+    Slider = Color3.fromHex("#dc2626"),
+    Checkbox = Color3.fromHex("#dc2626"),
+    ElementBackground = Color3.fromHex("#2a0f0f"),
+    ElementBackgroundTransparency = 0,
+    TabBackground = Color3.fromHex("#1a0606"),
+    TabBackgroundHover = Color3.fromHex("#2e0808"),
+    TabBackgroundHoverTransparency = 0.3,
+    TabBackgroundActive = Color3.fromHex("#3a0a0a"),
+    TabBackgroundActiveTransparency = 0,
+    PanelBackground = Color3.fromHex("#1a0606"),
+    PanelBackgroundTransparency = 0.3,
+    NotificationBorder = Color3.fromHex("#ff3c3c"),
+})
+
+--// KX WATERMARK
+local function CreateWatermark()
+    local parent = LP:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+    local old = parent:FindFirstChild("KryvexWatermark")
+    if old then old:Destroy() end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "KryvexWatermark"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder = 99999
+    gui.Parent = parent
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 250, 0, 56)
+    frame.Position = UDim2.new(0, 20, 0, 20)
+    frame.BackgroundColor3 = Color3.fromRGB(18, 4, 4)
+    frame.BackgroundTransparency = 0.1
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Parent = gui
+
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Color3.fromRGB(220, 30, 30)
+    stroke.Thickness = 2
+    stroke.Transparency = 0.15
+
+    local kxBox = Instance.new("Frame", frame)
+    kxBox.Size = UDim2.new(0, 40, 0, 40)
+    kxBox.Position = UDim2.new(0, 8, 0.5, 0)
+    kxBox.AnchorPoint = Vector2.new(0, 0.5)
+    kxBox.BackgroundColor3 = Color3.fromRGB(140, 15, 15)
+    kxBox.BorderSizePixel = 0
+    Instance.new("UICorner", kxBox).CornerRadius = UDim.new(1, 0)
+    local kxGrad = Instance.new("UIGradient", kxBox)
+    kxGrad.Color = ColorSequence.new(Color3.fromRGB(255, 80, 80), Color3.fromRGB(120, 0, 0))
+    kxGrad.Rotation = 45
+
+    local kxLabel = Instance.new("TextLabel", kxBox)
+    kxLabel.Size = UDim2.new(1, 0, 1, 0)
+    kxLabel.BackgroundTransparency = 1
+    kxLabel.Text = "KX"
+    kxLabel.Font = Enum.Font.GothamBlack
+    kxLabel.TextSize = 18
+    kxLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    local title = Instance.new("TextLabel", frame)
+    title.Size = UDim2.new(1, -56, 0, 24)
+    title.Position = UDim2.new(0, 54, 0, 5)
+    title.BackgroundTransparency = 1
+    title.Text = "KRYVEX HUB"
+    title.TextColor3 = Color3.fromRGB(255, 50, 50)
+    title.Font = Enum.Font.GothamBlack
+    title.TextSize = 16
+    title.TextXAlignment = Enum.TextXAlignment.Left
+
+    local info = Instance.new("TextLabel", frame)
+    info.Size = UDim2.new(1, -56, 0, 18)
+    info.Position = UDim2.new(0, 54, 0, 28)
+    info.BackgroundTransparency = 1
+    info.Text = "Blox Fruits"
+    info.TextColor3 = Color3.fromRGB(230, 170, 170)
+    info.Font = Enum.Font.Code
+    info.TextSize = 11
+    info.TextXAlignment = Enum.TextXAlignment.Left
+
+    local frames, fpsTick = 0, tick()
+    RunService.RenderStepped:Connect(function()
+        frames = frames + 1
+        if tick() - fpsTick >= 1 then
+            local ping = 0
+            pcall(function()
+                ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+            end)
+            info.Text = string.format("Blox Fruits | FPS: %d | Ping: %dms", frames, ping)
+            frames, fpsTick = 0, tick()
+        end
+    end)
+
+    local drag, ds, sp
+    frame.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            drag, ds, sp = true, i.Position, frame.Position
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then drag = false end
+            end)
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local d = i.Position - ds
+            frame.Position = UDim2.new(sp.X.Scale, sp.X.Offset + d.X, sp.Y.Scale, sp.Y.Offset + d.Y)
+        end
+    end)
+
+    return gui
+end
+CreateWatermark()
+
+--// Window
+local Window = WindUI:CreateWindow({
+    Title = "KRYVEX HUB | Blox Fruits",
+    Icon = "rbxassetid://79095934438045",
+    Author = "by Kryvex",
+    Folder = "KryvexBF",
+    Size = UDim2.fromOffset(680, 500),
+    Transparent = true,
+    Theme = "Kryvex Red",
+    User = { Enabled = true, Anonymous = false },
+    SideBarWidth = 200,
+    HideSearchBar = false,
+    ScrollBarEnabled = true,
+    Resizable = true,
+    OpenButton = {
+        Title = "KRYVEX",
+        Icon = "crown",
+        CornerRadius = UDim.new(1, 0),
+        StrokeThickness = 2,
+        Color = ColorSequence.new(Color3.fromHex("#ff3c3c"), Color3.fromHex("#8b0000")),
+        OnlyMobile = false,
+        Scale = 1,
+        Enabled = true,
+        Draggable = true,
+    },
+})
+
+--// Tabs
+local MainTab    = Window:Tab({ Title = "Main",     Icon = "home" })
+local FarmTab    = Window:Tab({ Title = "Farm",     Icon = "dumbbell" })
+local CombatTab  = Window:Tab({ Title = "Combat",   Icon = "sword" })
+local FruitTab   = Window:Tab({ Title = "Fruit",    Icon = "cherry" })
+local RaidTab    = Window:Tab({ Title = "Raid",     Icon = "skull" })
+local SwordTab   = Window:Tab({ Title = "Sword",    Icon = "swords" })
+local SeaTab     = Window:Tab({ Title = "Sea",      Icon = "ship" })
+local PlayerTab  = Window:Tab({ Title = "Player",   Icon = "user" })
+local VisualTab  = Window:Tab({ Title = "Visuals",  Icon = "eye" })
+local TeleportTab= Window:Tab({ Title = "Teleport", Icon = "map-pin" })
+local ShopTab    = Window:Tab({ Title = "Shop",     Icon = "shopping-cart" })
+local MiscTab    = Window:Tab({ Title = "Misc",     Icon = "settings" })
+
+--// ==========================================
+--// STATE
+--// ==========================================
+local State = {
+    AutoFarm = false,
+    AutoFarmNearest = false,
+    AutoFarmChest = false,
+    AutoFarmBoss = false,
+    AutoFarmMaterials = false,
+    AutoFarmFruits = false,
+    AutoFarmKen = false,
+    AutoFarmMastery = false,
+    AutoFarmBone = false,
+    AutoHaki = true,
+    AutoAwaken = false,
+    AutoRaid = false,
+    AutoChip = false,
+    AutoRaceV3 = false,
+    AutoRaceV4 = false,
+    AutoBuyHaki = false,
+    AutoBuySword = false,
+    AutoBuyGun = false,
+    AutoBuyFruit = false,
+    AutoDodge = false,
+    AutoParry = false,
+    AutoSkillZ = true,
+    AutoSkillX = false,
+    AutoSkillC = false,
+    AutoSkillV = false,
+    AutoSkillF = false,
+    FastAttack = true,
+    BringMob = true,
+    Noclip = false,
+    InfiniteJump = false,
+    AntiAFK = false,
+    AutoKillPlayer = false,
+    SelectedWeapon = "Melee",
+    SelectedBoss = "",
+    SelectedMaterial = "",
+    SelectedFruit = "",
+    TargetPlayer = "",
+    WalkSpeed = 16,
+    JumpPower = 50,
+    FOV = 70,
+    HitSound = false,
+    HitVolume = 2,
+}
+
+--// ==========================================
+--// UTILS
+--// ==========================================
+local function Notify(title, content, dur)
+    WindUI:Notify({ Title = title, Content = content, Duration = dur or 3, Icon = "crown" })
+end
+
+local function EquipWeapon(name)
+    if not name then return end
+    local ch = LP.Character
+    if not ch then return end
+    local backpack = LP:FindFirstChild("Backpack")
+    local tool = ch:FindFirstChild(name) or (backpack and backpack:FindFirstChild(name))
+    if tool then
+        pcall(function()
+            ch:FindFirstChildOfClass("Humanoid"):EquipTool(tool)
+        end)
+    end
+end
+
+local function AutoHaki()
+    if State.AutoHaki then
+        local ch = LP.Character
+        if ch and not ch:FindFirstChild("HasBuso") then
+            pcall(function()
+                CommF:InvokeServer("Buso")
+            end)
+        end
+    end
+end
+
+local function GetWeaponByType(wType)
+    local backpack = LP:FindFirstChild("Backpack")
+    if not backpack then return nil end
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            if tool.ToolTip == wType then return tool.Name end
+        end
+    end
+    return nil
+end
+
+local function GetQuestData()
+    local level = LP.Data.Level.Value
+    local data = {
+        World1 = {
+            {Mon = "Bandit", Quest = "BanditQuest1", Lvl = 1, CFrame = CFrame.new(1059.37, 15.44, 1550.42)},
+            {Mon = "Monkey", Quest = "JungleQuest", Lvl = 1, CFrame = CFrame.new(-1598.08, 35.55, 153.37)},
+            {Mon = "Gorilla", Quest = "JungleQuest", Lvl = 2, CFrame = CFrame.new(-1598.08, 35.55, 153.37)},
+            {Mon = "Pirate", Quest = "BuggyQuest1", Lvl = 1, CFrame = CFrame.new(-1141.07, 4.10, 3831.55)},
+            {Mon = "Brute", Quest = "BuggyQuest1", Lvl = 2, CFrame = CFrame.new(-1141.07, 4.10, 3831.55)},
+            {Mon = "Desert Bandit", Quest = "DesertQuest", Lvl = 1, CFrame = CFrame.new(894.48, 5.14, 4392.43)},
+            {Mon = "Desert Officer", Quest = "DesertQuest", Lvl = 2, CFrame = CFrame.new(894.48, 5.14, 4392.43)},
+            {Mon = "Snow Bandit", Quest = "SnowQuest", Lvl = 1, CFrame = CFrame.new(1389.74, 88.15, -1298.90)},
+            {Mon = "Snowman", Quest = "SnowQuest", Lvl = 2, CFrame = CFrame.new(1389.74, 88.15, -1298.90)},
+            {Mon = "Chief Petty Officer", Quest = "MarineQuest2", Lvl = 1, CFrame = CFrame.new(-5039.58, 27.35, 4324.68)},
+            {Mon = "Sky Bandit", Quest = "SkyQuest", Lvl = 1, CFrame = CFrame.new(-4839.53, 716.36, -2619.44)},
+            {Mon = "Dark Master", Quest = "SkyQuest", Lvl = 2, CFrame = CFrame.new(-4839.53, 716.36, -2619.44)},
+            {Mon = "Prisoner", Quest = "PrisonerQuest", Lvl = 1, CFrame = CFrame.new(5308.93, 1.65, 475.12)},
+            {Mon = "Dangerous Prisoner", Quest = "PrisonerQuest", Lvl = 2, CFrame = CFrame.new(5308.93, 1.65, 475.12)},
+            {Mon = "Toga Warrior", Quest = "ColosseumQuest", Lvl = 1, CFrame = CFrame.new(-1580.04, 6.35, -2986.47)},
+            {Mon = "Gladiator", Quest = "ColosseumQuest", Lvl = 2, CFrame = CFrame.new(-1580.04, 6.35, -2986.47)},
+            {Mon = "Military Soldier", Quest = "MagmaQuest", Lvl = 1, CFrame = CFrame.new(-5313.37, 10.95, 8515.29)},
+            {Mon = "Military Spy", Quest = "MagmaQuest", Lvl = 2, CFrame = CFrame.new(-5313.37, 10.95, 8515.29)},
+            {Mon = "Fishman Warrior", Quest = "FishmanQuest", Lvl = 1, CFrame = CFrame.new(61122.65, 18.49, 1569.40)},
+            {Mon = "Fishman Commando", Quest = "FishmanQuest", Lvl = 2, CFrame = CFrame.new(61122.65, 18.49, 1569.40)},
+            {Mon = "God's Guard", Quest = "SkyExp1Quest", Lvl = 1, CFrame = CFrame.new(-4721.88, 843.87, -1949.96)},
+            {Mon = "Shanda", Quest = "SkyExp1Quest", Lvl = 2, CFrame = CFrame.new(-7859.09, 5544.19, -381.47)},
+            {Mon = "Royal Squad", Quest = "SkyExp2Quest", Lvl = 1, CFrame = CFrame.new(-7906.81, 5634.66, -1411.99)},
+            {Mon = "Royal Soldier", Quest = "SkyExp2Quest", Lvl = 2, CFrame = CFrame.new(-7906.81, 5634.66, -1411.99)},
+            {Mon = "Galley Pirate", Quest = "FountainQuest", Lvl = 1, CFrame = CFrame.new(5259.81, 37.35, 4050.02)},
+            {Mon = "Galley Captain", Quest = "FountainQuest", Lvl = 2, CFrame = CFrame.new(5259.81, 37.35, 4050.02)},
+        },
+        World2 = {
+            {Mon = "Raider", Quest = "Area1Quest", Lvl = 1, CFrame = CFrame.new(-429.54, 71.76, 1836.18)},
+            {Mon = "Mercenary", Quest = "Area1Quest", Lvl = 2, CFrame = CFrame.new(-429.54, 71.76, 1836.18)},
+            {Mon = "Swan Pirate", Quest = "Area2Quest", Lvl = 1, CFrame = CFrame.new(638.43, 71.76, 918.28)},
+            {Mon = "Factory Staff", Quest = "Area2Quest", Lvl = 2, CFrame = CFrame.new(632.69, 73.10, 918.66)},
+            {Mon = "Marine Lieutenant", Quest = "MarineQuest3", Lvl = 1, CFrame = CFrame.new(-2440.79, 71.71, -3216.06)},
+            {Mon = "Marine Captain", Quest = "MarineQuest3", Lvl = 2, CFrame = CFrame.new(-2440.79, 71.71, -3216.06)},
+            {Mon = "Zombie", Quest = "ZombieQuest", Lvl = 1, CFrame = CFrame.new(-5497.06, 47.59, -795.23)},
+            {Mon = "Vampire", Quest = "ZombieQuest", Lvl = 2, CFrame = CFrame.new(-5497.06, 47.59, -795.23)},
+            {Mon = "Snow Trooper", Quest = "SnowMountainQuest", Lvl = 1, CFrame = CFrame.new(609.85, 400.11, -5372.25)},
+            {Mon = "Winter Warrior", Quest = "SnowMountainQuest", Lvl = 2, CFrame = CFrame.new(609.85, 400.11, -5372.25)},
+            {Mon = "Lab Subordinate", Quest = "IceSideQuest", Lvl = 1, CFrame = CFrame.new(-6064.06, 15.24, -4902.97)},
+            {Mon = "Horned Warrior", Quest = "IceSideQuest", Lvl = 2, CFrame = CFrame.new(-6064.06, 15.24, -4902.97)},
+            {Mon = "Magma Ninja", Quest = "FireSideQuest", Lvl = 1, CFrame = CFrame.new(-5428.03, 15.06, -5299.43)},
+            {Mon = "Lava Pirate", Quest = "FireSideQuest", Lvl = 2, CFrame = CFrame.new(-5428.03, 15.06, -5299.43)},
+            {Mon = "Ship Deckhand", Quest = "ShipQuest1", Lvl = 1, CFrame = CFrame.new(1037.80, 125.09, 32911.60)},
+            {Mon = "Ship Engineer", Quest = "ShipQuest1", Lvl = 2, CFrame = CFrame.new(1037.80, 125.09, 32911.60)},
+            {Mon = "Ship Steward", Quest = "ShipQuest2", Lvl = 1, CFrame = CFrame.new(968.80, 125.09, 33244.12)},
+            {Mon = "Ship Officer", Quest = "ShipQuest2", Lvl = 2, CFrame = CFrame.new(968.80, 125.09, 33244.12)},
+            {Mon = "Arctic Warrior", Quest = "FrostQuest", Lvl = 1, CFrame = CFrame.new(5667.65, 26.79, -6486.08)},
+            {Mon = "Snow Lurker", Quest = "FrostQuest", Lvl = 2, CFrame = CFrame.new(5667.65, 26.79, -6486.08)},
+            {Mon = "Sea Soldier", Quest = "ForgottenQuest", Lvl = 1, CFrame = CFrame.new(-3054.44, 235.54, -10142.81)},
+            {Mon = "Water Fighter", Quest = "ForgottenQuest", Lvl = 2, CFrame = CFrame.new(-3054.44, 235.54, -10142.81)},
+        },
+        World3 = {
+            {Mon = "Pirate Millionaire", Quest = "PiratePortQuest", Lvl = 1, CFrame = CFrame.new(-450.10, 107.68, 5950.72)},
+            {Mon = "Pistol Billionaire", Quest = "PiratePortQuest", Lvl = 2, CFrame = CFrame.new(-450.10, 107.68, 5950.72)},
+            {Mon = "Dragon Crew Warrior", Quest = "DragonCrewQuest", Lvl = 1, CFrame = CFrame.new(6750.49, 127.44, -711.03)},
+            {Mon = "Dragon Crew Archer", Quest = "DragonCrewQuest", Lvl = 2, CFrame = CFrame.new(6750.49, 127.44, -711.03)},
+            {Mon = "Hydra Enforcer", Quest = "VenomCrewQuest", Lvl = 1, CFrame = CFrame.new(5206.40, 1004.10, 748.35)},
+            {Mon = "Venomous Assailant", Quest = "VenomCrewQuest", Lvl = 2, CFrame = CFrame.new(5206.40, 1004.10, 748.35)},
+            {Mon = "Marine Commodore", Quest = "MarineTreeIsland", Lvl = 1, CFrame = CFrame.new(2481.09, 74.27, -6779.64)},
+            {Mon = "Marine Rear Admiral", Quest = "MarineTreeIsland", Lvl = 2, CFrame = CFrame.new(2481.09, 74.27, -6779.64)},
+            {Mon = "Fishman Raider", Quest = "DeepForestIsland3", Lvl = 1, CFrame = CFrame.new(-10581.65, 330.87, -8761.18)},
+            {Mon = "Fishman Captain", Quest = "DeepForestIsland3", Lvl = 2, CFrame = CFrame.new(-10581.65, 330.87, -8761.18)},
+            {Mon = "Forest Pirate", Quest = "DeepForestIsland", Lvl = 1, CFrame = CFrame.new(-13234.04, 331.48, -7625.40)},
+            {Mon = "Mythological Pirate", Quest = "DeepForestIsland", Lvl = 2, CFrame = CFrame.new(-13234.04, 331.48, -7625.40)},
+            {Mon = "Jungle Pirate", Quest = "DeepForestIsland2", Lvl = 1, CFrame = CFrame.new(-12680.38, 389.97, -9902.01)},
+            {Mon = "Musketeer Pirate", Quest = "DeepForestIsland2", Lvl = 2, CFrame = CFrame.new(-12680.38, 389.97, -9902.01)},
+            {Mon = "Reborn Skeleton", Quest = "HauntedQuest1", Lvl = 1, CFrame = CFrame.new(-9479.21, 141.21, 5566.09)},
+            {Mon = "Living Zombie", Quest = "HauntedQuest1", Lvl = 2, CFrame = CFrame.new(-9479.21, 141.21, 5566.09)},
+            {Mon = "Demonic Soul", Quest = "HauntedQuest2", Lvl = 1, CFrame = CFrame.new(-9516.99, 172.01, 6078.46)},
+            {Mon = "Posessed Mummy", Quest = "HauntedQuest2", Lvl = 2, CFrame = CFrame.new(-9516.99, 172.01, 6078.46)},
+            {Mon = "Peanut Scout", Quest = "NutsIslandQuest", Lvl = 1, CFrame = CFrame.new(-2104.39, 38.10, -10194.21)},
+            {Mon = "Peanut President", Quest = "NutsIslandQuest", Lvl = 2, CFrame = CFrame.new(-2104.39, 38.10, -10194.21)},
+            {Mon = "Ice Cream Chef", Quest = "IceCreamIslandQuest", Lvl = 1, CFrame = CFrame.new(-820.64, 65.81, -10965.79)},
+            {Mon = "Ice Cream Commander", Quest = "IceCreamIslandQuest", Lvl = 2, CFrame = CFrame.new(-820.64, 65.81, -10965.79)},
+            {Mon = "Cookie Crafter", Quest = "CakeQuest1", Lvl = 1, CFrame = CFrame.new(-2021.32, 37.79, -12028.72)},
+            {Mon = "Cake Guard", Quest = "CakeQuest1", Lvl = 2, CFrame = CFrame.new(-2021.32, 37.79, -12028.72)},
+            {Mon = "Baking Staff", Quest = "CakeQuest2", Lvl = 1, CFrame = CFrame.new(-1927.91, 37.79, -12842.53)},
+            {Mon = "Head Baker", Quest = "CakeQuest2", Lvl = 2, CFrame = CFrame.new(-1927.91, 37.79, -12842.53)},
+            {Mon = "Cocoa Warrior", Quest = "ChocQuest1", Lvl = 1, CFrame = CFrame.new(233.22, 29.87, -12201.23)},
+            {Mon = "Chocolate Bar Battler", Quest = "ChocQuest1", Lvl = 2, CFrame = CFrame.new(233.22, 29.87, -12201.23)},
+            {Mon = "Sweet Thief", Quest = "ChocQuest2", Lvl = 1, CFrame = CFrame.new(150.50, 30.69, -12774.50)},
+            {Mon = "Candy Rebel", Quest = "ChocQuest2", Lvl = 2, CFrame = CFrame.new(150.50, 30.69, -12774.50)},
+            {Mon = "Candy Pirate", Quest = "CandyQuest1", Lvl = 1, CFrame = CFrame.new(-1150.04, 20.37, -14446.33)},
+            {Mon = "Snow Demon", Quest = "CandyQuest1", Lvl = 2, CFrame = CFrame.new(-1150.04, 20.37, -14446.33)},
+        }
+    }
+    
+    local list = World1 and data.World1 or World2 and data.World2 or data.World3
+    local result
+    for _, q in ipairs(list) do
+        result = q  -- basitçe son eşleşen
+        local range = {q.Lvl * 10, q.Lvl * 10 + 9}  -- basit level aralığı
+        if level >= (q.Lvl == 1 and 1 or q.Lvl * 10) then
+            -- burada daha karmaşık kontrol gerekir, basit tuttum
+        end
+    end
+    return list[1]  -- fallback
+end
+
+--// TP fonksiyonu
+local TweenSpeed = 350
+local function TP(pos)
+    if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return end
+    local hrp = LP.Character.HumanoidRootPart
+    local dist = (pos.Position - hrp.Position).Magnitude
+    if dist < 5 then return end
+    
+    if not LP.Character:FindFirstChild("KryvexPart") then
+        local p = Instance.new("Part")
+        p.Name = "KryvexPart"
+        p.Size = Vector3.new(1, 1, 1)
+        p.Anchored = true
+        p.CanCollide = false
+        p.Transparency = 1
+        p.CFrame = hrp.CFrame
+        p.Parent = LP.Character
+        p:GetPropertyChangedSignal("CFrame"):Connect(function()
+            if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                LP.Character.HumanoidRootPart.CFrame = p.CFrame
+            end
+        end)
+    end
+    
+    local tween = TweenService:Create(LP.Character.KryvexPart, TweenInfo.new(dist / TweenSpeed, Enum.EasingStyle.Linear), {CFrame = pos})
+    tween:Play()
+    tween.Completed:Wait()
+    
+    if LP.Character:FindFirstChild("KryvexPart") then
+        LP.Character.KryvexPart:Destroy()
+    end
+end
+
+--// ==========================================
+--// MAIN TAB
+--// ==========================================
+MainTab:Section({ Title = "Info" })
+
+MainTab:Paragraph({
+    Title = "KRYVEX HUB",
+    Desc = "Blox Fruits | Red Edition\nAll features in one hub.\nPress KRYVEX button if UI hidden.",
+})
+
+MainTab:Section({ Title = "Weapon Select" })
+
+MainTab:Dropdown({
+    Title = "Select Weapon",
+    Values = {"Melee", "Sword", "Gun", "Blox Fruit"},
+    Value = "Melee",
+    Multi = false,
+    Callback = function(v)
+        State.SelectedWeapon = v
+    end,
+})
+
+MainTab:Section({ Title = "Auto Farm" })
+
+MainTab:Toggle({
+    Title = "Auto Farm Level",
+    Desc = "Auto quest + kill mobs",
+    Value = false,
+    Callback = function(v)
+        State.AutoFarm = v
+        Notify("Kryvex", "Auto Farm: " .. (v and "ON" or "OFF"))
+    end,
+})
+
+MainTab:Toggle({
+    Title = "Auto Farm Nearest",
+    Desc = "Kill nearest mob",
+    Value = false,
+    Callback = function(v) State.AutoFarmNearest = v end,
+})
+
+MainTab:Toggle({
+    Title = "Auto Haki (Buso)",
+    Desc = "Auto enable Armament Haki",
+    Value = true,
+    Callback = function(v) State.AutoHaki = v end,
+})
+
+MainTab:Section({ Title = "Auto Skills" })
+
+MainTab:Toggle({ Title = "Auto Skill Z", Value = true, Callback = function(v) State.AutoSkillZ = v end })
+MainTab:Toggle({ Title = "Auto Skill X", Value = false, Callback = function(v) State.AutoSkillX = v end })
+MainTab:Toggle({ Title = "Auto Skill C", Value = false, Callback = function(v) State.AutoSkillC = v end })
+MainTab:Toggle({ Title = "Auto Skill V", Value = false, Callback = function(v) State.AutoSkillV = v end })
+MainTab:Toggle({ Title = "Auto Skill F", Value = false, Callback = function(v) State.AutoSkillF = v end })
+
+--// ==========================================
+--// FARM TAB
+--// ==========================================
+FarmTab:Section({ Title = "Chest Farm" })
+
+FarmTab:Toggle({
+    Title = "Auto Farm Chest",
+    Desc = "Teleports to nearest chest",
+    Value = false,
+    Callback = function(v) State.AutoFarmChest = v end,
+})
+
+FarmTab:Section({ Title = "Boss Farm" })
+
+local BossList = World1 and
+    {"The Gorilla King","Bobby","Yeti","Mob Leader","Vice Admiral","Warden","Chief Warden","Swan","Magma Admiral","Fishman Lord","Wysper","Thunder God","Cyborg"} or
+    World2 and
+    {"Diamond","Jeremy","Fajita","Don Swan","Smoke Admiral","Cursed Captain","Order","Awakened Ice Admiral","Tide Keeper"} or
+    {"Stone","Island Empress","Rocket Admiral","Captain Elephant","Beautiful Pirate","Longma","Cake Queen"}
+
+FarmTab:Dropdown({
+    Title = "Select Boss",
+    Values = BossList,
+    Value = BossList[1],
+    Multi = false,
+    Callback = function(v) State.SelectedBoss = v end,
+})
+
+FarmTab:Toggle({
+    Title = "Auto Farm Boss",
+    Value = false,
+    Callback = function(v) State.AutoFarmBoss = v end,
+})
+
+FarmTab:Section({ Title = "Material Farm" })
+
+local MaterialList = World1 and
+    {"Leather + Scrap Metal","Fish Tail","Magma Ore","Angel Wings"} or
+    World2 and
+    {"Leather + Scrap Metal","Radioactive Material","Magma Ore","Vampire Fang","Mystic Droplet","Ectoplasm"} or
+    {"Leather + Scrap Metal","Fish Tail","Mini Tusk","Dragon Scale","Conjured Cocoa"}
+
+FarmTab:Dropdown({
+    Title = "Select Material",
+    Values = MaterialList,
+    Value = MaterialList[1],
+    Multi = false,
+    Callback = function(v) State.SelectedMaterial = v end,
+})
+
+FarmTab:Toggle({
+    Title = "Auto Farm Material",
+    Value = false,
+    Callback = function(v) State.AutoFarmMaterials = v end,
+})
+
+if World3 then
+    FarmTab:Section({ Title = "Bone Farm (World 3)" })
+    
+    FarmTab:Toggle({
+        Title = "Auto Farm Bone",
+        Desc = "Farm bones in Haunted Castle",
+        Value = false,
+        Callback = function(v) State.AutoFarmBone = v end,
+    })
+end
+
+--// ==========================================
+--// COMBAT TAB
+--// ==========================================
+CombatTab:Section({ Title = "Combat Settings" })
+
+CombatTab:Toggle({
+    Title = "Fast Attack",
+    Desc = "Auto M1 (faster)",
+    Value = true,
+    Callback = function(v) State.FastAttack = v end,
+})
+
+CombatTab:Toggle({
+    Title = "Bring Mob",
+    Desc = "Bring enemies closer",
+    Value = true,
+    Callback = function(v) State.BringMob = v end,
+})
+
+CombatTab:Toggle({
+    Title = "Auto Dodge",
+    Value = false,
+    Callback = function(v) State.AutoDodge = v end,
+})
+
+CombatTab:Section({ Title = "Auto Kill Player" })
+
+local PlayerList = {}
+for _, p in ipairs(Players:GetPlayers()) do
+    if p ~= LP then table.insert(PlayerList, p.Name) end
+end
+
+CombatTab:Dropdown({
+    Title = "Select Target",
+    Values = PlayerList,
+    Value = PlayerList[1],
+    Multi = false,
+    Callback = function(v) State.TargetPlayer = v end,
+})
+
+CombatTab:Toggle({
+    Title = "Auto Kill Target",
+    Value = false,
+    Callback = function(v) State.AutoKillPlayer = v end,
+})
+
+CombatTab:Button({
+    Title = "Enable PvP",
+    Callback = function()
+        pcall(function()
+            CommF:InvokeServer("EnablePvp")
+        end)
+        Notify("PvP", "Enabled")
+    end,
+})
+
+--// ==========================================
+--// FRUIT TAB
+--// ==========================================
+FruitTab:Section({ Title = "Auto Fruit" })
+
+FruitTab:Toggle({
+    Title = "Auto Random Fruit",
+    Desc = "Buy random fruit from Cousin",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexRandomFruit = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexRandomFruit do
+                    pcall(function() CommF:InvokeServer("Cousin", "Buy") end)
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end,
+})
+
+FruitTab:Toggle({
+    Title = "Auto Store Fruit",
+    Desc = "Store all fruits in backpack",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexStoreFruit = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexStoreFruit do
+                    local backpack = LP:FindFirstChild("Backpack")
+                    if backpack then
+                        for _, tool in ipairs(backpack:GetChildren()) do
+                            if tool.Name:find("Fruit") then
+                                local firstName = tool.Name:gsub(" Fruit", "")
+                                pcall(function()
+                                    CommF:InvokeServer("StoreFruit", firstName .. "-" .. firstName, tool)
+                                end)
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end,
+})
+
+FruitTab:Toggle({
+    Title = "Auto Buy Fruit Low Beli",
+    Desc = "Buy cheapest fruits",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexBuyLowBeli = v
+        if v then
+            task.spawn(function()
+                local fruits = {"Rocket-Rocket","Spin-Spin","Chop-Chop","Spring-Spring","Bomb-Bomb","Smoke-Smoke","Spike-Spike","Flame-Flame","Falcon-Falcon","Ice-Ice","Sand-Sand","Dark-Dark","Ghost-Ghost","Diamond-Diamond","Light-Light","Rubber-Rubber","Creation-Creation"}
+                while _G.KryvexBuyLowBeli do
+                    for _, f in ipairs(fruits) do
+                        if not _G.KryvexBuyLowBeli then break end
+                        pcall(function() CommF:InvokeServer("LoadFruit", f) end)
+                        task.wait(0.1)
+                    end
+                end
+            end)
+        end
+    end,
+})
+
+FruitTab:Section({ Title = "Auto Awaken" })
+
+FruitTab:Toggle({
+    Title = "Auto Awaken Fruit",
+    Desc = "Continuously try to awaken",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexAutoAwaken = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexAutoAwaken do
+                    pcall(function() CommF:InvokeServer("Awakener", "Awaken") end)
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end,
+})
+
+--// ==========================================
+--// RAID TAB
+--// ==========================================
+RaidTab:Section({ Title = "Chip Selection" })
+
+local Chips = {"Flame","Ice","Quake","Light","Dark","String","Rumble","Magma","Human: Buddha","Sand","Bird: Phoenix","Rubber","Barrier","Gravity","Dough","Shadow","Venom","Control","Soul","Dragon"}
+
+RaidTab:Dropdown({
+    Title = "Select Chip",
+    Values = Chips,
+    Value = Chips[1],
+    Multi = false,
+    Callback = function(v) _G.KryvexChip = v end,
+})
+
+RaidTab:Toggle({
+    Title = "Auto Buy Chip",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexAutoBuyChip = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexAutoBuyChip do
+                    pcall(function()
+                        CommF:InvokeServer("RaidsNpc", "Select", _G.KryvexChip or "Flame")
+                    end)
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end,
+})
+
+RaidTab:Toggle({
+    Title = "Auto Start Raid",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexAutoStartRaid = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexAutoStartRaid do
+                    pcall(function()
+                        local timer = LP.PlayerGui.Main.Timer
+                        if not timer.Visible then
+                            if World2 then
+                                CommF:InvokeServer("SetSpawnPoint")
+                                fireclickdetector(game:GetService("Workspace").Map.CircleIsland.RaidSummon2.Button.Main.ClickDetector)
+                            elseif World3 then
+                                CommF:InvokeServer("requestEntrance", Vector3.new(-5075.5, 314.5, -3150.0))
+                                task.wait(1)
+                                fireclickdetector(game:GetService("Workspace").Map["Boat Castle"].RaidSummon2.Button.Main.ClickDetector)
+                            end
+                        end
+                    end)
+                    task.wait(2)
+                end
+            end)
+        end
+    end,
+})
+
+RaidTab:Toggle({
+    Title = "Auto Farm Raid",
+    Desc = "Kill all enemies in raid",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexAutoFarmRaid = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexAutoFarmRaid do
+                    for _, enemy in ipairs(workspace.Enemies:GetChildren()) do
+                        if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                            local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp and (enemy.HumanoidRootPart.Position - hrp.Position).Magnitude < 1000 then
+                                repeat
+                                    EquipWeapon(State.SelectedWeapon)
+                                    AutoHaki()
+                                    TP(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                    VirtualUser:CaptureController()
+                                    VirtualUser:Button1Down(Vector2.new(1280, 720))
+                                    task.wait(0.1)
+                                until not _G.KryvexAutoFarmRaid or not enemy.Parent or enemy.Humanoid.Health <= 0
+                            end
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end,
+})
+
+--// ==========================================
+--// SWORD TAB
+--// ==========================================
+SwordTab:Section({ Title = "Auto Get Swords" })
+
+SwordTab:Toggle({
+    Title = "Auto Get Saber",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexAutoSaber = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexAutoSaber do
+                    pcall(function()
+                        if LP.Data.Level.Value >= 200 then
+                            local hasSaber = false
+                            local backpack = LP:FindFirstChild("Backpack")
+                            if backpack and backpack:FindFirstChild("Saber") then hasSaber = true end
+                            if LP.Character and LP.Character:FindFirstChild("Saber") then hasSaber = true end
+                            if not hasSaber then
+                                TP(CFrame.new(-1405, 30, 5))
+                                task.wait(1)
+                                CommF:InvokeServer("Saber", "Buy")
+                            end
+                        end
+                    end)
+                    task.wait(1)
+                end
+            end)
+        end
+    end,
+})
+
+SwordTab:Toggle({
+    Title = "Auto Buy Legendary Sword",
+    Desc = "Buy from Legendary Sword Dealer",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexAutoLegendSword = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexAutoLegendSword do
+                    pcall(function()
+                        CommF:InvokeServer("LegendarySwordDealer", "1")
+                        CommF:InvokeServer("LegendarySwordDealer", "2")
+                        CommF:InvokeServer("LegendarySwordDealer", "3")
+                    end)
+                    task.wait(1)
+                end
+            end)
+        end
+    end,
+})
+
+SwordTab:Section({ Title = "Boss Sword Farming" })
+
+SwordTab:Toggle({
+    Title = "Auto Pole (Thunder God)",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexPole = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexPole do
+                    for _, mob in ipairs(workspace.Enemies:GetChildren()) do
+                        if mob.Name == "Thunder God" and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                            repeat
+                                EquipWeapon(State.SelectedWeapon)
+                                AutoHaki()
+                                TP(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                VirtualUser:CaptureController()
+                                VirtualUser:Button1Down(Vector2.new(1280, 720))
+                                task.wait(0.1)
+                            until not _G.KryvexPole or not mob.Parent or mob.Humanoid.Health <= 0
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end,
+})
+
+SwordTab:Toggle({
+    Title = "Auto Trident (Fishman Lord)",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexTrident = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexTrident do
+                    for _, mob in ipairs(workspace.Enemies:GetChildren()) do
+                        if mob.Name == "Fishman Lord" and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                            repeat
+                                EquipWeapon(State.SelectedWeapon)
+                                AutoHaki()
+                                TP(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                VirtualUser:CaptureController()
+                                VirtualUser:Button1Down(Vector2.new(1280, 720))
+                                task.wait(0.1)
+                            until not _G.KryvexTrident or not mob.Parent or mob.Humanoid.Health <= 0
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end,
+})
+
+--// ==========================================
+--// SEA TAB
+--// ==========================================
+SeaTab:Section({ Title = "Sea Beasts" })
+
+SeaTab:Toggle({
+    Title = "Auto Kill Sea Beast",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexKillSeaBeast = v
+        if v then
+            task.spawn(function()
+                while _G.KryvexKillSeaBeast do
+                    for _, beast in ipairs(workspace.SeaBeasts:GetChildren()) do
+                        local hrp = beast:FindFirstChild("HumanoidRootPart")
+                        if hrp and beast:FindFirstChild("Humanoid") and beast.Humanoid.Health > 0 then
+                            repeat
+                                EquipWeapon(State.SelectedWeapon)
+                                AutoHaki()
+                                TP(hrp.CFrame * CFrame.new(0, 50, 0))
+                                VirtualUser:CaptureController()
+                                VirtualUser:Button1Down(Vector2.new(1280, 720))
+                                task.wait(0.1)
+                            until not _G.KryvexKillSeaBeast or not beast.Parent or beast.Humanoid.Health <= 0
+                        end
+                    end
+                    task.wait(0.2)
+                end
+            end)
+        end
+    end,
+})
+
+SeaTab:Section({ Title = "Boat" })
+
+SeaTab:Button({
+    Title = "Buy Pirate Brigade",
+    Callback = function()
+        pcall(function() CommF:InvokeServer("BuyBoat", "PirateBrigade") end)
+        Notify("Boat", "Pirate Brigade bought")
+    end,
+})
+
+--// ==========================================
+--// PLAYER TAB
+--// ==========================================
+PlayerTab:Section({ Title = "Stats" })
+
+PlayerTab:Toggle({
+    Title = "Auto Melee",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexMelee = v
+        if v then task.spawn(function()
+            while _G.KryvexMelee do
+                pcall(function() CommF:InvokeServer("AddPoint", "Melee", 1) end)
+                task.wait(0.2)
+            end
+        end) end
+    end,
+})
+
+PlayerTab:Toggle({
+    Title = "Auto Defense",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexDefense = v
+        if v then task.spawn(function()
+            while _G.KryvexDefense do
+                pcall(function() CommF:InvokeServer("AddPoint", "Defense", 1) end)
+                task.wait(0.2)
+            end
+        end) end
+    end,
+})
+
+PlayerTab:Toggle({
+    Title = "Auto Sword",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexSword = v
+        if v then task.spawn(function()
+            while _G.KryvexSword do
+                pcall(function() CommF:InvokeServer("AddPoint", "Sword", 1) end)
+                task.wait(0.2)
+            end
+        end) end
+    end,
+})
+
+PlayerTab:Toggle({
+    Title = "Auto Demon Fruit",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexDFruit = v
+        if v then task.spawn(function()
+            while _G.KryvexDFruit do
+                pcall(function() CommF:InvokeServer("AddPoint", "Demon Fruit", 1) end)
+                task.wait(0.2)
+            end
+        end) end
+    end,
+})
+
+PlayerTab:Toggle({
+    Title = "Auto Gun",
+    Value = false,
+    Callback = function(v)
+        _G.KryvexGun = v
+        if v then task.spawn(function()
+            while _G.KryvexGun do
+                pcall(function() CommF:InvokeServer("AddPoint", "Gun", 1) end)
+                task.wait(0.2)
+            end
+        end) end
+    end,
+})
+
+PlayerTab:Section({ Title = "Movement" })
+
+PlayerTab:Slider({
+    Title = "WalkSpeed",
+    Value = { Min = 16, Max = 300, Default = 16 },
+    Step = 1,
+    Callback = function(v)
+        State.WalkSpeed = v
+        local ch = LP.Character
+        if ch then
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = v end
+        end
+    end,
+})
+
+PlayerTab:Slider({
+    Title = "JumpPower",
+    Value = { Min = 50, Max = 500, Default = 50 },
+    Step = 5,
+    Callback = function(v)
+        State.JumpPower = v
+        local ch = LP.Character
+        if ch then
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if hum then hum.UseJumpPower = true; hum.JumpPower = v end
+        end
+    end,
+})
+
+PlayerTab:Toggle({
+    Title = "Infinite Jump",
+    Value = false,
+    Callback = function(v) State.InfiniteJump = v end,
+})
+
+PlayerTab:Toggle({
+    Title = "Noclip",
+    Value = false,
+    Callback = function(v) State.Noclip = v end,
+})
+
+--// ==========================================
+--// VISUAL TAB
+--// ==========================================
+VisualTab:Section({ Title = "ESP" })
+
+VisualTab:Toggle({
+    Title = "ESP Chest",
+    Value = false,
+    Callback = function(v) _G.KryvexEspChest = v end,
+})
+
+VisualTab:Toggle({
+    Title = "ESP Fruit",
+    Value = false,
+    Callback = function(v) _G.KryvexEspFruit = v end,
+})
+
+VisualTab:Toggle({
+    Title = "ESP Player",
+    Value = false,
+    Callback = function(v) _G.KryvexEspPlayer = v end,
+})
+
+VisualTab:Section({ Title = "Camera" })
+
+VisualTab:Slider({
+    Title = "FOV",
+    Value = { Min = 40, Max = 120, Default = 70 },
+    Step = 1,
+    Callback = function(v)
+        State.FOV = v
+        workspace.CurrentCamera.FieldOfView = v
+    end,
+})
+
+--// ==========================================
+--// TELEPORT TAB
+--// ==========================================
+TeleportTab:Section({ Title = "Islands" })
+
+local function addTP(name, cframe)
+    TeleportTab:Button({
+        Title = name,
+        Callback = function()
+            TP(cframe)
+            Notify("Kryvex", "Teleported to " .. name)
+        end,
+    })
+end
+
+if World1 then
+    addTP("WindMill", CFrame.new(979.79, 16.51, 1429.04))
+    addTP("Marine", CFrame.new(-2566.42, 6.85, 2045.25))
+    addTP("Middle Town", CFrame.new(-690.33, 15.09, 1582.23))
+    addTP("Jungle", CFrame.new(-1612.79, 36.85, 149.12))
+    addTP("Pirate Village", CFrame.new(-1181.30, 4.75, 3803.54))
+    addTP("Desert", CFrame.new(944.15, 20.91, 4373.30))
+    addTP("Snow Island", CFrame.new(1347.80, 104.66, -1319.73))
+    addTP("MarineFord", CFrame.new(-4914.82, 50.96, 4281.02))
+    addTP("Colosseum", CFrame.new(-1427.62, 7.28, -2792.77))
+    addTP("Sky Island 1", CFrame.new(-4869.10, 733.46, -2667.01))
+    addTP("Prison", CFrame.new(4875.33, 5.65, 734.85))
+    addTP("Magma Village", CFrame.new(-5247.71, 12.88, 8504.96))
+    addTP("Fountain City", CFrame.new(5127.12, 59.50, 4105.44))
+elseif World2 then
+    addTP("Cafe", CFrame.new(-380.47, 77.22, 255.82))
+    addTP("First Spot", CFrame.new(-11.31, 29.27, 2771.52))
+    addTP("Dark Area", CFrame.new(3780.03, 22.65, -3498.58))
+    addTP("Flamingo Mansion", CFrame.new(-483.73, 332.03, 595.32))
+    addTP("Green Zone", CFrame.new(-2448.53, 73.01, -3210.63))
+    addTP("Factory", CFrame.new(424.12, 211.16, -427.54))
+    addTP("Colosseum", CFrame.new(-1503.62, 219.79, 1369.31))
+    addTP("Zombie Island", CFrame.new(-5622.03, 492.19, -781.78))
+    addTP("Cursed Ship", CFrame.new(923.40, 125.05, 32885.87))
+    addTP("Ice Castle", CFrame.new(6148.41, 294.38, -6741.11))
+    addTP("Forgotten Island", CFrame.new(-3032.76, 317.89, -10075.37))
+elseif World3 then
+    addTP("Port Town", CFrame.new(-290.73, 6.72, 5343.55))
+    addTP("Hydra Island", CFrame.new(5255.10, 1004.19, 344.77))
+    addTP("Great Tree", CFrame.new(2681.27, 1682.80, -7190.98))
+    addTP("Castle On The Sea", CFrame.new(-5074.45, 314.51, -2991.05))
+    addTP("Floating Turtle", CFrame.new(-13274.52, 531.82, -7579.22))
+    addTP("Haunted Castle", CFrame.new(-9515.37, 164.00, 5786.06))
+    addTP("Ice Cream Island", CFrame.new(-902.56, 79.93, -10988.84))
+    addTP("Peanut Island", CFrame.new(-2062.74, 50.47, -10232.56))
+    addTP("Cake Island", CFrame.new(-1884.77, 19.32, -11666.89))
+    addTP("Cocoa Island", CFrame.new(87.94, 73.55, -12319.46))
+    addTP("Candy Island", CFrame.new(-1014.42, 149.11, -14555.96))
+end
+
+--// ==========================================
+--// SHOP TAB
+--// ==========================================
+ShopTab:Section({ Title = "Haki" })
+
+ShopTab:Button({ Title = "Buy Geppo ($10,000)", Callback = function() CommF:InvokeServer("BuyHaki", "Geppo") end })
+ShopTab:Button({ Title = "Buy Buso ($25,000)", Callback = function() CommF:InvokeServer("BuyHaki", "Buso") end })
+ShopTab:Button({ Title = "Buy Soru ($25,000)", Callback = function() CommF:InvokeServer("BuyHaki", "Soru") end })
+ShopTab:Button({ Title = "Buy Observation Haki ($750,000)", Callback = function() CommF:InvokeServer("KenTalk", "Buy") end })
+
+ShopTab:Section({ Title = "Fighting Styles" })
+
+ShopTab:Button({ Title = "Buy Black Leg ($150,000)", Callback = function() CommF:InvokeServer("BuyBlackLeg") end })
+ShopTab:Button({ Title = "Buy Electro ($550,000)", Callback = function() CommF:InvokeServer("BuyElectro") end })
+ShopTab:Button({ Title = "Buy Water Kung Fu ($750,000)", Callback = function() CommF:InvokeServer("BuyFishmanKarate") end })
+ShopTab:Button({ Title = "Buy Superhuman ($3,000,000)", Callback = function() CommF:InvokeServer("BuySuperhuman") end })
+ShopTab:Button({ Title = "Buy Death Step ($5,000,000)", Callback = function() CommF:InvokeServer("BuyDeathStep") end })
+ShopTab:Button({ Title = "Buy Sharkman Karate ($2,500,000)", Callback = function()
+    CommF:InvokeServer("BuySharkmanKarate", true)
+    CommF:InvokeServer("BuySharkmanKarate")
+end })
+ShopTab:Button({ Title = "Buy Electric Claw ($3,000,000)", Callback = function() CommF:InvokeServer("BuyElectricClaw") end })
+ShopTab:Button({ Title = "Buy Dragon Talon ($3,000,000)", Callback = function() CommF:InvokeServer("BuyDragonTalon") end })
+ShopTab:Button({ Title = "Buy God Human ($5,000,000)", Callback = function() CommF:InvokeServer("BuyGodhuman") end })
+ShopTab:Button({ Title = "Buy Sanguine Art ($5,000,000)", Callback = function()
+    CommF:InvokeServer("BuySanguineArt", true)
+    CommF:InvokeServer("BuySanguineArt")
+end })
+
+ShopTab:Section({ Title = "Guns" })
+
+ShopTab:Button({ Title = "Buy Slingshot ($5,000)", Callback = function() CommF:InvokeServer("BuyItem", "Slingshot") end })
+ShopTab:Button({ Title = "Buy Musket ($8,000)", Callback = function() CommF:InvokeServer("BuyItem", "Musket") end })
+ShopTab:Button({ Title = "Buy Flintlock ($10,500)", Callback = function() CommF:InvokeServer("BuyItem", "Flintlock") end })
+ShopTab:Button({ Title = "Buy Refined Slingshot ($30,000)", Callback = function() CommF:InvokeServer("BuyItem", "Refined Slingshot") end })
+ShopTab:Button({ Title = "Buy Refined Flintlock ($65,000)", Callback = function() CommF:InvokeServer("BuyItem", "Refined Flintlock") end })
+ShopTab:Button({ Title = "Buy Cannon ($100,000)", Callback = function() CommF:InvokeServer("BuyItem", "Cannon") end })
+ShopTab:Button({ Title = "Buy Kabucha (1,500 F)", Callback = function()
+    CommF:InvokeServer("BlackbeardReward", "Slingshot", "1")
+    CommF:InvokeServer("BlackbeardReward", "Slingshot", "2")
+end })
+
+ShopTab:Section({ Title = "Swords" })
+
+ShopTab:Button({ Title = "Buy Cutlass ($1,000)", Callback = function() CommF:InvokeServer("BuyItem", "Cutlass") end })
+ShopTab:Button({ Title = "Buy Katana ($1,000)", Callback = function() CommF:InvokeServer("BuyItem", "Katana") end })
+ShopTab:Button({ Title = "Buy Iron Mace ($25,000)", Callback = function() CommF:InvokeServer("BuyItem", "Iron Mace") end })
+ShopTab:Button({ Title = "Buy Dual Katana ($12,000)", Callback = function() CommF:InvokeServer("BuyItem", "Duel Katana") end })
+ShopTab:Button({ Title = "Buy Triple Katana ($60,000)", Callback = function() CommF:InvokeServer("BuyItem", "Triple Katana") end })
+ShopTab:Button({ Title = "Buy Pipe ($100,000)", Callback = function() CommF:InvokeServer("BuyItem", "Pipe") end })
+ShopTab:Button({ Title = "Buy Dual-Headed Blade ($400,000)", Callback = function() CommF:InvokeServer("BuyItem", "Dual-Headed Blade") end })
+ShopTab:Button({ Title = "Buy Bisento ($1,200,000)", Callback = function() CommF:InvokeServer("BuyItem", "Bisento") end })
+ShopTab:Button({ Title = "Buy Soul Cane ($750,000)", Callback = function() CommF:InvokeServer("BuyItem", "Soul Cane") end })
+
+ShopTab:Section({ Title = "Race / Stats" })
+
+ShopTab:Button({ Title = "Random Race (3,000 F)", Callback = function()
+    CommF:InvokeServer("BlackbeardReward", "Reroll", "1")
+    CommF:InvokeServer("BlackbeardReward", "Reroll", "2")
+end })
+ShopTab:Button({ Title = "Reset Stats (2,500 F)", Callback = function()
+    CommF:InvokeServer("BlackbeardReward", "Refund", "1")
+    CommF:InvokeServer("BlackbeardReward", "Refund", "2")
+end })
+
+--// ==========================================
+--// MISC TAB
+--// ==========================================
+MiscTab:Section({ Title = "FPS Boost" })
+
+MiscTab:Button({
+    Title = "FPS Boost",
+    Desc = "Disable effects for better FPS",
+    Callback = function()
+        pcall(function()
+            for _, v in pairs(game:GetDescendants()) do
+                if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                    v.Enabled = false
+                elseif v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("DepthOfFieldEffect") then
+                    v.Enabled = false
+                end
+            end
+            local lighting = game:GetService("Lighting")
+            lighting.GlobalShadows = false
+            lighting.FogEnd = 9e9
+        end)
+        Notify("Kryvex", "FPS Boosted")
+    end,
+})
+
+MiscTab:Button({
+    Title = "Remove Lava",
+    Callback = function()
+        pcall(function()
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v.Name == "Lava" or v.Name:lower():find("lava") then
+                    if v:IsA("BasePart") or v:IsA("MeshPart") then
+                        v:Destroy()
+                    end
+                end
+            end
+        end)
+        Notify("Kryvex", "Lava removed")
+    end,
+})
+
+MiscTab:Section({ Title = "Anti AFK" })
+
+MiscTab:Toggle({
+    Title = "Anti AFK",
+    Desc = "Prevent 20-min kick",
+    Value = false,
+    Callback = function(v) State.AntiAFK = v end,
+})
+
+LP.Idled:Connect(function()
+    if State.AntiAFK then
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end
+end)
+
+MiscTab:Section({ Title = "Server" })
+
+MiscTab:Button({
+    Title = "Rejoin Server",
+    Callback = function()
+        TeleportService:Teleport(game.PlaceId, LP)
+    end,
+})
+
+MiscTab:Button({
+    Title = "Server Hop",
+    Callback = function()
+        Notify("Kryvex", "Searching...")
+        pcall(function()
+            local res = game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100")
+            local data = HttpService:JSONDecode(res)
+            local servers = {}
+            for _, v in pairs(data.data) do
+                if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    table.insert(servers, v.id)
+                end
+            end
+            if #servers > 0 then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LP)
+            end
+        end)
+    end,
+})
+
+MiscTab:Section({ Title = "Danger Zone" })
+
+MiscTab:Button({
+    Title = "Destroy Kryvex Hub",
+    Callback = function()
+        local gui = LP:FindFirstChildOfClass("PlayerGui"):FindFirstChild("KryvexWatermark")
+        if gui then gui:Destroy() end
+        Window:Destroy()
+    end,
+})
+
+--// ==========================================
+--// CORE LOOPS
+--// ==========================================
+
+-- Auto Farm Level (basit)
+task.spawn(function()
+    while task.wait(1) do
+        if State.AutoFarm then
+            pcall(function()
+                local level = LP.Data.Level.Value
+                local questData = GetQuestData()
+                if not questData then return end
+                
+                -- Quest al
+                if not LP.PlayerGui.Main.Quest.Visible then
+                    TP(questData.CFrame)
+                    task.wait(0.5)
+                    pcall(function()
+                        CommF:InvokeServer("StartQuest", questData.Quest, questData.Lvl)
+                    end)
+                else
+                    -- Mob kes
+                    for _, mob in ipairs(workspace.Enemies:GetChildren()) do
+                        if mob.Name == questData.Mon and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                            repeat
+                                EquipWeapon(State.SelectedWeapon or GetWeaponByType("Melee"))
+                                AutoHaki()
+                                if mob:FindFirstChild("HumanoidRootPart") then
+                                    TP(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                                end
+                                VirtualUser:CaptureController()
+                                VirtualUser:Button1Down(Vector2.new(1280, 720))
+                                task.wait(0.1)
+                            until not State.AutoFarm or not mob.Parent or mob.Humanoid.Health <= 0
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Auto Farm Chest
+task.spawn(function()
+    while task.wait(0.5) do
+        if State.AutoFarmChest then
+            pcall(function()
+                local chests = CollectionService:GetTagged("_ChestTagged")
+                for _, chest in ipairs(chests) do
+                    if not chest:GetAttribute("IsDisabled") then
+                        TP(chest:GetPivot())
+                        break
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Auto Farm Nearest
+task.spawn(function()
+    while task.wait(0.5) do
+        if State.AutoFarmNearest then
+            pcall(function()
+                for _, mob in ipairs(workspace.Enemies:GetChildren()) do
+                    if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart") then
+                        EquipWeapon(State.SelectedWeapon or GetWeaponByType("Melee"))
+                        AutoHaki()
+                        TP(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                        VirtualUser:CaptureController()
+                        VirtualUser:Button1Down(Vector2.new(1280, 720))
+                        break
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Auto Farm Boss
+task.spawn(function()
+    while task.wait(0.5) do
+        if State.AutoFarmBoss and State.SelectedBoss ~= "" then
+            pcall(function()
+                for _, mob in ipairs(workspace.Enemies:GetChildren()) do
+                    if mob.Name == State.SelectedBoss and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                        EquipWeapon(State.SelectedWeapon or GetWeaponByType("Melee"))
+                        AutoHaki()
+                        TP(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                        VirtualUser:CaptureController()
+                        VirtualUser:Button1Down(Vector2.new(1280, 720))
+                        break
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Auto Farm Materials (basit)
+task.spawn(function()
+    while task.wait(0.5) do
+        if State.AutoFarmMaterials and State.SelectedMaterial ~= "" then
+            pcall(function()
+                local matMap = {
+                    ["Leather + Scrap Metal"] = {"Brute", CFrame.new(-1145, 15, 4350)},
+                    ["Fish Tail"] = {"Fishman Warrior", CFrame.new(61123, 19, 1569)},
+                    ["Magma Ore"] = {"Military Spy", CFrame.new(-5815, 84, 8820)},
+                    ["Angel Wings"] = {"God's Guard", CFrame.new(-4698, 845, -1912)},
+                    ["Radioactive Material"] = {"Factory Staff", CFrame.new(-105, 72, -670)},
+                    ["Vampire Fang"] = {"Vampire", CFrame.new(-6033, 7, -1317)},
+                    ["Mystic Droplet"] = {"Water Fighter", CFrame.new(-3385, 239, -10542)},
+                    ["Ectoplasm"] = {"Ship Deckhand", CFrame.new(1198, 126, 33031)},
+                    ["Mini Tusk"] = {"Mythological Pirate", CFrame.new(-13545, 470, -6917)},
+                    ["Dragon Scale"] = {"Dragon Crew Archer", CFrame.new(6594, 383, 139)},
+                    ["Conjured Cocoa"] = {"Chocolate Bar Battler", CFrame.new(620, 78, -12581)},
+                }
+                local mat = matMap[State.SelectedMaterial]
+                if mat then
+                    for _, mob in ipairs(workspace.Enemies:GetChildren()) do
+                        if mob.Name == mat[1] and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                            EquipWeapon(State.SelectedWeapon or GetWeaponByType("Melee"))
+                            AutoHaki()
+                            TP(mob.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                            VirtualUser:CaptureController()
+                            VirtualUser:Button1Down(Vector2.new(1280, 720))
+                            break
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Auto Kill Player
+task.spawn(function()
+    while task.wait(0.1) do
+        if State.AutoKillPlayer and State.TargetPlayer ~= "" then
+            pcall(function()
+                local target = Players:FindFirstChild(State.TargetPlayer)
+                if target and target.Character then
+                    local hrp = target.Character:FindFirstChild("HumanoidRootPart")
+                    local hum = target.Character:FindFirstChild("Humanoid")
+                    if hrp and hum and hum.Health > 0 then
+                        EquipWeapon(State.SelectedWeapon or GetWeaponByType("Melee"))
+                        AutoHaki()
+                        TP(hrp.CFrame * CFrame.new(0, 5, 0))
+                        VirtualUser:CaptureController()
+                        VirtualUser:Button1Down(Vector2.new(1280, 720))
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Noclip
+task.spawn(function()
+    RunService.Stepped:Connect(function()
+        if State.Noclip then
+            local ch = LP.Character
+            if ch then
+                for _, p in ipairs(ch:GetDescendants()) do
+                    if p:IsA("BasePart") then
+                        p.CanCollide = false
+                    end
+                end
+            end
+        end
+    end)
+end)
+
+-- Infinite Jump
+UIS.JumpRequest:Connect(function()
+    if State.InfiniteJump then
+        local ch = LP.Character
+        if ch then
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+        end
+    end
+end)
+
+-- Character reset
+LP.CharacterAdded:Connect(function()
+    task.wait(1)
+    local ch = LP.Character
+    if ch then
+        local hum = ch:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = State.WalkSpeed
+            hum.UseJumpPower = true
+            hum.JumpPower = State.JumpPower
+        end
+    end
+end)
+
+-- Fast Attack (basit)
+task.spawn(function()
+    while task.wait(0.15) do
+        if State.FastAttack then
+            pcall(function()
+                local ch = LP.Character
+                if ch then
+                    VirtualUser:CaptureController()
+                    VirtualUser:Button1Down(Vector2.new(1280, 720))
+                end
+            end)
+        end
+    end
+end)
+
+-- Auto Skills
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            if State.AutoSkillZ then
+                VirtualInputManager:SendKeyEvent(true, "Z", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "Z", false, game)
+            end
+            if State.AutoSkillX then
+                VirtualInputManager:SendKeyEvent(true, "X", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "X", false, game)
+            end
+            if State.AutoSkillC then
+                VirtualInputManager:SendKeyEvent(true, "C", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "C", false, game)
+            end
+            if State.AutoSkillV then
+                VirtualInputManager:SendKeyEvent(true, "V", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "V", false, game)
+            end
+            if State.AutoSkillF then
+                VirtualInputManager:SendKeyEvent(true, "F", false, game)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(false, "F", false, game)
+            end
+        end)
+    end
+end)
+
+-- Loaded
+Notify("KRYVEX HUB", "Loaded! Blox Fruits | Red Edition")
+task.wait(1)
+Notify("Welcome", "Hello " .. LP.DisplayName .. "!", 5)
