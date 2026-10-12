@@ -1,7 +1,7 @@
 --[[
 =====================================================================
-   360's GAG   -   Grow a Garden 2 hub
-   Axon-style two-column UI, ruby-red accents.
+   KRYVEX HUB   -   Grow a Garden 2
+   Axon-style two-column UI, ruby-red KX theme.
    Right Shift toggles UI.  The X fully unloads.
 =====================================================================
 ]]
@@ -19,7 +19,7 @@ local LocalPlayer      = Players.LocalPlayer
 --========================== GAME API ==============================--
 local Net = (function() local ok,m = pcall(function() return require(ReplicatedStorage.SharedModules.Networking) end) return ok and m or nil end)()
 local PSC = (function() local ok,m = pcall(function() return require(ReplicatedStorage.ClientModules.PlayerStateClient) end) return ok and m or nil end)()
-if not Net then warn("[360's GAG] Networking module missing - aborting."); return end
+if not Net then warn("[Kryvex Hub] Networking module missing - aborting."); return end
 
 local SeedData = (function() local ok,d = pcall(function() return require(ReplicatedStorage.SharedModules.SeedData) end) return ok and d or {} end)()
 local SeedPrice = {}
@@ -27,8 +27,6 @@ for _, e in ipairs(SeedData) do
     if type(e) == "table" and e.SeedName then SeedPrice[e.SeedName] = tonumber(e.PurchasePrice) or math.huge end
 end
 local FruitValueCalc = (function() local ok,m = pcall(function() return require(ReplicatedStorage.SharedModules.FruitValueCalc) end) return (ok and type(m) == "function") and m or nil end)()
--- FruitValueCalc can't be called from spawned loop threads (executor capability),
--- so precompute each crop's base value here on the main thread and cache it.
 local SeedBaseValue = {}
 if FruitValueCalc then
     for _, e in ipairs(SeedData) do
@@ -38,8 +36,8 @@ if FruitValueCalc then
         end
     end
 end
-local MUT_BONUS = 2.35  -- rough multiplier for any mutation (gold/rainbow/etc.)
-local SIZE_EXP  = 2.65  -- FruitValueCalc scales value by size^2.65
+local MUT_BONUS = 2.35
+local SIZE_EXP  = 2.65
 local function sizeMul(sz) sz = tonumber(sz) or 1 return sz ^ SIZE_EXP end
 local PetData = (function() local ok,m = pcall(function() return require(ReplicatedStorage.SharedData.PetData) end) return ok and m or {} end)()
 local function getAnimalOptions()
@@ -51,7 +49,7 @@ end
 --========================== LIFECYCLE =============================--
 local Hub = { running = true, conns = {} }
 local genv = (getgenv and getgenv()) or _G
-if genv.GAG360_unload then pcall(genv.GAG360_unload) end
+if genv.KryvexHub_unload then pcall(genv.KryvexHub_unload) end
 local function track(conn) table.insert(Hub.conns, conn); return conn end
 local function spawnLoop(interval, fn)
     task.spawn(function()
@@ -78,12 +76,20 @@ local S = {
     autoTame = false, tameAnimals = {}, autoEquipPets = false, equipPets = {},
     walkSpeed = 16, jumpPower = 50, infJump = false, noclip = false, fly = false, flySpeed = 60,
     antiAfk = true, optimize = false, autoProgress = false,
+    -- NEW: Combat features (Aimbot, ESP, Kill Aura, etc.)
+    aimbotEnabled = false, aimbotRadius = 200, aimbotSmoothness = 0.2, aimbotPart = "Head", aimbotTeamCheck = false,
+    killAura = false, killAuraRange = 20,
+    espEnabled = false, espNames = false, espDistance = false, espHealth = false, espTracers = false,
+    speedHack = false, speedValue = 40, jumpHack = false, jumpValue = 100,
+    noclipActive = false, infiniteJump = false,
+    -- Visual
+    fullbright = false, nightVision = false, noFog = false,
     highlightReady = false, highlightRare = false, rareNotify = false,
     webhookUrl = "", whRareSeed = false, whBigHarvest = false, autoHopRare = false,
 }
 
--- settings persistence: save S to disk, restore it on next load (toggles, sliders, picks)
-local SAVE_FILE = "360_GAG_GrowAGarden2.json"
+-- settings persistence
+local SAVE_FILE = "KryvexHub_GrowAGarden2.json"
 local HttpService = game:GetService("HttpService")
 local function saveSettings()
     if not writefile then return end
@@ -98,7 +104,7 @@ local function loadSettings()
     for k, v in pairs(data) do
         if S[k] ~= nil then
             if type(S[k]) == "table" and type(v) == "table" then
-                table.clear(S[k]); for kk, vv in pairs(v) do S[k][kk] = vv end  -- keep the table reference the UI holds
+                table.clear(S[k]); for kk, vv in pairs(v) do S[k][kk] = vv end
             elseif type(S[k]) == type(v) then
                 S[k] = v
             end
@@ -121,8 +127,8 @@ local function hrp()      local c = char() return c and c:FindFirstChild("Humano
 local function humanoid() local c = char() return c and c:FindFirstChildOfClass("Humanoid") end
 local function fire(pkt, ...) local a = {...} return pcall(function() return pkt:Fire(table.unpack(a)) end) end
 local function teleportTo(pos) local r = hrp() if r and pos then r.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0)) end end
-local toast  -- cool in-hub slide-in notification (assigned once the GUI exists)
-local function notify(t, title, col) if toast then toast(title or "360's GAG", t, col) end pcall(function() Net.Notification:Fire("360's GAG", t) end) end
+local toast
+local function notify(t, title, col) if toast then toast(title or "Kryvex Hub", t, col) end pcall(function() Net.Notification:Fire("Kryvex Hub", t) end) end
 
 local function setCharCollide(on)
     local c = char(); if not c then return end
@@ -132,20 +138,18 @@ local HOP = 70
 local function reach(pos)
     local r = hrp(); if not (r and pos) then return end
     local target = pos + Vector3.new(0, 3, 0)
-    setCharCollide(false)  -- noclip while teleporting so we never snag on fences/geometry
+    setCharCollide(false)
     for _ = 1, 60 do
         local cur = r.Position; local delta = target - cur
         if delta.Magnitude <= HOP then r.CFrame = CFrame.new(target); break end
         r.CFrame = CFrame.new(cur + delta.Unit * HOP); RunService.Heartbeat:Wait()
     end
-    if not S.noclip then setCharCollide(true) end  -- restore unless permanent noclip is on
+    if not S.noclip then setCharCollide(true) end
 end
 local function fruitValue(m)
     local base = SeedBaseValue[m:GetAttribute("CorePartName") or m:GetAttribute("SeedName")] or 0
     return base * sizeMul(m:GetAttribute("SizeMulti") or 1) * (m:GetAttribute("Mutation") and MUT_BONUS or 1)
 end
--- a fruit/plant is ready when its Age has reached MaxAge (reliable + cheap);
--- fall back to the presence of a HarvestPrompt-tagged prompt inside it.
 local function modelRipe(m)
     local age = tonumber(m:GetAttribute("Age")); local mx = tonumber(m:GetAttribute("MaxAge"))
     if age and mx then return age >= mx - 0.001 end
@@ -154,7 +158,6 @@ local function modelRipe(m)
     end
     return false
 end
--- scan only MY plot (fast + reliable) instead of every tagged prompt on the server
 local function ownHarvestTargets(respectFilter)
     local useCrop = respectFilter and next(S.harvestCrops) ~= nil
     local out = {}
@@ -170,9 +173,9 @@ local function ownHarvestTargets(respectFilter)
         local fr = plant:FindFirstChild("Fruits")
         local fruits = fr and fr:GetChildren() or {}
         if #fruits > 0 then
-            for _, m in ipairs(fruits) do if modelRipe(m) then consider(m) end end  -- multi-fruit crops
+            for _, m in ipairs(fruits) do if modelRipe(m) then consider(m) end end
         elseif modelRipe(plant) then
-            consider(plant)  -- single-harvest crops (carrot/tulip/bamboo) - the plant is the unit
+            consider(plant)
         end
     end
     return out
@@ -195,8 +198,6 @@ local function collectModel(m)
     reach(m:GetPivot().Position); task.wait(S.perFruitDelay)
     fire(Net.Garden.CollectFruit, pid, m:GetAttribute("FruitId") or "")
 end
--- bulk harvest: stand at plot centre once, then fire CollectFruit for every ripe
--- fruit (own crops sit within ~20 studs of centre) - no per-fruit teleporting
 local function harvestAll(respectFilter)
     local plot = myPlot(); local ref = plot and plot:FindFirstChild("PlotSizeReference"); local r = hrp()
     if ref and r and (Vector3.new(r.Position.X,0,r.Position.Z) - Vector3.new(ref.Position.X,0,ref.Position.Z)).Magnitude > 16 then
@@ -215,7 +216,6 @@ local function stealModel(m, mult, skipReach)
     if not (uid and pid) then return end
     if not skipReach then reach(m:GetPivot().Position); task.wait(0.05) end
     fire(Net.Steal.BeginSteal, uid, pid, m:GetAttribute("FruitId") or "")
-    -- you can carry multiple fruits per steal - fire CompleteSteal mult times
     for _ = 1, math.max(1, mult or 1) do fire(Net.Steal.CompleteSteal) end
 end
 
@@ -242,7 +242,6 @@ local function getSeedOptions()
     local names = {} for _, x in ipairs(list) do names[#names + 1] = x[1] end
     return names
 end
--- ONLY the seeds currently in your inventory (live-updates with the shop dropdown loop)
 local function getOwnedSeedOptions()
     local d = getData(); local order = {}
     for _, e in ipairs(SeedData) do if e.SeedName then order[e.SeedName] = tonumber(e.SeedShopDisplayOrder) or 900 end end
@@ -253,7 +252,6 @@ local function getOwnedSeedOptions()
     table.sort(list, function(a, b) local oa, ob = order[a] or 900, order[b] or 900 if oa == ob then return a < b end return oa < ob end)
     return list
 end
--- distinct crop types currently PLANTED in your garden (for the remove picker)
 local function getPlantedOptions()
     local plot = myPlot(); local seen = {}
     if plot then local plants = plot:FindFirstChild("Plants")
@@ -277,7 +275,6 @@ local function getPetOptions()
 end
 local function maxEquip() return tonumber(LocalPlayer:GetAttribute("MaxEquippedPets")) or 3 end
 
--- most valuable seed you currently own (uses cached base values)
 local function bestOwnedSeed()
     local d = getData(); local seeds = d and d.Inventory and d.Inventory.Seeds; if not seeds then return nil end
     local best, bestV
@@ -286,7 +283,6 @@ local function bestOwnedSeed()
     end
     return best, bestV
 end
--- estimated worth of harvested fruit in your backpack (cached base * size * mutation)
 local function inventoryValue()
     local total, n = 0, 0
     local function scan(c) if not c then return end for _, t in ipairs(c:GetChildren()) do
@@ -323,23 +319,22 @@ local function restockIn(shop)
     return nx and math.max(0, nx.Value - os.time()) or nil
 end
 
---====================== GUI THEME (RUBY) ==========================--
+--====================== GUI THEME (RUBY RED / KX) ==========================--
 local C = {
-    bg     = Color3.fromRGB(17,17,20),  panel  = Color3.fromRGB(23,23,27),  card  = Color3.fromRGB(29,29,34),
-    cardHi = Color3.fromRGB(36,36,42),  inset  = Color3.fromRGB(15,15,18),  stroke= Color3.fromRGB(46,46,53),
-    white  = Color3.fromRGB(240,240,245), text = Color3.fromRGB(223,223,229), sub  = Color3.fromRGB(138,138,148),
+    bg     = Color3.fromRGB(12,12,14),  panel  = Color3.fromRGB(18,18,22),  card  = Color3.fromRGB(24,24,28),
+    cardHi = Color3.fromRGB(34,34,40),  inset  = Color3.fromRGB(14,14,17),  stroke= Color3.fromRGB(50,15,20),
+    white  = Color3.fromRGB(245,245,250), text = Color3.fromRGB(225,225,230), sub  = Color3.fromRGB(140,140,150),
     head   = Color3.fromRGB(120,120,130),
-    accent = Color3.fromRGB(196,30,58),  accentDim = Color3.fromRGB(120,22,40),  accentText = Color3.fromRGB(232,96,114),
-    green = Color3.fromRGB(80,220,130),  count = Color3.fromRGB(150,150,160),  rowOn = Color3.fromRGB(96,22,40),
+    accent = Color3.fromRGB(220,30,40),  accentDim = Color3.fromRGB(140,20,28),  accentText = Color3.fromRGB(255,90,100),
+    green = Color3.fromRGB(80,220,130),  count = Color3.fromRGB(150,150,160),  rowOn = Color3.fromRGB(110,20,28),
+    kxRed = Color3.fromRGB(255,30,30),
 }
--- number / money formatting
 local function commafy(n)
     local neg = n < 0; local s = tostring(math.floor(math.abs(n) + 0.5))
     local out = s:reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
     return (neg and "-" or "") .. out
 end
 local function money(n) return "$" .. commafy(n) end
--- compact price tag with the game's coin sign, e.g. 700K¢ / 1.2M¢ / 5,000¢
 local function fmtPrice(n)
     n = tonumber(n); if not n or n <= 0 or n == math.huge then return "" end
     local s
@@ -347,7 +342,7 @@ local function fmtPrice(n)
     elseif n >= 1e6 then s = string.format("%.1fM", n/1e6)
     elseif n >= 1e3 then s = string.format("%.0fK", n/1e3)
     else s = commafy(n) end
-    s = s:gsub("%.0(%a)", "%1")  -- 5.0M -> 5M
+    s = s:gsub("%.0(%a)", "%1")
     return s .. "\xc2\xa2"
 end
 local function seedPriceTag(nm) return fmtPrice(SeedPrice[nm]) end
@@ -363,19 +358,20 @@ local function guiParent()
     if not p then pcall(function() p = game:GetService("CoreGui") end) end
     return p or LocalPlayer:WaitForChild("PlayerGui")
 end
-pcall(function() local old = guiParent():FindFirstChild("GAG360") if old then old:Destroy() end end)
+pcall(function() local old = guiParent():FindFirstChild("KryvexHub") if old then old:Destroy() end end)
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "GAG360"; ScreenGui.ResetOnSpawn = false
+ScreenGui.Name = "KryvexHub"; ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; ScreenGui.IgnoreGuiInset = true
 if syn and syn.protect_gui then pcall(syn.protect_gui, ScreenGui) end
 ScreenGui.Parent = guiParent()
 
+-- SMALLER MAIN FRAME (halved height: 700 -> 400, width 1020 -> 620)
 local Main = Instance.new("Frame")
-Main.Name = "Main"; Main.AnchorPoint = Vector2.new(0.5, 0.5); Main.Size = UDim2.fromOffset(1020, 700)
+Main.Name = "Main"; Main.AnchorPoint = Vector2.new(0.5, 0.5); Main.Size = UDim2.fromOffset(620, 400)
 Main.Position = UDim2.new(0.5, 0, 0.5, 0)
 Main.BackgroundColor3 = C.bg; Main.BorderSizePixel = 0; Main.Parent = ScreenGui
-corner(Main, 12); stroke(Main, C.stroke, 1)
+corner(Main, 12); stroke(Main, C.accent, 1.5)
 local UIScale = Instance.new("UIScale"); UIScale.Scale = 1; UIScale.Parent = Main
 do
     local sh = Instance.new("ImageLabel"); sh.BackgroundTransparency = 1; sh.Image = "rbxassetid://6014261993"
@@ -384,90 +380,91 @@ do
 end
 
 -- title bar
-local Top = Instance.new("Frame"); Top.Size = UDim2.new(1,0,0,42); Top.BackgroundTransparency = 1; Top.Parent = Main
-do  -- ruby gem logo
-    local gem = Instance.new("Frame"); gem.AnchorPoint = Vector2.new(0.5,0.5); gem.Position = UDim2.fromOffset(26,21)
-    gem.Size = UDim2.fromOffset(15,15); gem.BackgroundColor3 = C.accent; gem.Rotation = 45; gem.Parent = Top; corner(gem,4)
-    local hi = Instance.new("Frame"); hi.AnchorPoint = Vector2.new(0.5,0); hi.Position = UDim2.new(0.5,0,0,2.5)
-    hi.Size = UDim2.fromOffset(8,3.5); hi.BackgroundColor3 = Color3.fromRGB(245,150,160); hi.BackgroundTransparency = 0.1; hi.Parent = gem; corner(hi,2)
+local Top = Instance.new("Frame"); Top.Size = UDim2.new(1,0,0,38); Top.BackgroundTransparency = 1; Top.Parent = Main
+-- KX logo (black bg, red KX text)
+do
+    local gem = Instance.new("Frame"); gem.AnchorPoint = Vector2.new(0.5,0.5); gem.Position = UDim2.fromOffset(24,19)
+    gem.Size = UDim2.fromOffset(24,24); gem.BackgroundColor3 = Color3.fromRGB(0,0,0); gem.Parent = Top; corner(gem,5); stroke(gem, C.kxRed, 2)
+    local kx = Instance.new("TextLabel"); kx.BackgroundTransparency = 1; kx.Size = UDim2.fromScale(1,1); kx.Font = FB
+    kx.Text = "KX"; kx.TextSize = 12; kx.TextColor3 = C.kxRed; kx.TextXAlignment = Enum.TextXAlignment.Center; kx.Parent = gem
 end
-local Title = Instance.new("TextLabel"); Title.BackgroundTransparency = 1; Title.Position = UDim2.fromOffset(44,7)
-Title.Size = UDim2.fromOffset(300,16); Title.Font = FB; Title.Text = "360's GAG"; Title.TextSize = 15; Title.TextColor3 = C.white
+local Title = Instance.new("TextLabel"); Title.BackgroundTransparency = 1; Title.Position = UDim2.fromOffset(42,6)
+Title.Size = UDim2.fromOffset(300,16); Title.Font = FB; Title.Text = "KRYVEX HUB"; Title.TextSize = 14; Title.TextColor3 = C.white
 Title.TextXAlignment = Enum.TextXAlignment.Left; Title.Parent = Top
-local Sub = Instance.new("TextLabel"); Sub.BackgroundTransparency = 1; Sub.Position = UDim2.fromOffset(44,23)
-Sub.Size = UDim2.fromOffset(300,12); Sub.Font = FR; Sub.Text = "Grow a Garden 2"; Sub.TextSize = 10; Sub.TextColor3 = C.sub
+local Sub = Instance.new("TextLabel"); Sub.BackgroundTransparency = 1; Sub.Position = UDim2.fromOffset(42,22)
+Sub.Size = UDim2.fromOffset(300,12); Sub.Font = FR; Sub.Text = "Grow a Garden 2"; Sub.TextSize = 10; Sub.TextColor3 = C.accentText
 Sub.TextXAlignment = Enum.TextXAlignment.Left; Sub.Parent = Top
 
 local function winBtn(xoff)
-    local b = Instance.new("TextButton"); b.AnchorPoint = Vector2.new(1,0.5); b.Position = UDim2.new(1, xoff, 0, 21)
-    b.Size = UDim2.fromOffset(24,24); b.BackgroundColor3 = C.card; b.Text = ""; b.AutoButtonColor = true; b.Parent = Top
-    corner(b,7); return b
+    local b = Instance.new("TextButton"); b.AnchorPoint = Vector2.new(1,0.5); b.Position = UDim2.new(1, xoff, 0, 19)
+    b.Size = UDim2.fromOffset(22,22); b.BackgroundColor3 = C.card; b.Text = ""; b.AutoButtonColor = true; b.Parent = Top
+    corner(b,6); return b
 end
-local CloseBtn = winBtn(-12)
-local MaxBtn   = winBtn(-42)
-local MinBtn   = winBtn(-72)
+local CloseBtn = winBtn(-10)
+local MaxBtn   = winBtn(-38)
+local MinBtn   = winBtn(-66)
 CloseBtn.BackgroundColor3 = C.accentDim
 track(CloseBtn.MouseEnter:Connect(function() TweenService:Create(CloseBtn, TweenInfo.new(0.12), { BackgroundColor3 = C.accent }):Play() end))
 track(CloseBtn.MouseLeave:Connect(function() TweenService:Create(CloseBtn, TweenInfo.new(0.12), { BackgroundColor3 = C.accentDim }):Play() end))
 for _, rot in ipairs({45,-45}) do
     local bar = Instance.new("Frame"); bar.AnchorPoint = Vector2.new(0.5,0.5); bar.Position = UDim2.fromScale(0.5,0.5)
-    bar.Size = UDim2.fromOffset(12,2.5); bar.BackgroundColor3 = C.white; bar.BorderSizePixel = 0; bar.Rotation = rot; bar.Parent = CloseBtn; corner(bar,2)
+    bar.Size = UDim2.fromOffset(11,2.2); bar.BackgroundColor3 = C.white; bar.BorderSizePixel = 0; bar.Rotation = rot; bar.Parent = CloseBtn; corner(bar,2)
 end
 local MinPlusBar
 do
     local sq = Instance.new("Frame"); sq.AnchorPoint = Vector2.new(0.5,0.5); sq.Position = UDim2.fromScale(0.5,0.5)
-    sq.Size = UDim2.fromOffset(10,10); sq.BackgroundTransparency = 1; sq.Parent = MaxBtn; corner(sq,2); stroke(sq, C.text, 1.5)
-    -- minimize glyph: horizontal bar ("-"); a hidden vertical bar makes it a "+" when minimized
+    sq.Size = UDim2.fromOffset(9,9); sq.BackgroundTransparency = 1; sq.Parent = MaxBtn; corner(sq,2); stroke(sq, C.text, 1.5)
     local mb = Instance.new("Frame"); mb.AnchorPoint = Vector2.new(0.5,0.5); mb.Position = UDim2.fromScale(0.5,0.5)
-    mb.Size = UDim2.fromOffset(10,2); mb.BackgroundColor3 = C.text; mb.BorderSizePixel = 0; mb.Parent = MinBtn; corner(mb,1)
+    mb.Size = UDim2.fromOffset(9,2); mb.BackgroundColor3 = C.text; mb.BorderSizePixel = 0; mb.Parent = MinBtn; corner(mb,1)
     MinPlusBar = Instance.new("Frame"); MinPlusBar.AnchorPoint = Vector2.new(0.5,0.5); MinPlusBar.Position = UDim2.fromScale(0.5,0.5)
-    MinPlusBar.Size = UDim2.fromOffset(2,10); MinPlusBar.BackgroundColor3 = C.text; MinPlusBar.BorderSizePixel = 0; MinPlusBar.Visible = false; MinPlusBar.Parent = MinBtn; corner(MinPlusBar,1)
+    MinPlusBar.Size = UDim2.fromOffset(2,9); MinPlusBar.BackgroundColor3 = C.text; MinPlusBar.BorderSizePixel = 0; MinPlusBar.Visible = false; MinPlusBar.Parent = MinBtn; corner(MinPlusBar,1)
 end
 -- body
-local Body = Instance.new("Frame"); Body.Name = "Body"; Body.Position = UDim2.fromOffset(0,42)
-Body.Size = UDim2.new(1,0,1,-42); Body.BackgroundTransparency = 1; Body.Parent = Main
+local Body = Instance.new("Frame"); Body.Name = "Body"; Body.Position = UDim2.fromOffset(0,38)
+Body.Size = UDim2.new(1,0,1,-38); Body.BackgroundTransparency = 1; Body.Parent = Main
 
-local Sidebar = Instance.new("Frame"); Sidebar.Name = "Sidebar"; Sidebar.Position = UDim2.fromOffset(12,0)
-Sidebar.Size = UDim2.new(0,176,1,-12); Sidebar.BackgroundColor3 = C.panel; Sidebar.Parent = Body
+local Sidebar = Instance.new("Frame"); Sidebar.Name = "Sidebar"; Sidebar.Position = UDim2.fromOffset(10,0)
+Sidebar.Size = UDim2.new(0,150,1,-10); Sidebar.BackgroundColor3 = C.panel; Sidebar.Parent = Body
 corner(Sidebar,10); stroke(Sidebar, C.stroke,1)
-local SideList = Instance.new("ScrollingFrame"); SideList.BackgroundTransparency = 1; SideList.BorderSizePixel = 0; SideList.Size = UDim2.new(1,0,1,-64); SideList.Parent = Sidebar
-SideList.ScrollBarThickness = 3; SideList.ScrollBarImageColor3 = C.stroke; SideList.CanvasSize = UDim2.new(0,0,0,0); SideList.AutomaticCanvasSize = Enum.AutomaticSize.Y
-vlist(SideList, 3); padAll(SideList, 8, 8, 8, 6)
--- profile (pinned bottom)
+local SideList = Instance.new("ScrollingFrame"); SideList.BackgroundTransparency = 1; SideList.BorderSizePixel = 0; SideList.Size = UDim2.new(1,0,1,-58); SideList.Parent = Sidebar
+SideList.ScrollBarThickness = 3; SideList.ScrollBarImageColor3 = C.accent; SideList.CanvasSize = UDim2.new(0,0,0,0); SideList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+vlist(SideList, 3); padAll(SideList, 6, 6, 6, 4)
+
+-- Profile with KX (halved avatar)
 do
-    local pf = Instance.new("Frame"); pf.AnchorPoint = Vector2.new(0,1); pf.Position = UDim2.new(0,0,1,-8)
-    pf.Size = UDim2.new(1,0,0,52); pf.BackgroundTransparency = 1; pf.Parent = Sidebar
-    local av = Instance.new("ImageLabel"); av.Position = UDim2.fromOffset(12,9); av.Size = UDim2.fromOffset(34,34)
-    av.BackgroundColor3 = C.card; av.Image = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=48&h=48"; av.Parent = pf; corner(av,17); stroke(av, C.accent, 1)
-    local nm = Instance.new("TextLabel"); nm.BackgroundTransparency = 1; nm.Position = UDim2.fromOffset(54,11); nm.Size = UDim2.fromOffset(112,16)
-    nm.Font = FB; nm.Text = LocalPlayer.DisplayName; nm.TextSize = 13; nm.TextColor3 = C.white; nm.TextXAlignment = Enum.TextXAlignment.Left; nm.TextTruncate = Enum.TextTruncate.AtEnd; nm.Parent = pf
-    local sub = Instance.new("TextLabel"); sub.BackgroundTransparency = 1; sub.Position = UDim2.fromOffset(54,28); sub.Size = UDim2.fromOffset(112,14)
-    sub.Font = FR; sub.Text = "Grow a Garden 2"; sub.TextSize = 10; sub.TextColor3 = C.sub; sub.TextXAlignment = Enum.TextXAlignment.Left; sub.Parent = pf
+    local pf = Instance.new("Frame"); pf.AnchorPoint = Vector2.new(0,1); pf.Position = UDim2.new(0,0,1,-6)
+    pf.Size = UDim2.new(1,0,0,44); pf.BackgroundTransparency = 1; pf.Parent = Sidebar
+    -- KX logo instead of avatar (small, 22x22)
+    local av = Instance.new("Frame"); av.Position = UDim2.fromOffset(10,8); av.Size = UDim2.fromOffset(28,28)
+    av.BackgroundColor3 = Color3.fromRGB(0,0,0); av.Parent = pf; corner(av,6); stroke(av, C.kxRed, 2)
+    local kxT = Instance.new("TextLabel"); kxT.BackgroundTransparency = 1; kxT.Size = UDim2.fromScale(1,1)
+    kxT.Font = FB; kxT.Text = "KX"; kxT.TextSize = 13; kxT.TextColor3 = C.kxRed; kxT.Parent = av
+    local nm = Instance.new("TextLabel"); nm.BackgroundTransparency = 1; nm.Position = UDim2.fromOffset(44,9); nm.Size = UDim2.fromOffset(98,14)
+    nm.Font = FB; nm.Text = LocalPlayer.DisplayName; nm.TextSize = 11.5; nm.TextColor3 = C.white; nm.TextXAlignment = Enum.TextXAlignment.Left; nm.TextTruncate = Enum.TextTruncate.AtEnd; nm.Parent = pf
+    local sub = Instance.new("TextLabel"); sub.BackgroundTransparency = 1; sub.Position = UDim2.fromOffset(44,24); sub.Size = UDim2.fromOffset(98,12)
+    sub.Font = FR; sub.Text = "Kryvex User"; sub.TextSize = 9.5; sub.TextColor3 = C.accentText; sub.TextXAlignment = Enum.TextXAlignment.Left; sub.Parent = pf
 end
 
--- content (header title + scroll)
-local Content = Instance.new("Frame"); Content.Name = "Content"; Content.Position = UDim2.fromOffset(200,0)
-Content.Size = UDim2.new(1,-212,1,-12); Content.BackgroundColor3 = C.panel; Content.Parent = Body
+-- content
+local Content = Instance.new("Frame"); Content.Name = "Content"; Content.Position = UDim2.fromOffset(168,0)
+Content.Size = UDim2.new(1,-178,1,-10); Content.BackgroundColor3 = C.panel; Content.Parent = Body
 corner(Content,10); stroke(Content, C.stroke,1)
-local CTitle = Instance.new("TextLabel"); CTitle.BackgroundTransparency = 1; CTitle.Position = UDim2.fromOffset(18,10)
-CTitle.Size = UDim2.new(1,-36,0,20); CTitle.Font = FB; CTitle.Text = "Farm"; CTitle.TextSize = 17; CTitle.TextColor3 = C.white
+local CTitle = Instance.new("TextLabel"); CTitle.BackgroundTransparency = 1; CTitle.Position = UDim2.fromOffset(14,7)
+CTitle.Size = UDim2.new(1,-28,0,18); CTitle.Font = FB; CTitle.Text = "Farm"; CTitle.TextSize = 14; CTitle.TextColor3 = C.white
 CTitle.TextXAlignment = Enum.TextXAlignment.Left; CTitle.Parent = Content
-local Scroll = Instance.new("ScrollingFrame"); Scroll.Position = UDim2.fromOffset(8,36); Scroll.Size = UDim2.new(1,-16,1,-44)
-Scroll.BackgroundTransparency = 1; Scroll.BorderSizePixel = 0; Scroll.ScrollBarThickness = 4; Scroll.ScrollBarImageColor3 = C.stroke
+local Scroll = Instance.new("ScrollingFrame"); Scroll.Position = UDim2.fromOffset(6,30); Scroll.Size = UDim2.new(1,-12,1,-36)
+Scroll.BackgroundTransparency = 1; Scroll.BorderSizePixel = 0; Scroll.ScrollBarThickness = 4; Scroll.ScrollBarImageColor3 = C.accent
 Scroll.CanvasSize = UDim2.new(0,0,0,0); Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y; Scroll.Parent = Content
-padAll(Scroll, 10, 10, 4, 10)
+padAll(Scroll, 8, 8, 4, 8)
 
--- status (bottom strip, left aligned)
-local Status = Instance.new("TextLabel"); Status.AnchorPoint = Vector2.new(0,1); Status.Position = UDim2.new(0,16,1,-1)
-Status.Size = UDim2.fromOffset(560,12); Status.BackgroundTransparency = 1; Status.Font = FR; Status.Text = "ready"; Status.TextSize = 10
+-- status
+local Status = Instance.new("TextLabel"); Status.AnchorPoint = Vector2.new(0,1); Status.Position = UDim2.new(0,14,1,-1)
+Status.Size = UDim2.fromOffset(400,12); Status.BackgroundTransparency = 1; Status.Font = FR; Status.Text = "ready"; Status.TextSize = 10
 Status.TextColor3 = C.sub; Status.TextXAlignment = Enum.TextXAlignment.Left; Status.Parent = Main
 local function setStatus(t) Status.Text = t end
 
--- cool slide-in toast notifications (top-right, stack downward, auto-dismiss).
--- Parented to the ScreenGui so they show full-size even when the window is hidden.
+-- toasts
 local activeToasts = {}
--- the ScreenGui sits inside CoreGui/HiddenUI which is offset (AbsolutePosition.Y ~= 0);
--- compensate so y=0 is the real screen top, otherwise toasts render off-screen.
 local function topInset() return -ScreenGui.AbsolutePosition.Y end
 local function reflowToasts()
     local base = topInset() + 18; local y = 0
@@ -478,20 +475,20 @@ local function reflowToasts()
 end
 toast = function(title, msg, col)
     col = col or C.accent
-    local card = Instance.new("Frame"); card.AnchorPoint = Vector2.new(1,0); card.Size = UDim2.fromOffset(300,0); card.AutomaticSize = Enum.AutomaticSize.Y
-    card.BackgroundColor3 = C.card; card.Position = UDim2.new(1, 360, 0, topInset() + 18); card.Parent = ScreenGui
+    local card = Instance.new("Frame"); card.AnchorPoint = Vector2.new(1,0); card.Size = UDim2.fromOffset(280,0); card.AutomaticSize = Enum.AutomaticSize.Y
+    card.BackgroundColor3 = C.card; card.Position = UDim2.new(1, 340, 0, topInset() + 18); card.Parent = ScreenGui
     corner(card,10); stroke(card, col, 1.5)
-    local pad = Instance.new("UIPadding"); pad.PaddingLeft = UDim.new(0,14); pad.PaddingRight = UDim.new(0,12); pad.PaddingTop = UDim.new(0,10); pad.PaddingBottom = UDim.new(0,10); pad.Parent = card
+    local pad = Instance.new("UIPadding"); pad.PaddingLeft = UDim.new(0,12); pad.PaddingRight = UDim.new(0,10); pad.PaddingTop = UDim.new(0,9); pad.PaddingBottom = UDim.new(0,9); pad.Parent = card
     local vl = Instance.new("UIListLayout"); vl.Padding = UDim.new(0,3); vl.SortOrder = Enum.SortOrder.LayoutOrder; vl.Parent = card
-    local hrow = Instance.new("Frame"); hrow.Size = UDim2.new(1,0,0,16); hrow.BackgroundTransparency = 1; hrow.LayoutOrder = 1; hrow.Parent = card
-    local dot = Instance.new("Frame"); dot.AnchorPoint = Vector2.new(0,0.5); dot.Position = UDim2.new(0,1,0.5,0); dot.Size = UDim2.fromOffset(9,9); dot.BackgroundColor3 = col; dot.BorderSizePixel = 0; dot.Parent = hrow; corner(dot,5)
-    local t = Instance.new("TextLabel"); t.BackgroundTransparency = 1; t.Position = UDim2.fromOffset(18,0); t.Size = UDim2.new(1,-18,1,0); t.Font = FB; t.Text = title; t.TextSize = 14; t.TextColor3 = col; t.TextXAlignment = Enum.TextXAlignment.Left; t.Parent = hrow
-    local m = Instance.new("TextLabel"); m.BackgroundTransparency = 1; m.Size = UDim2.new(1,0,0,0); m.AutomaticSize = Enum.AutomaticSize.Y; m.Font = FR; m.Text = msg; m.TextSize = 12.5; m.TextColor3 = C.text; m.TextWrapped = true; m.TextXAlignment = Enum.TextXAlignment.Left; m.LayoutOrder = 2; m.Parent = card
+    local hrow = Instance.new("Frame"); hrow.Size = UDim2.new(1,0,0,14); hrow.BackgroundTransparency = 1; hrow.LayoutOrder = 1; hrow.Parent = card
+    local dot = Instance.new("Frame"); dot.AnchorPoint = Vector2.new(0,0.5); dot.Position = UDim2.new(0,1,0.5,0); dot.Size = UDim2.fromOffset(8,8); dot.BackgroundColor3 = col; dot.BorderSizePixel = 0; dot.Parent = hrow; corner(dot,4)
+    local t = Instance.new("TextLabel"); t.BackgroundTransparency = 1; t.Position = UDim2.fromOffset(16,0); t.Size = UDim2.new(1,-16,1,0); t.Font = FB; t.Text = title; t.TextSize = 13; t.TextColor3 = col; t.TextXAlignment = Enum.TextXAlignment.Left; t.Parent = hrow
+    local m = Instance.new("TextLabel"); m.BackgroundTransparency = 1; m.Size = UDim2.new(1,0,0,0); m.AutomaticSize = Enum.AutomaticSize.Y; m.Font = FR; m.Text = msg; m.TextSize = 12; m.TextColor3 = C.text; m.TextWrapped = true; m.TextXAlignment = Enum.TextXAlignment.Left; m.LayoutOrder = 2; m.Parent = card
     table.insert(activeToasts, 1, card)
     task.defer(reflowToasts)
     task.delay(4.8, function()
         if not card.Parent then return end
-        TweenService:Create(card, TweenInfo.new(0.24, Enum.EasingStyle.Quad), { Position = UDim2.new(1, 360, 0, card.Position.Y.Offset) }):Play()
+        TweenService:Create(card, TweenInfo.new(0.24, Enum.EasingStyle.Quad), { Position = UDim2.new(1, 340, 0, card.Position.Y.Offset) }):Play()
         task.wait(0.26)
         for i, c in ipairs(activeToasts) do if c == card then table.remove(activeToasts, i) break end end
         card:Destroy(); reflowToasts()
@@ -510,89 +507,82 @@ local function selectTab(name)
         TweenService:Create(b, TI, { BackgroundColor3 = on and C.card or C.panel }):Play()
         if tabLabels[n] then TweenService:Create(tabLabels[n], TI, { TextColor3 = on and C.accentText or C.sub }):Play() end
         if tabBars[n] then
-            TweenService:Create(tabBars[n], TI, { BackgroundTransparency = on and 0 or 1, Size = UDim2.fromOffset(3, on and 14 or 0) }):Play()
+            TweenService:Create(tabBars[n], TI, { BackgroundTransparency = on and 0 or 1, Size = UDim2.fromOffset(3, on and 12 or 0) }):Play()
         end
     end
 end
 local sideOrder = 0
 local function addGroup(title)
     sideOrder = sideOrder + 1
-    local h = Instance.new("Frame"); h.Size = UDim2.new(1,0,0,30); h.BackgroundTransparency = 1; h.LayoutOrder = sideOrder; h.Parent = SideList
-    local dot = Instance.new("Frame"); dot.AnchorPoint = Vector2.new(0,0.5); dot.Position = UDim2.new(0,8,0,21); dot.Size = UDim2.fromOffset(5,5); dot.BackgroundColor3 = C.accent; dot.Parent = h; corner(dot,3)
-    local l = Instance.new("TextLabel"); l.Position = UDim2.fromOffset(20,10); l.Size = UDim2.new(1,-26,0,18); l.BackgroundTransparency = 1; l.Font = FB
-    l.Text = string.upper(title); l.TextSize = 12; l.TextColor3 = C.accentText; l.TextXAlignment = Enum.TextXAlignment.Left; l.Parent = h
+    local h = Instance.new("Frame"); h.Size = UDim2.new(1,0,0,24); h.BackgroundTransparency = 1; h.LayoutOrder = sideOrder; h.Parent = SideList
+    local dot = Instance.new("Frame"); dot.AnchorPoint = Vector2.new(0,0.5); dot.Position = UDim2.new(0,6,0,17); dot.Size = UDim2.fromOffset(4,4); dot.BackgroundColor3 = C.accent; dot.Parent = h; corner(dot,2)
+    local l = Instance.new("TextLabel"); l.Position = UDim2.fromOffset(16,7); l.Size = UDim2.new(1,-20,0,16); l.BackgroundTransparency = 1; l.Font = FB
+    l.Text = string.upper(title); l.TextSize = 10.5; l.TextColor3 = C.accentText; l.TextXAlignment = Enum.TextXAlignment.Left; l.Parent = h
 end
-local function addTab(name, icon)
+local function addTab(name)
     sideOrder = sideOrder + 1
-    local b = Instance.new("TextButton"); b.Size = UDim2.new(1,0,0,28); b.BackgroundColor3 = C.panel
-    b.Text = ""; b.AutoButtonColor = false; b.LayoutOrder = sideOrder; b.Parent = SideList; corner(b,7)
-    -- active indicator bar at the far left (its own column, never under the label)
-    local bar = Instance.new("Frame"); bar.AnchorPoint = Vector2.new(0,0.5); bar.Position = UDim2.new(0,5,0.5,0)
+    local b = Instance.new("TextButton"); b.Size = UDim2.new(1,0,0,24); b.BackgroundColor3 = C.panel
+    b.Text = ""; b.AutoButtonColor = false; b.LayoutOrder = sideOrder; b.Parent = SideList; corner(b,6)
+    local bar = Instance.new("Frame"); bar.AnchorPoint = Vector2.new(0,0.5); bar.Position = UDim2.new(0,4,0.5,0)
     bar.Size = UDim2.fromOffset(3,0); bar.BackgroundColor3 = C.accent; bar.BackgroundTransparency = 1; bar.Parent = b; corner(bar,2)
-    local lbl = Instance.new("TextLabel"); lbl.BackgroundTransparency = 1; lbl.Position = UDim2.fromOffset(16,0); lbl.Size = UDim2.new(1,-22,1,0)
-    lbl.Font = FM; lbl.Text = name; lbl.TextSize = 12.5; lbl.TextColor3 = C.sub; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.Parent = b
+    local lbl = Instance.new("TextLabel"); lbl.BackgroundTransparency = 1; lbl.Position = UDim2.fromOffset(14,0); lbl.Size = UDim2.new(1,-18,1,0)
+    lbl.Font = FM; lbl.Text = name; lbl.TextSize = 11.5; lbl.TextColor3 = C.sub; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.Parent = b
     track(b.MouseButton1Click:Connect(function() selectTab(name) end))
     tabButtons[name] = b; tabBars[name] = bar; tabLabels[name] = lbl
-    -- -20 width: a ScrollingFrame's UIPadding shifts children right but does NOT shrink
-    -- their (1,0) width, so without this the right column overflows the visible area.
-    local page = Instance.new("Frame"); page.Name = name; page.Size = UDim2.new(1,-20,0,0); page.AutomaticSize = Enum.AutomaticSize.Y
+    local page = Instance.new("Frame"); page.Name = name; page.Size = UDim2.new(1,-16,0,0); page.AutomaticSize = Enum.AutomaticSize.Y
     page.BackgroundTransparency = 1; page.Visible = false; page.Parent = Scroll
-    local row = Instance.new("UIListLayout"); row.FillDirection = Enum.FillDirection.Horizontal; row.Padding = UDim.new(0,14)
+    local row = Instance.new("UIListLayout"); row.FillDirection = Enum.FillDirection.Horizontal; row.Padding = UDim.new(0,12)
     row.SortOrder = Enum.SortOrder.LayoutOrder; row.HorizontalAlignment = Enum.HorizontalAlignment.Left; row.Parent = page
     pages[name] = page
     return page
 end
--- columns. NOTE: the page row layout adds a 14px gap, so two 0.5 columns must each
--- shed 7px or the right column overflows the page and gets clipped.
 local function column(page, w, off)
     local col = Instance.new("Frame"); col.Size = UDim2.new(w, off or 0, 0, 0); col.AutomaticSize = Enum.AutomaticSize.Y
     col.BackgroundTransparency = 1; col.LayoutOrder = nextOrder(page); col.Parent = page
-    vlist(col, 8); return col
+    vlist(col, 6); return col
 end
-local function twoCol(page) return column(page, 0.5, -7), column(page, 0.5, -7) end
+local function twoCol(page) return column(page, 0.5, -6), column(page, 0.5, -6) end
 local function oneCol(page) return column(page, 1, 0) end
 
 --========================= COMPONENTS ============================--
-local function colTitle(_, _) end  -- column titles removed for a tighter layout
 local function subTitle(parent, txt)
-    local l = Instance.new("TextLabel"); l.Size = UDim2.new(1,0,0,16); l.BackgroundTransparency = 1; l.Font = FB
-    l.Text = string.upper(txt); l.TextSize = 11; l.TextColor3 = C.accentText; l.TextXAlignment = Enum.TextXAlignment.Center
+    local l = Instance.new("TextLabel"); l.Size = UDim2.new(1,0,0,14); l.BackgroundTransparency = 1; l.Font = FB
+    l.Text = string.upper(txt); l.TextSize = 10; l.TextColor3 = C.accentText; l.TextXAlignment = Enum.TextXAlignment.Center
     l.LayoutOrder = nextOrder(parent); l.Parent = parent; return l
 end
 local function card(parent, h)
     local f = Instance.new("Frame"); f.BackgroundColor3 = C.card; f.Size = UDim2.new(1,0,0,h or 0)
     if not h then f.AutomaticSize = Enum.AutomaticSize.Y end
-    f.LayoutOrder = nextOrder(parent); f.Parent = parent; corner(f,8); stroke(f, C.stroke,1); return f
+    f.LayoutOrder = nextOrder(parent); f.Parent = parent; corner(f,7); stroke(f, C.stroke,1); return f
 end
 local function textBlock(parent, name, desc, rightPad)
     local box = Instance.new("Frame"); box.BackgroundTransparency = 1; box.Position = UDim2.fromOffset(0,0)
-    box.Size = UDim2.new(1, -(rightPad or 52), 0, 0); box.AutomaticSize = Enum.AutomaticSize.Y; box.Parent = parent
+    box.Size = UDim2.new(1, -(rightPad or 46), 0, 0); box.AutomaticSize = Enum.AutomaticSize.Y; box.Parent = parent
     vlist(box, 2)
-    local n = Instance.new("TextLabel"); n.Size = UDim2.new(1,0,0,16); n.BackgroundTransparency = 1; n.Font = FM
-    n.Text = name; n.TextSize = 13; n.TextColor3 = C.text; n.TextXAlignment = Enum.TextXAlignment.Left; n.LayoutOrder = 1; n.Parent = box
+    local n = Instance.new("TextLabel"); n.Size = UDim2.new(1,0,0,14); n.BackgroundTransparency = 1; n.Font = FM
+    n.Text = name; n.TextSize = 11.5; n.TextColor3 = C.text; n.TextXAlignment = Enum.TextXAlignment.Left; n.LayoutOrder = 1; n.Parent = box
     if desc then
         local d = Instance.new("TextLabel"); d.Size = UDim2.new(1,0,0,0); d.AutomaticSize = Enum.AutomaticSize.Y; d.BackgroundTransparency = 1
-        d.Font = FR; d.Text = desc; d.TextSize = 11; d.TextColor3 = C.sub; d.TextWrapped = true; d.TextXAlignment = Enum.TextXAlignment.Left; d.LayoutOrder = 2; d.Parent = box
+        d.Font = FR; d.Text = desc; d.TextSize = 10; d.TextColor3 = C.sub; d.TextWrapped = true; d.TextXAlignment = Enum.TextXAlignment.Left; d.LayoutOrder = 2; d.Parent = box
     end
     return box
 end
 local function howItWorks(parent, text)
-    local f = card(parent); padAll(f, 12, 12, 10, 11); vlist(f, 4)
-    local t = Instance.new("TextLabel"); t.Size = UDim2.new(1,0,0,14); t.BackgroundTransparency = 1; t.Font = FB
-    t.Text = "How it works"; t.TextSize = 12; t.TextColor3 = C.white; t.TextXAlignment = Enum.TextXAlignment.Left; t.LayoutOrder = 1; t.Parent = f
+    local f = card(parent); padAll(f, 10, 10, 8, 9); vlist(f, 3)
+    local t = Instance.new("TextLabel"); t.Size = UDim2.new(1,0,0,13); t.BackgroundTransparency = 1; t.Font = FB
+    t.Text = "How it works"; t.TextSize = 11; t.TextColor3 = C.white; t.TextXAlignment = Enum.TextXAlignment.Left; t.LayoutOrder = 1; t.Parent = f
     local d = Instance.new("TextLabel"); d.Size = UDim2.new(1,0,0,0); d.AutomaticSize = Enum.AutomaticSize.Y; d.BackgroundTransparency = 1
-    d.Font = FR; d.Text = text; d.TextSize = 11; d.TextColor3 = C.sub; d.TextWrapped = true; d.TextXAlignment = Enum.TextXAlignment.Left; d.LayoutOrder = 2; d.Parent = f
+    d.Font = FR; d.Text = text; d.TextSize = 10; d.TextColor3 = C.sub; d.TextWrapped = true; d.TextXAlignment = Enum.TextXAlignment.Left; d.LayoutOrder = 2; d.Parent = f
     return f
 end
 local function toggleRow(parent, name, desc, key, cb)
-    local f = card(parent); padAll(f, 12, 12, 10, 10)
+    local f = card(parent); padAll(f, 10, 10, 8, 8)
     textBlock(f, name, desc)
-    local sw = Instance.new("TextButton"); sw.AnchorPoint = Vector2.new(1,0); sw.Position = UDim2.new(1,0,0,2); sw.Size = UDim2.fromOffset(28,28)
-    sw.AutoButtonColor = false; sw.Text = ""; sw.BackgroundColor3 = C.inset; sw.Parent = f; corner(sw,7); local sws = stroke(sw, C.stroke,1)
-    -- white checkmark (two connected bars) shown on a green box when on
+    local sw = Instance.new("TextButton"); sw.AnchorPoint = Vector2.new(1,0); sw.Position = UDim2.new(1,0,0,2); sw.Size = UDim2.fromOffset(24,24)
+    sw.AutoButtonColor = false; sw.Text = ""; sw.BackgroundColor3 = C.inset; sw.Parent = f; corner(sw,6); local sws = stroke(sw, C.stroke,1)
     local chk = Instance.new("Frame"); chk.BackgroundTransparency = 1; chk.Size = UDim2.fromScale(1,1); chk.Visible = false; chk.Parent = sw
-    local b1 = Instance.new("Frame"); b1.AnchorPoint = Vector2.new(0.5,0.5); b1.Position = UDim2.new(0.35,0,0.59,0); b1.Size = UDim2.fromOffset(7,3); b1.Rotation = 45; b1.BackgroundColor3 = C.white; b1.BorderSizePixel = 0; b1.Parent = chk; corner(b1,2)
-    local b2 = Instance.new("Frame"); b2.AnchorPoint = Vector2.new(0.5,0.5); b2.Position = UDim2.new(0.57,0,0.50,0); b2.Size = UDim2.fromOffset(14,3); b2.Rotation = -47; b2.BackgroundColor3 = C.white; b2.BorderSizePixel = 0; b2.Parent = chk; corner(b2,2)
+    local b1 = Instance.new("Frame"); b1.AnchorPoint = Vector2.new(0.5,0.5); b1.Position = UDim2.new(0.35,0,0.59,0); b1.Size = UDim2.fromOffset(6,2.5); b1.Rotation = 45; b1.BackgroundColor3 = C.white; b1.BorderSizePixel = 0; b1.Parent = chk; corner(b1,1)
+    local b2 = Instance.new("Frame"); b2.AnchorPoint = Vector2.new(0.5,0.5); b2.Position = UDim2.new(0.57,0,0.50,0); b2.Size = UDim2.fromOffset(12,2.5); b2.Rotation = -47; b2.BackgroundColor3 = C.white; b2.BorderSizePixel = 0; b2.Parent = chk; corner(b2,1)
     local function render(v)
         TweenService:Create(sw, TweenInfo.new(0.12), { BackgroundColor3 = v and C.green or C.inset }):Play()
         sws.Color = v and C.green or C.stroke; chk.Visible = v
@@ -600,20 +590,19 @@ local function toggleRow(parent, name, desc, key, cb)
     local function set(v) if key then S[key] = v end render(v) if cb then cb(v) end saveSettings() end
     track(sw.MouseButton1Click:Connect(function() set(not (key and S[key])) end))
     render(key and S[key] or false)
-    -- restore a saved-ON cb-driven effect (e.g. Optimize) without re-saving
     if cb and key and S[key] then task.spawn(function() cb(true) end) end
     return set
 end
 local function sliderRow(parent, name, mn, mx, default, decimals, setFn)
-    local f = card(parent); padAll(f, 12, 12, 10, 12); vlist(f, 8)
-    local head = Instance.new("Frame"); head.Size = UDim2.new(1,0,0,18); head.BackgroundTransparency = 1; head.LayoutOrder = 1; head.Parent = f
-    local n = Instance.new("TextLabel"); n.Size = UDim2.new(1,-64,1,0); n.BackgroundTransparency = 1; n.Font = FM; n.Text = name
-    n.TextSize = 13; n.TextColor3 = C.text; n.TextXAlignment = Enum.TextXAlignment.Left; n.Parent = head
-    local box = Instance.new("Frame"); box.AnchorPoint = Vector2.new(1,0.5); box.Position = UDim2.new(1,0,0.5,0); box.Size = UDim2.fromOffset(56,22)
-    box.BackgroundColor3 = C.inset; box.Parent = head; corner(box,6); stroke(box, C.stroke, 1)
+    local f = card(parent); padAll(f, 10, 10, 8, 10); vlist(f, 6)
+    local head = Instance.new("Frame"); head.Size = UDim2.new(1,0,0,16); head.BackgroundTransparency = 1; head.LayoutOrder = 1; head.Parent = f
+    local n = Instance.new("TextLabel"); n.Size = UDim2.new(1,-54,1,0); n.BackgroundTransparency = 1; n.Font = FM; n.Text = name
+    n.TextSize = 11.5; n.TextColor3 = C.text; n.TextXAlignment = Enum.TextXAlignment.Left; n.Parent = head
+    local box = Instance.new("Frame"); box.AnchorPoint = Vector2.new(1,0.5); box.Position = UDim2.new(1,0,0.5,0); box.Size = UDim2.fromOffset(48,20)
+    box.BackgroundColor3 = C.inset; box.Parent = head; corner(box,5); stroke(box, C.stroke, 1)
     local val = Instance.new("TextBox"); val.Size = UDim2.new(1,-8,1,0); val.Position = UDim2.fromOffset(4,0); val.BackgroundTransparency = 1; val.Font = FB
-    val.TextSize = 12; val.TextColor3 = C.accentText; val.ClearTextOnFocus = false; val.TextXAlignment = Enum.TextXAlignment.Center; val.Parent = box
-    local track_ = Instance.new("Frame"); track_.Size = UDim2.new(1,0,0,6); track_.BackgroundColor3 = C.inset; track_.LayoutOrder = 2; track_.Parent = f; corner(track_,3)
+    val.TextSize = 11; val.TextColor3 = C.accentText; val.ClearTextOnFocus = false; val.TextXAlignment = Enum.TextXAlignment.Center; val.Parent = box
+    local track_ = Instance.new("Frame"); track_.Size = UDim2.new(1,0,0,5); track_.BackgroundColor3 = C.inset; track_.LayoutOrder = 2; track_.Parent = f; corner(track_,3)
     local fill = Instance.new("Frame"); fill.BackgroundColor3 = C.accent; fill.Parent = track_; corner(fill,3)
     local function fmt(v) if decimals and decimals > 0 then return string.format("%."..decimals.."f", v) else return tostring(math.floor(v)) end end
     local cur = default
@@ -631,7 +620,6 @@ local function sliderRow(parent, name, mn, mx, default, decimals, setFn)
     track(track_.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true upd(i.Position.X) end end))
     track(UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 and dragging then dragging = false saveSettings() end end))
     track(UserInputService.InputChanged:Connect(function(i) if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then upd(i.Position.X) end end))
-    -- typed input: clamp to range, revert if invalid
     track(val.FocusLost:Connect(function()
         local num = tonumber((tostring(val.Text):gsub("[^%d%.%-]", "")))
         if num then apply(math.clamp(num, mn, mx)) else val.Text = fmt(cur) end
@@ -640,14 +628,12 @@ local function sliderRow(parent, name, mn, mx, default, decimals, setFn)
     return f
 end
 local function actionRow(parent, name, desc, cb)
-    local f = card(parent); padAll(f, 12, 12, 10, 10)
-    textBlock(f, name, desc, 50)
-    -- round button (a clean circle, no arrow)
-    local btn = Instance.new("Frame"); btn.AnchorPoint = Vector2.new(1,0.5); btn.Position = UDim2.new(1,0,0.5,0); btn.Size = UDim2.fromOffset(30,30)
-    btn.BackgroundColor3 = C.accentDim; btn.Parent = f; corner(btn,15)
-    local dot = Instance.new("Frame"); dot.AnchorPoint = Vector2.new(0.5,0.5); dot.Position = UDim2.fromScale(0.5,0.5); dot.Size = UDim2.fromOffset(9,9)
-    dot.BackgroundColor3 = C.white; dot.BorderSizePixel = 0; dot.Parent = btn; corner(dot,5)
-    -- the whole card is the click target
+    local f = card(parent); padAll(f, 10, 10, 8, 8)
+    textBlock(f, name, desc, 44)
+    local btn = Instance.new("Frame"); btn.AnchorPoint = Vector2.new(1,0.5); btn.Position = UDim2.new(1,0,0.5,0); btn.Size = UDim2.fromOffset(26,26)
+    btn.BackgroundColor3 = C.accentDim; btn.Parent = f; corner(btn,13)
+    local dot = Instance.new("Frame"); dot.AnchorPoint = Vector2.new(0.5,0.5); dot.Position = UDim2.fromScale(0.5,0.5); dot.Size = UDim2.fromOffset(8,8)
+    dot.BackgroundColor3 = C.white; dot.BorderSizePixel = 0; dot.Parent = btn; corner(dot,4)
     local cover = Instance.new("TextButton"); cover.Size = UDim2.fromScale(1,1); cover.BackgroundTransparency = 1; cover.Text = ""; cover.AutoButtonColor = false; cover.ZIndex = 4; cover.Parent = f
     local function hov(on)
         TweenService:Create(f, TweenInfo.new(0.12), { BackgroundColor3 = on and C.cardHi or C.card }):Play()
@@ -656,34 +642,33 @@ local function actionRow(parent, name, desc, cb)
     track(cover.MouseEnter:Connect(function() hov(true) end))
     track(cover.MouseLeave:Connect(function() hov(false) end))
     track(cover.MouseButton1Click:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.08), { Size = UDim2.fromOffset(25,25) }):Play()
-        task.delay(0.1, function() TweenService:Create(btn, TweenInfo.new(0.1), { Size = UDim2.fromOffset(30,30) }):Play() end)
+        TweenService:Create(btn, TweenInfo.new(0.08), { Size = UDim2.fromOffset(22,22) }):Play()
+        task.delay(0.1, function() TweenService:Create(btn, TweenInfo.new(0.1), { Size = UDim2.fromOffset(26,26) }):Play() end)
         if cb then task.spawn(cb) end
     end))
     return cover
 end
--- dropdown row: label+desc + trigger; list expands below as its own card
 local function dropdownRow(parent, name, desc, getOptions, selectedSet, getStockFn, maxSelectFn, priceFn)
-    local f = card(parent); padAll(f, 12, 12, 10, 10)
-    textBlock(f, name, desc, 152)
-    local trig = Instance.new("TextButton"); trig.AnchorPoint = Vector2.new(1,0); trig.Position = UDim2.new(1,0,0,2); trig.Size = UDim2.fromOffset(138,30)
-    trig.AutoButtonColor = false; trig.BackgroundColor3 = C.inset; trig.Text = ""; trig.Parent = f; corner(trig,8); stroke(trig, C.stroke,1)
-    local tl = Instance.new("TextLabel"); tl.BackgroundTransparency = 1; tl.RichText = true; tl.Position = UDim2.fromOffset(10,0); tl.Size = UDim2.new(1,-26,1,0)
-    tl.Font = FM; tl.TextSize = 11; tl.TextColor3 = C.text; tl.TextXAlignment = Enum.TextXAlignment.Left; tl.TextTruncate = Enum.TextTruncate.AtEnd; tl.Parent = trig
-    local ar = Instance.new("TextLabel"); ar.BackgroundTransparency = 1; ar.AnchorPoint = Vector2.new(1,0.5); ar.Position = UDim2.new(1,-8,0.5,0)
-    ar.Size = UDim2.fromOffset(12,12); ar.Font = FB; ar.Text = "v"; ar.TextSize = 11; ar.TextColor3 = C.sub; ar.Parent = trig
+    local f = card(parent); padAll(f, 10, 10, 8, 8)
+    textBlock(f, name, desc, 132)
+    local trig = Instance.new("TextButton"); trig.AnchorPoint = Vector2.new(1,0); trig.Position = UDim2.new(1,0,0,2); trig.Size = UDim2.fromOffset(120,26)
+    trig.AutoButtonColor = false; trig.BackgroundColor3 = C.inset; trig.Text = ""; trig.Parent = f; corner(trig,7); stroke(trig, C.stroke,1)
+    local tl = Instance.new("TextLabel"); tl.BackgroundTransparency = 1; tl.RichText = true; tl.Position = UDim2.fromOffset(9,0); tl.Size = UDim2.new(1,-24,1,0)
+    tl.Font = FM; tl.TextSize = 10.5; tl.TextColor3 = C.text; tl.TextXAlignment = Enum.TextXAlignment.Left; tl.TextTruncate = Enum.TextTruncate.AtEnd; tl.Parent = trig
+    local ar = Instance.new("TextLabel"); ar.BackgroundTransparency = 1; ar.AnchorPoint = Vector2.new(1,0.5); ar.Position = UDim2.new(1,-7,0.5,0)
+    ar.Size = UDim2.fromOffset(10,10); ar.Font = FB; ar.Text = "v"; ar.TextSize = 10; ar.TextColor3 = C.sub; ar.Parent = trig
 
     local list = Instance.new("Frame"); list.Size = UDim2.new(1,0,0,0); list.AutomaticSize = Enum.AutomaticSize.Y; list.BackgroundColor3 = C.inset
-    list.Visible = false; list.LayoutOrder = nextOrder(parent); list.Parent = parent; corner(list,8); stroke(list, C.stroke,1)
+    list.Visible = false; list.LayoutOrder = nextOrder(parent); list.Parent = parent; corner(list,7); stroke(list, C.stroke,1)
     local ll = Instance.new("UIListLayout"); ll.Padding = UDim.new(0,2); ll.SortOrder = Enum.SortOrder.LayoutOrder; ll.Parent = list
-    padAll(list, 6)
+    padAll(list, 5)
 
     local function count() local n = 0 for _ in pairs(selectedSet) do n = n + 1 end return n end
     local function updateTrig()
         local n = count()
         if maxSelectFn then
             local mx = maxSelectFn()
-            tl.Text = (n >= mx) and '<font color="rgb(232,96,114)">MAX</font>' or (n == 0 and ("0/"..mx) or (n.."/"..mx))
+            tl.Text = (n >= mx) and '<font color="rgb(255,90,100)">MAX</font>' or (n == 0 and ("0/"..mx) or (n.."/"..mx))
         elseif n == 0 then
             tl.Text = "Any"
         else
@@ -691,18 +676,17 @@ local function dropdownRow(parent, name, desc, getOptions, selectedSet, getStock
             tl.Text = table.concat(names, ", ")
         end
     end
-    -- "Select All / Clear" pill pinned to the top of the open list
-    local selAll = Instance.new("TextButton"); selAll.Size = UDim2.new(1,0,0,28); selAll.BackgroundColor3 = C.inset; selAll.AutoButtonColor = false
-    selAll.Font = FB; selAll.TextSize = 11; selAll.TextColor3 = C.accentText; selAll.Text = "SELECT ALL"; selAll.LayoutOrder = -1; selAll.Parent = list; corner(selAll,7); stroke(selAll, C.stroke,1)
+    local selAll = Instance.new("TextButton"); selAll.Size = UDim2.new(1,0,0,26); selAll.BackgroundColor3 = C.inset; selAll.AutoButtonColor = false
+    selAll.Font = FB; selAll.TextSize = 10; selAll.TextColor3 = C.accentText; selAll.Text = "SELECT ALL"; selAll.LayoutOrder = -1; selAll.Parent = list; corner(selAll,6); stroke(selAll, C.stroke,1)
     local rowRefs = {}
     local function makeRow(nm, order)
-        local r = Instance.new("TextButton"); r.Size = UDim2.new(1,0,0,30); r.BackgroundColor3 = C.card; r.Text = ""; r.AutoButtonColor = false
-        r.LayoutOrder = order; r.Parent = list; corner(r,8)
-        local lbl = Instance.new("TextLabel"); lbl.BackgroundTransparency = 1; lbl.RichText = true; lbl.Position = UDim2.fromOffset(12,0)
-        lbl.Size = UDim2.new(1, getStockFn and -64 or -22, 1, 0); lbl.Font = FM; lbl.TextSize = 12; lbl.TextColor3 = C.text
+        local r = Instance.new("TextButton"); r.Size = UDim2.new(1,0,0,26); r.BackgroundColor3 = C.card; r.Text = ""; r.AutoButtonColor = false
+        r.LayoutOrder = order; r.Parent = list; corner(r,7)
+        local lbl = Instance.new("TextLabel"); lbl.BackgroundTransparency = 1; lbl.RichText = true; lbl.Position = UDim2.fromOffset(10,0)
+        lbl.Size = UDim2.new(1, getStockFn and -56 or -20, 1, 0); lbl.Font = FM; lbl.TextSize = 11; lbl.TextColor3 = C.text
         lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.TextTruncate = Enum.TextTruncate.AtEnd; lbl.Parent = r
         local st
-        if getStockFn then st = Instance.new("TextLabel"); st.BackgroundTransparency = 1; st.AnchorPoint = Vector2.new(1,0.5); st.Position = UDim2.new(1,-12,0.5,0); st.Size = UDim2.fromOffset(48,16); st.Font = FB; st.TextSize = 11; st.TextColor3 = C.sub; st.TextXAlignment = Enum.TextXAlignment.Right; st.Parent = r end
+        if getStockFn then st = Instance.new("TextLabel"); st.BackgroundTransparency = 1; st.AnchorPoint = Vector2.new(1,0.5); st.Position = UDim2.new(1,-10,0.5,0); st.Size = UDim2.fromOffset(42,14); st.Font = FB; st.TextSize = 10; st.TextColor3 = C.sub; st.TextXAlignment = Enum.TextXAlignment.Right; st.Parent = r end
         local function label(on)
             local t = nm
             if priceFn then local p = priceFn(nm); if p and p ~= "" then t = t .. '  <font color="rgb('..(on and "255,205,222" or "120,220,150")..')">' .. p .. '</font>' end end
@@ -760,34 +744,32 @@ local function dropdownRow(parent, name, desc, getOptions, selectedSet, getStock
     end)
     return { selectAll = selectAll }
 end
--- text input row (e.g. webhook URL)
 local function inputRow(parent, name, desc, default, placeholder, onSet)
-    local f = card(parent); padAll(f, 12, 12, 10, 11); vlist(f, 6)
-    local n = Instance.new("TextLabel"); n.Size = UDim2.new(1,0,0,16); n.BackgroundTransparency = 1; n.Font = FM; n.Text = name; n.TextSize = 13; n.TextColor3 = C.text; n.TextXAlignment = Enum.TextXAlignment.Left; n.LayoutOrder = 1; n.Parent = f
-    if desc then local d = Instance.new("TextLabel"); d.Size = UDim2.new(1,0,0,0); d.AutomaticSize = Enum.AutomaticSize.Y; d.BackgroundTransparency = 1; d.Font = FR; d.Text = desc; d.TextSize = 11; d.TextColor3 = C.sub; d.TextWrapped = true; d.TextXAlignment = Enum.TextXAlignment.Left; d.LayoutOrder = 2; d.Parent = f end
-    local box = Instance.new("Frame"); box.Size = UDim2.new(1,0,0,30); box.BackgroundColor3 = C.inset; box.LayoutOrder = 3; box.Parent = f; corner(box,7); stroke(box, C.stroke,1)
-    local tb = Instance.new("TextBox"); tb.Size = UDim2.new(1,-16,1,0); tb.Position = UDim2.fromOffset(8,0); tb.BackgroundTransparency = 1; tb.Font = FR; tb.TextSize = 12; tb.TextColor3 = C.text
+    local f = card(parent); padAll(f, 10, 10, 8, 9); vlist(f, 5)
+    local n = Instance.new("TextLabel"); n.Size = UDim2.new(1,0,0,14); n.BackgroundTransparency = 1; n.Font = FM; n.Text = name; n.TextSize = 11.5; n.TextColor3 = C.text; n.TextXAlignment = Enum.TextXAlignment.Left; n.LayoutOrder = 1; n.Parent = f
+    if desc then local d = Instance.new("TextLabel"); d.Size = UDim2.new(1,0,0,0); d.AutomaticSize = Enum.AutomaticSize.Y; d.BackgroundTransparency = 1; d.Font = FR; d.Text = desc; d.TextSize = 10; d.TextColor3 = C.sub; d.TextWrapped = true; d.TextXAlignment = Enum.TextXAlignment.Left; d.LayoutOrder = 2; d.Parent = f end
+    local box = Instance.new("Frame"); box.Size = UDim2.new(1,0,0,26); box.BackgroundColor3 = C.inset; box.LayoutOrder = 3; box.Parent = f; corner(box,6); stroke(box, C.stroke,1)
+    local tb = Instance.new("TextBox"); tb.Size = UDim2.new(1,-14,1,0); tb.Position = UDim2.fromOffset(7,0); tb.BackgroundTransparency = 1; tb.Font = FR; tb.TextSize = 11; tb.TextColor3 = C.text
     tb.PlaceholderText = placeholder or ""; tb.PlaceholderColor3 = C.sub; tb.Text = default or ""; tb.ClearTextOnFocus = false; tb.TextXAlignment = Enum.TextXAlignment.Left; tb.TextTruncate = Enum.TextTruncate.AtEnd; tb.Parent = box
     track(tb.FocusLost:Connect(function() if onSet then onSet(tb.Text) end saveSettings() end))
     return tb
 end
--- single-select dropdown (radio style) for things like Plant Pattern / Plant Source
 local function choiceRow(parent, name, desc, getOptions, getSel, onPick)
-    local f = card(parent); padAll(f, 12, 12, 10, 10)
-    textBlock(f, name, desc, 152)
-    local trig = Instance.new("TextButton"); trig.AnchorPoint = Vector2.new(1,0); trig.Position = UDim2.new(1,0,0,2); trig.Size = UDim2.fromOffset(138,30)
-    trig.AutoButtonColor = false; trig.BackgroundColor3 = C.inset; trig.Text = ""; trig.Parent = f; corner(trig,8); stroke(trig, C.stroke,1)
-    local tl = Instance.new("TextLabel"); tl.BackgroundTransparency = 1; tl.Position = UDim2.fromOffset(10,0); tl.Size = UDim2.new(1,-26,1,0); tl.Font = FM; tl.TextSize = 11; tl.TextColor3 = C.text; tl.TextXAlignment = Enum.TextXAlignment.Left; tl.TextTruncate = Enum.TextTruncate.AtEnd; tl.Parent = trig
-    local ar = Instance.new("TextLabel"); ar.BackgroundTransparency = 1; ar.AnchorPoint = Vector2.new(1,0.5); ar.Position = UDim2.new(1,-8,0.5,0); ar.Size = UDim2.fromOffset(12,12); ar.Font = FB; ar.Text = "v"; ar.TextSize = 11; ar.TextColor3 = C.sub; ar.Parent = trig
-    local list = Instance.new("Frame"); list.Size = UDim2.new(1,0,0,0); list.AutomaticSize = Enum.AutomaticSize.Y; list.BackgroundColor3 = C.inset; list.Visible = false; list.LayoutOrder = nextOrder(parent); list.Parent = parent; corner(list,8); stroke(list, C.stroke,1)
-    local ll = Instance.new("UIListLayout"); ll.Padding = UDim.new(0,2); ll.SortOrder = Enum.SortOrder.LayoutOrder; ll.Parent = list; padAll(list, 6)
+    local f = card(parent); padAll(f, 10, 10, 8, 8)
+    textBlock(f, name, desc, 132)
+    local trig = Instance.new("TextButton"); trig.AnchorPoint = Vector2.new(1,0); trig.Position = UDim2.new(1,0,0,2); trig.Size = UDim2.fromOffset(120,26)
+    trig.AutoButtonColor = false; trig.BackgroundColor3 = C.inset; trig.Text = ""; trig.Parent = f; corner(trig,7); stroke(trig, C.stroke,1)
+    local tl = Instance.new("TextLabel"); tl.BackgroundTransparency = 1; tl.Position = UDim2.fromOffset(9,0); tl.Size = UDim2.new(1,-24,1,0); tl.Font = FM; tl.TextSize = 10.5; tl.TextColor3 = C.text; tl.TextXAlignment = Enum.TextXAlignment.Left; tl.TextTruncate = Enum.TextTruncate.AtEnd; tl.Parent = trig
+    local ar = Instance.new("TextLabel"); ar.BackgroundTransparency = 1; ar.AnchorPoint = Vector2.new(1,0.5); ar.Position = UDim2.new(1,-7,0.5,0); ar.Size = UDim2.fromOffset(10,10); ar.Font = FB; ar.Text = "v"; ar.TextSize = 10; ar.TextColor3 = C.sub; ar.Parent = trig
+    local list = Instance.new("Frame"); list.Size = UDim2.new(1,0,0,0); list.AutomaticSize = Enum.AutomaticSize.Y; list.BackgroundColor3 = C.inset; list.Visible = false; list.LayoutOrder = nextOrder(parent); list.Parent = parent; corner(list,7); stroke(list, C.stroke,1)
+    local ll = Instance.new("UIListLayout"); ll.Padding = UDim.new(0,2); ll.SortOrder = Enum.SortOrder.LayoutOrder; ll.Parent = list; padAll(list, 5)
     local function refresh() tl.Text = tostring(getSel() or "—") end
     local function rebuild()
         for _, c in ipairs(list:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
         for i, opt in ipairs(getOptions()) do
             local sel = (getSel() == opt)
-            local r = Instance.new("TextButton"); r.Size = UDim2.new(1,0,0,30); r.BackgroundColor3 = sel and C.rowOn or C.card; r.Text = ""; r.AutoButtonColor = false; r.LayoutOrder = i; r.Parent = list; corner(r,8)
-            local lbl = Instance.new("TextLabel"); lbl.BackgroundTransparency = 1; lbl.Position = UDim2.fromOffset(12,0); lbl.Size = UDim2.new(1,-22,1,0); lbl.Font = FM; lbl.TextSize = 12; lbl.TextColor3 = sel and C.white or C.text; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.TextTruncate = Enum.TextTruncate.AtEnd; lbl.Text = opt; lbl.Parent = r
+            local r = Instance.new("TextButton"); r.Size = UDim2.new(1,0,0,26); r.BackgroundColor3 = sel and C.rowOn or C.card; r.Text = ""; r.AutoButtonColor = false; r.LayoutOrder = i; r.Parent = list; corner(r,7)
+            local lbl = Instance.new("TextLabel"); lbl.BackgroundTransparency = 1; lbl.Position = UDim2.fromOffset(10,0); lbl.Size = UDim2.new(1,-20,1,0); lbl.Font = FM; lbl.TextSize = 11; lbl.TextColor3 = sel and C.white or C.text; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.TextTruncate = Enum.TextTruncate.AtEnd; lbl.Text = opt; lbl.Parent = r
             track(r.MouseButton1Click:Connect(function() onPick(opt); refresh(); list.Visible = false; ar.Text = "v"; saveSettings() end))
             track(r.MouseEnter:Connect(function() if getSel() ~= opt then TweenService:Create(r, TweenInfo.new(0.1), { BackgroundColor3 = C.cardHi }):Play() end end))
             track(r.MouseLeave:Connect(function() if getSel() ~= opt then TweenService:Create(r, TweenInfo.new(0.1), { BackgroundColor3 = C.card }):Play() end end))
@@ -814,19 +796,19 @@ end
 local minimized = false
 track(MinBtn.MouseButton1Click:Connect(function()
     minimized = not minimized; Body.Visible = not minimized; Status.Visible = not minimized
-    if MinPlusBar then MinPlusBar.Visible = minimized end  -- "-" becomes "+" when minimized
-    TweenService:Create(Main, TweenInfo.new(0.18, Enum.EasingStyle.Quad), { Size = minimized and UDim2.fromOffset(1020,42) or UDim2.fromOffset(1020,700) }):Play()
+    if MinPlusBar then MinPlusBar.Visible = minimized end
+    TweenService:Create(Main, TweenInfo.new(0.18, Enum.EasingStyle.Quad), { Size = minimized and UDim2.fromOffset(620,38) or UDim2.fromOffset(620,400) }):Play()
 end))
 local maximized = false
 track(MaxBtn.MouseButton1Click:Connect(function()
     maximized = not maximized
-    TweenService:Create(Main, TweenInfo.new(0.18, Enum.EasingStyle.Quad), { Size = maximized and UDim2.fromOffset(1160,800) or UDim2.fromOffset(1020,700) }):Play()
+    TweenService:Create(Main, TweenInfo.new(0.18, Enum.EasingStyle.Quad), { Size = maximized and UDim2.fromOffset(760,500) or UDim2.fromOffset(620,400) }):Play()
 end))
 
 --========================== UNLOAD ================================--
 function Hub.unload()
     if not Hub.running then return end
-    saveSettings()  -- persist current settings before we tear everything down
+    saveSettings()
     Hub.running = false
     for _, c in ipairs(Hub.conns) do pcall(function() c:Disconnect() end) end
     Hub.conns = {}
@@ -835,17 +817,14 @@ function Hub.unload()
     local c = char(); if c then for _, p in ipairs(c:GetDescendants()) do if p:IsA("BasePart") then pcall(function() p.CanCollide = true end) end end end
     for k, v in pairs(S) do if type(v) == "boolean" then S[k] = false end end
     pcall(function() ScreenGui:Destroy() end)
-    print("[360's GAG] unloaded.")
+    print("[Kryvex Hub] unloaded.")
 end
-genv.GAG360_unload = Hub.unload
-genv.GAG360_notify = function(msg, title, col) notify(msg, title, col) end  -- external trigger for the toast
+genv.KryvexHub_unload = Hub.unload
+genv.KryvexHub_notify = function(msg, title, col) notify(msg, title, col) end
 track(CloseBtn.MouseButton1Click:Connect(function() Hub.unload() end))
 track(UserInputService.InputBegan:Connect(function(i, gpe) if not gpe and i.KeyCode == Enum.KeyCode.RightShift then Main.Visible = not Main.Visible end end))
 
 --========================== FEATURE LOOPS =========================--
--- The actual plantable soil is the CollectionService "PlantArea" parts (two ~44x50
--- columns, centred ~12 studs off the PlotSizeReference centre). Grid over those, not a
--- guessed rectangle, so planting covers the WHOLE garden. Patterns sub-select cells.
 local PLANT_PATTERNS = { "Fill", "Checkerboard", "Rows", "Columns", "Diagonal", "Spaced" }
 local function patternKeep(pat, gx, gz)
     if pat == "Checkerboard" then return (gx + gz) % 2 == 0
@@ -853,7 +832,7 @@ local function patternKeep(pat, gx, gz)
     elseif pat == "Columns" then return gx % 2 == 0
     elseif pat == "Diagonal" then return (gx - gz) % 3 == 0
     elseif pat == "Spaced" then return gx % 2 == 0 and gz % 2 == 0 end
-    return true  -- Fill
+    return true
 end
 local function plantAreas(plot)
     local areas = {}
@@ -895,10 +874,7 @@ local function freePlantPositions(plot)
     return free
 end
 
---======================= GARDEN SNAPSHOTS ========================--
--- Capture another player's garden (which seeds + how many, and its buildings) to a named
--- snapshot, then replant the same seeds/amounts (and optionally rebuild the layout) on yours.
-local SNAP_FILE = "360_GAG_GAG2_Snapshots.json"
+local SNAP_FILE = "KryvexHub_Snapshots.json"
 local Snapshots = {}
 local function saveSnapshots() if writefile then pcall(function() writefile(SNAP_FILE, HttpService:JSONEncode(Snapshots)) end) end end
 do
@@ -910,7 +886,6 @@ end
 local function snapshotNames()
     local list = {} for n in pairs(Snapshots) do list[#list + 1] = n end table.sort(list); return list
 end
--- the garden the player is standing in / nearest to
 local function gardenNearPlayer()
     local g = Workspace:FindFirstChild("Gardens"); local r = hrp(); if not (g and r) then return nil end
     local best, bestD
@@ -921,19 +896,16 @@ local function gardenNearPlayer()
     end
     return best
 end
--- the building folders a plot can hold (placed props/sprinklers/pots/gnomes)
 local BUILD_FOLDERS = { "Props", "Sprinklers", "Gnomes", "PottedPlants", "Pots", "Objects", "Decor" }
 local function captureSnapshot(name)
     local plot = gardenNearPlayer(); if not plot then return false, "no garden nearby" end
     local ref = plot:FindFirstChild("PlotSizeReference"); local center = ref and ref.Position or Vector3.zero
     local snap = { seeds = {}, buildings = {}, owner = plot:GetAttribute("OwnerUserId") }
-    -- plants -> seed counts
     local plants = plot:FindFirstChild("Plants")
     if plants then for _, pl in ipairs(plants:GetChildren()) do
         local s = pl:GetAttribute("SeedName") or pl:GetAttribute("CorePartName")
         if s then snap.seeds[s] = (snap.seeds[s] or 0) + 1 end
     end end
-    -- buildings -> type + position relative to plot centre (best-effort; folders vary)
     for _, fname in ipairs(BUILD_FOLDERS) do
         local f = plot:FindFirstChild(fname)
         if f then for _, b in ipairs(f:GetChildren()) do
@@ -951,8 +923,6 @@ local function captureSnapshot(name)
     return true, ("captured %d seed types, %d buildings"):format(nSeeds, #snap.buildings)
 end
 
---====================== REMOVE / BUILD ===========================--
--- the shovel must be EQUIPPED and passed to UseShovel(plantId, fruitId, shovelAttr, shovelTool)
 local function findShovel()
     local function scan(cont) if cont then for _, c in ipairs(cont:GetChildren()) do if c:IsA("Tool") and (c:GetAttribute("Shovel") ~= nil or c.Name:lower():find("shovel")) then return c end end end end
     return scan(char()) or scan(LocalPlayer:FindFirstChild("Backpack"))
@@ -963,7 +933,6 @@ local function equipShovel()
     if h and sh.Parent ~= char() then pcall(function() h:EquipTool(sh) end); task.wait(0.3) end
     return sh
 end
--- remove plants matching matchFn(cropName) (nil = remove everything)
 local function removePlants(matchFn)
     local plot = myPlot(); if not plot then return 0 end
     local plants = plot:FindFirstChild("Plants"); if not plants then return 0 end
@@ -1003,7 +972,7 @@ end
 spawnLoop(2, function()
     if not S.autoBuySeed then return end
     local it = seedStockItems(); if not it then return end
-    local anySel = next(S.buySeeds) ~= nil  -- nothing picked = buy everything in stock
+    local anySel = next(S.buySeeds) ~= nil
     for _, sv in ipairs(it:GetChildren()) do
         if sv:IsA("ValueBase") and sv.Value > 0 and ((not anySel) or S.buySeeds[sv.Name] == true) then
             if getSheckles() >= (SeedPrice[sv.Name] or 0) then fire(Net.SeedShop.PurchaseSeed, sv.Name); task.wait(0.08) end
@@ -1021,7 +990,6 @@ spawnLoop(0.6, function()
     local toPlant = {}
     local snap = (S.plantSource and S.plantSource ~= "My Seeds") and Snapshots[S.plantSource] or nil
     if snap then
-        -- replant to match the snapshot's seed counts (capped by what you own)
         local have = {}
         local plf = plot:FindFirstChild("Plants")
         if plf then for _, pl in ipairs(plf:GetChildren()) do local s = pl:GetAttribute("SeedName") or pl:GetAttribute("CorePartName") if s then have[s] = (have[s] or 0) + 1 end end end
@@ -1052,7 +1020,6 @@ spawnLoop(0.6, function()
     if planted > 0 then setStatus("planted " .. planted) end
 end)
 
--- auto-expand the garden (server gates on cost, so just fire when toggled)
 spawnLoop(6, function()
     if not S.autoExpand then return end
     local plot = myPlot(); if not plot then return end
@@ -1063,7 +1030,6 @@ spawnLoop(6, function()
     if after > before then setStatus("garden expanded to size " .. after) end
 end)
 
--- auto-build: recreate the selected snapshot's building layout on your plot (best-effort)
 local function buildSnapshot()
     local snap = (S.plantSource and S.plantSource ~= "My Seeds") and Snapshots[S.plantSource] or nil
     if not (snap and snap.buildings and #snap.buildings > 0) then setStatus("pick a snapshot (with buildings) as the source") return 0 end
@@ -1116,7 +1082,7 @@ spawnLoop(0.8, function()
     for _, e in ipairs(t) do
         if not S.autoSteal or not isNight() then break end
         local m = e.model; local pos = (m and m.Parent) and m:GetPivot().Position or nil
-        local skip = (lastPos and pos and (pos - lastPos).Magnitude <= 12) or false  -- same plant cluster -> don't re-teleport
+        local skip = (lastPos and pos and (pos - lastPos).Magnitude <= 12) or false
         if pos and not skip then lastPos = pos end
         stealModel(m, S.stealMult, skip); n = n + 1
         setStatus(string.format("steal: %d/%d  (worth %d)", n, #t, math.floor(e.value))); task.wait(0.03)
@@ -1125,8 +1091,6 @@ spawnLoop(0.8, function()
     if S.stealReturn and home then reach(home - Vector3.new(0,3,0)) end
 end)
 
--- event seeds: gold/rainbow seeds + seed packs randomly spawn around the map; you walk
--- to them and HOLD E (a server-added ProximityPrompt) to collect. We TP over + fire it.
 local function packKind(loc)
     if loc:GetAttribute("GoldSeed") == true then return "Gold Seed" end
     if loc:GetAttribute("RainbowSeed") == true then return "Rainbow Seed" end
@@ -1152,7 +1116,6 @@ local function packLocations()
     local map = Workspace:FindFirstChild("Map"); local f = map and map:FindFirstChild("SeedPackSpawnServerLocations")
     return f and f:GetChildren() or {}
 end
--- hold every collect-prompt on / near a spawned seed (server adds the hold-E prompt)
 local function holdSeedPrompts(pos)
     local map = Workspace:FindFirstChild("Map")
     for _, cont in ipairs({ map and map:FindFirstChild("SeedPackSpawnServerLocations"), map and map:FindFirstChild("SeedPackSpawnClient"), Workspace:FindFirstChild("Temporary") }) do
@@ -1170,7 +1133,6 @@ local function locPos(loc)
     local ok, cf = pcall(function() return loc:GetPivot() end); if ok then return cf.Position end
     local bp = locPart(loc); return bp and bp.Position or nil
 end
--- stand on the seed and collect it: fire its hold-E prompt, any nearby prompt, AND touch it
 local function grabPack(loc)
     local landed = false
     for _ = 1, 90 do
@@ -1178,10 +1140,10 @@ local function grabPack(loc)
         local pos = locPos(loc); if not pos then break end
         local r = hrp()
         if (not landed) or (r and (r.Position - pos).Magnitude > 6) then reach(pos); landed = true end
-        for _, d in ipairs(loc:GetDescendants()) do if d:IsA("ProximityPrompt") then firePrompt(d) end end  -- prompt on the seed itself
-        holdSeedPrompts(pos)                                                                                   -- + any prompt nearby (client visual)
+        for _, d in ipairs(loc:GetDescendants()) do if d:IsA("ProximityPrompt") then firePrompt(d) end end
+        holdSeedPrompts(pos)
         local part = locPart(loc)
-        if firetouchinterest and part and hrp() then pcall(function() firetouchinterest(hrp(), part, 0); firetouchinterest(hrp(), part, 1) end) end  -- touch-to-collect fallback
+        if firetouchinterest and part and hrp() then pcall(function() firetouchinterest(hrp(), part, 0); firetouchinterest(hrp(), part, 1) end) end
         task.wait(0.12)
     end
 end
@@ -1192,7 +1154,7 @@ do
         for _, loc in ipairs(packLocations()) do
             if loc.Parent and not grabbing[loc] then
                 local rare = isRarePack(loc)
-                if S.notifyRare and rare then local k = packKind(loc) or "Rare seed"; setStatus("EVENT: " .. k .. " spawned!"); notify(k .. " spawned on the map - grabbing it now!", "✦ Rare Seed Spawned", C.accent) end
+                if S.notifyRare and rare then local k = packKind(loc) or "Rare seed"; setStatus("EVENT: " .. k .. " spawned!"); notify(k .. " spawned - grabbing it now!", "✦ Rare Seed Spawned", C.accent) end
                 if (not S.grabRareOnly) or rare then
                     grabbing[loc] = true
                     task.spawn(function() grabPack(loc); grabbing[loc] = nil end)
@@ -1275,8 +1237,7 @@ spawnLoop(1.2, function()
         end
     end
 end)
--- AUTO PROGRESS: hands-off progression. Harvest -> sell -> buy the best seeds you can
--- afford -> plant them everywhere -> tame valuable pets when they spawn. Snowballs coins.
+
 local GOOD_PETS = {
     Raccoon = true, Dragonfly = true, ["Dragon Fly"] = true, Dragonling = true, Mimic = true,
     ["Disco Bee"] = true, ["Queen Bee"] = true, Kitsune = true, ["Red Fox"] = true, Fox = true,
@@ -1345,14 +1306,143 @@ local function startFly()
     flyBV = Instance.new("BodyVelocity"); flyBV.MaxForce = Vector3.new(1,1,1)*9e9; flyBV.Velocity = Vector3.zero; flyBV.Parent = r
     flyBG = Instance.new("BodyGyro"); flyBG.MaxTorque = Vector3.new(1,1,1)*9e9; flyBG.P = 1e5; flyBG.CFrame = r.CFrame; flyBG.Parent = r
 end
+
+--===================== NEW COMBAT/AIMBOT/ESP LOOPS ==================--
+-- Aimbot loop
+track(RunService.RenderStepped:Connect(function()
+    if not S.aimbotEnabled then return end
+    if not UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
+    local myRoot = hrp(); if not myRoot then return end
+    local closest, closestDist = nil, S.aimbotRadius
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character then
+            if S.aimbotTeamCheck and p.Team == LocalPlayer.Team then continue end
+            local theirRoot = p.Character:FindFirstChild("HumanoidRootPart")
+            local theirHum = p.Character:FindFirstChildWhichIsA("Humanoid")
+            if theirRoot and theirHum and theirHum.Health > 0 then
+                local d = (myRoot.Position - theirRoot.Position).Magnitude
+                if d < closestDist then closestDist = d; closest = p end
+            end
+        end
+    end
+    if closest and closest.Character then
+        local targetPart = closest.Character:FindFirstChild(S.aimbotPart)
+        if targetPart then
+            local cam = Workspace.CurrentCamera
+            local camPos = cam.CFrame.Position
+            local targetPos = targetPart.Position
+            local dir = (targetPos - camPos).Unit
+            local newCF = CFrame.new(camPos, camPos + dir)
+            cam.CFrame = cam.CFrame:Lerp(newCF, S.aimbotSmoothness)
+        end
+    end
+end))
+
+-- Kill Aura loop
+track(RunService.Heartbeat:Connect(function()
+    if not S.killAura then return end
+    local myRoot = hrp(); if not myRoot then return end
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character then
+            local theirRoot = p.Character:FindFirstChild("HumanoidRootPart")
+            local theirHum = p.Character:FindFirstChildWhichIsA("Humanoid")
+            if theirRoot and theirHum and theirHum.Health > 0 then
+                if (myRoot.Position - theirRoot.Position).Magnitude <= S.killAuraRange then
+                    if firetouchinterest then
+                        pcall(function()
+                            firetouchinterest(myRoot, theirRoot, 0)
+                            task.wait()
+                            firetouchinterest(myRoot, theirRoot, 1)
+                        end)
+                    end
+                end
+            end
+        end
+    end
+end))
+
+-- ESP render loop
+local espCache = {}
+local function clearESP()
+    for _, v in pairs(espCache) do pcall(function() v:Destroy() end) end
+    espCache = {}
+end
+track(RunService.RenderStepped:Connect(function()
+    if not S.espEnabled then if next(espCache) then clearESP() end return end
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+            local head = p.Character:FindFirstChild("Head")
+            local bill = espCache[p]
+            if not bill or not bill.Parent then
+                bill = Instance.new("BillboardGui")
+                bill.Name = "KX_ESP"
+                bill.Adornee = head
+                bill.Size = UDim2.new(0, 200, 0, 60)
+                bill.StudsOffset = Vector3.new(0, 2, 0)
+                bill.AlwaysOnTop = true
+                bill.Parent = head
+
+                local nameL = Instance.new("TextLabel", bill)
+                nameL.Name = "NameL"
+                nameL.Size = UDim2.new(1, 0, 0.5, 0)
+                nameL.BackgroundTransparency = 1
+                nameL.TextColor3 = C.kxRed
+                nameL.Font = Enum.Font.GothamBold
+                nameL.TextSize = 14
+                nameL.TextStrokeTransparency = 0.5
+                nameL.TextStrokeColor3 = Color3.new(0,0,0)
+
+                local infoL = Instance.new("TextLabel", bill)
+                infoL.Name = "InfoL"
+                infoL.Size = UDim2.new(1, 0, 0.5, 0)
+                infoL.Position = UDim2.new(0, 0, 0.5, 0)
+                infoL.BackgroundTransparency = 1
+                infoL.TextColor3 = C.green
+                infoL.Font = Enum.Font.GothamBold
+                infoL.TextSize = 12
+                infoL.TextStrokeTransparency = 0.5
+                infoL.TextStrokeColor3 = Color3.new(0,0,0)
+
+                espCache[p] = bill
+            end
+            local nameL = bill:FindFirstChild("NameL")
+            local infoL = bill:FindFirstChild("InfoL")
+            if nameL then nameL.Text = S.espNames and p.Name or "" nameL.Visible = S.espNames end
+            if infoL then
+                local info = ""
+                local myRoot = hrp()
+                if S.espDistance and myRoot then
+                    local theirRoot = p.Character:FindFirstChild("HumanoidRootPart")
+                    if theirRoot then info = info .. math.floor((myRoot.Position - theirRoot.Position).Magnitude) .. "m " end
+                end
+                if S.espHealth then
+                    local hum = p.Character:FindFirstChildWhichIsA("Humanoid")
+                    if hum then info = info .. "HP:" .. math.floor(hum.Health) .. "/" .. math.floor(hum.MaxHealth) end
+                end
+                infoL.Text = info
+                infoL.Visible = (#info > 0)
+            end
+        end
+    end
+    -- remove stale
+    for p, bill in pairs(espCache) do
+        if not p.Character or not p.Character:FindFirstChild("Head") then pcall(function() bill:Destroy() end) espCache[p] = nil end
+    end
+end))
+
 track(RunService.Heartbeat:Connect(function()
     if not Hub.running then return end
     local h = humanoid()
     if h then
-        if S.walkSpeed ~= 16 then h.WalkSpeed = S.walkSpeed end
-        if S.jumpPower ~= 50 then h.UseJumpPower = true; h.JumpPower = S.jumpPower end
+        if S.speedHack then h.WalkSpeed = S.speedValue
+        elseif S.walkSpeed ~= 16 then h.WalkSpeed = S.walkSpeed
+        elseif h.WalkSpeed ~= 16 and not S.speedHack then h.WalkSpeed = 16 end
+        if S.jumpHack then h.UseJumpPower = true; h.JumpPower = S.jumpValue
+        elseif S.jumpPower ~= 50 then h.UseJumpPower = true; h.JumpPower = S.jumpPower end
     end
-    if S.noclip then local c = char() if c then for _, p in ipairs(c:GetDescendants()) do if p:IsA("BasePart") and p.CanCollide then p.CanCollide = false end end end end
+    if S.noclip or S.noclipActive then
+        local c = char() if c then for _, p in ipairs(c:GetDescendants()) do if p:IsA("BasePart") and p.CanCollide then p.CanCollide = false end end end
+    end
     if S.fly then
         local r = hrp(); local cam = Workspace.CurrentCamera
         if r and cam then
@@ -1371,10 +1461,27 @@ track(RunService.Heartbeat:Connect(function()
         end
     elseif flyBV then stopFly() end
 end))
-track(UserInputService.JumpRequest:Connect(function() if S.infJump then local h = humanoid() if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end end))
+track(UserInputService.JumpRequest:Connect(function() if S.infJump or S.infiniteJump then local h = humanoid() if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end end))
 
--- anti-afk: VirtualUser click on the Idled signal (fires just before the 20-min
--- idle kick). Non-disruptive - only acts when you are actually idle.
+-- Fullbright / NightVision / NoFog
+track(RunService.Heartbeat:Connect(function()
+    if not (S.fullbright or S.nightVision or S.noFog) then return end
+    local L = game:GetService("Lighting")
+    pcall(function()
+        if S.fullbright then
+            L.Brightness = 2
+            L.ClockTime = 14
+            L.GlobalShadows = false
+            L.OutdoorAmbient = Color3.fromRGB(128,128,128)
+        end
+        if S.nightVision then
+            L.Ambient = Color3.fromRGB(0, 255, 0)
+            L.OutdoorAmbient = Color3.fromRGB(0, 255, 0)
+        end
+        if S.noFog then L.FogEnd = 100000 end
+    end)
+end))
+
 do
     local VU = game:GetService("VirtualUser")
     track(LocalPlayer.Idled:Connect(function()
@@ -1386,8 +1493,6 @@ do
     end))
 end
 
--- webhook + server hopper
-local HttpService = game:GetService("HttpService")
 local TPS = game:GetService("TeleportService")
 local httpRequest = (syn and syn.request) or (http and http.request) or (fluxus and fluxus.request) or (typeof(request) == "function" and request) or http_request
 local function sendWebhook(content)
@@ -1395,7 +1500,7 @@ local function sendWebhook(content)
     task.spawn(function()
         pcall(function()
             httpRequest({ Url = S.webhookUrl, Method = "POST", Headers = { ["Content-Type"] = "application/json" },
-                Body = HttpService:JSONEncode({ username = "360's GAG", content = content }) })
+                Body = HttpService:JSONEncode({ username = "Kryvex Hub", content = content }) })
         end)
     end)
     return true
@@ -1424,13 +1529,11 @@ local function rareSeedInStock()
     for _, sv in ipairs(it:GetChildren()) do if sv:IsA("ValueBase") and sv.Value > 0 and (SeedPrice[sv.Name] or 0) >= 5000 then return true, sv.Name end end
     return false
 end
--- hop between servers until a rare seed is in stock
 spawnLoop(20, function()
     if not S.autoHopRare then return end
     if not rareSeedInStock() then serverHop(false) end
 end)
 
--- profit tracker (net sheckles, rolling 60s rate)
 local Profit = { startS = nil, session = 0, perMin = 0, perHr = 0, win = {} }
 spawnLoop(2, function()
     local s = getSheckles()
@@ -1442,8 +1545,7 @@ spawnLoop(2, function()
     if dt > 4 then Profit.perMin = (s - f.s)/dt*60; Profit.perHr = Profit.perMin*60 end
 end)
 
--- highlight ESP (own ready crops + mutated fruit, distance-capped)
-local hlFolder = Instance.new("Folder"); hlFolder.Name = "GAG_HL"; hlFolder.Parent = ScreenGui
+local hlFolder = Instance.new("Folder"); hlFolder.Name = "KX_HL"; hlFolder.Parent = ScreenGui
 local function clearHL() for _, h in ipairs(hlFolder:GetChildren()) do h:Destroy() end end
 local function addHL(model, col)
     if not model or not model.Parent then return end
@@ -1469,7 +1571,6 @@ spawnLoop(1, function()
 end)
 table.insert(Hub.conns, { Disconnect = function() pcall(clearHL) pcall(function() hlFolder:Destroy() end) end })
 
--- rare seed restock notifier (fires once when an expensive seed appears in stock)
 do
     local prev = {}
     spawnLoop(3, function()
@@ -1488,7 +1589,6 @@ do
     end)
 end
 
--- performance optimizer: flat textures, grey sky, no effects (FPS boost)
 local Lighting = game:GetService("Lighting")
 local optConns, optOrig
 local function optimizeInstance(o)
@@ -1509,8 +1609,8 @@ local function setOptimize(on)
         optOrig = optOrig or { gs = Lighting.GlobalShadows, fc = Lighting.FogColor, fs = Lighting.FogStart, fe = Lighting.FogEnd, br = Lighting.Brightness, oa = Lighting.OutdoorAmbient, am = Lighting.Ambient }
         pcall(function()
             Lighting.GlobalShadows = false
-            Lighting.FogColor = Color3.fromRGB(131,133,139); Lighting.FogStart = 220; Lighting.FogEnd = 780  -- grey sky via fog
-            Lighting.OutdoorAmbient = Color3.fromRGB(140,140,146); Lighting.Ambient = Color3.fromRGB(122,122,128)  -- neutralise colour tint
+            Lighting.FogColor = Color3.fromRGB(131,133,139); Lighting.FogStart = 220; Lighting.FogEnd = 780
+            Lighting.OutdoorAmbient = Color3.fromRGB(140,140,146); Lighting.Ambient = Color3.fromRGB(122,122,128)
         end)
         for _, e in ipairs(Lighting:GetDescendants()) do
             if e:IsA("Atmosphere") or e:IsA("Clouds") or e:IsA("PostEffect") then pcall(function() e.Enabled = false end) end
@@ -1519,7 +1619,6 @@ local function setOptimize(on)
         pcall(function() Workspace.Terrain.Decoration = false end)
         pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 end)
         for _, o in ipairs(Workspace:GetDescendants()) do optimizeInstance(o) end
-        -- keep optimizing ANYTHING that streams in later (new plants, players, effects, etc.)
         if optConns then for _, c in ipairs(optConns) do pcall(function() c:Disconnect() end) end end
         local function onAdd(o) if S.optimize then task.defer(optimizeInstance, o) end end
         optConns = { Workspace.DescendantAdded:Connect(onAdd), Lighting.DescendantAdded:Connect(onAdd) }
@@ -1545,13 +1644,51 @@ local function setOptimize(on)
 end
 
 --========================== PAGES =================================--
+addGroup("Combat")
+-- COMBAT TAB (Aimbot, Kill Aura, etc.)
+do
+    local p = addTab("Combat")
+    local L, R = twoCol(p)
+    subTitle(L, "Aimbot")
+    howItWorks(L, "Hold right-click to lock aim on the nearest player. Smoothness controls how fast the aim catches up.")
+    toggleRow(L, "Enable Aimbot", "Right-click to lock onto nearest player.", "aimbotEnabled")
+    toggleRow(L, "Team Check", "Ignore teammates.", "aimbotTeamCheck")
+    sliderRow(L, "Aimbot Radius", 50, 500, S.aimbotRadius, 0, function(v) S.aimbotRadius = v end)
+    sliderRow(L, "Smoothness (x100)", 1, 10, math.floor(S.aimbotSmoothness*100), 0, function(v) S.aimbotSmoothness = v/100 end)
+
+    subTitle(L, "Kill Aura")
+    toggleRow(L, "Kill Aura", "Auto-touch nearby players.", "killAura")
+    sliderRow(L, "Kill Aura Range", 5, 100, S.killAuraRange, 0, function(v) S.killAuraRange = v end)
+
+    subTitle(R, "Movement Hacks")
+    howItWorks(R, "Speed hack and jump hack for fast traversal.")
+    toggleRow(R, "Speed Hack", "Override walk speed.", "speedHack")
+    sliderRow(R, "Speed Value", 16, 300, S.speedValue, 0, function(v) S.speedValue = v end)
+    toggleRow(R, "Jump Hack", "Override jump power.", "jumpHack")
+    sliderRow(R, "Jump Power Value", 50, 500, S.jumpValue, 0, function(v) S.jumpValue = v end)
+    toggleRow(R, "Noclip (Active)", "Walk through walls.", "noclipActive")
+    toggleRow(R, "Infinite Jump", "Jump mid-air infinitely.", "infiniteJump")
+end
+
+addGroup("ESP")
+-- ESP TAB
+do
+    local p = addTab("ESP")
+    local L = oneCol(p)
+    subTitle(L, "Player ESP")
+    howItWorks(L, "Draws nametags, distance, and health above every player. Updated live.")
+    toggleRow(L, "Enable ESP", "Master ESP toggle.", "espEnabled")
+    toggleRow(L, "Show Names", "Show player names.", "espNames")
+    toggleRow(L, "Show Distance", "Show distance in meters.", "espDistance")
+    toggleRow(L, "Show Health", "Show HP values.", "espHealth")
+end
+
 addGroup("Automation")
 -- FARM
 do
     local p = addTab("Farm")
     local L, R = twoCol(p)
-    -- Planting
-    colTitle(L, "Planting"); subTitle(L, "Auto Plant")
+    subTitle(L, "Auto Plant")
     howItWorks(L, "Equips each owned seed and plants it across your plot's soil. Leave the picker empty to plant every seed you own, or choose specific ones.")
     toggleRow(L, "Auto Plant", "Plants your owned seeds on a loop.", "autoPlant")
     dropdownRow(L, "Seeds To Plant", "Only seeds in your inventory. Empty = plant them all.", getOwnedSeedOptions, S.plantSeeds, nil, nil, seedPriceTag)
@@ -1581,8 +1718,8 @@ do
     sliderRow(L, "Max Plants / Cycle", 1, 80, S.maxPerCycle, 0, function(v) S.maxPerCycle = v end)
     sliderRow(L, "Plant Delay", 0.05, 1, S.plantDelay, 2, function(v) S.plantDelay = v end)
     sliderRow(L, "Loop Delay", 0.5, 10, S.plantLoop, 1, function(v) S.plantLoop = v end)
-    -- Harvest
-    colTitle(R, "Harvest"); subTitle(R, "Auto Harvest")
+
+    subTitle(R, "Auto Harvest")
     howItWorks(R, "Collects grown fruit on your plot by firing CollectFruit for each. Use the filters below to only pick up certain crops or mutations.")
     toggleRow(R, "Auto Harvest", "Collects all ready fruit on your plot on a loop.", "autoCollect")
     dropdownRow(R, "Only These Crops", "Empty = harvest every crop type.", getHarvestOptions, S.harvestCrops, nil, nil)
@@ -1599,9 +1736,9 @@ do
     actionRow(R, "Sell All Now", "Sell every harvested fruit.", function() fire(Net.NPCS.SellAll); setStatus("sold all") end)
 end
 
--- SHOP
+addGroup("Shop")
 do
-    local p = addTab("Shop", "🛒")
+    local p = addTab("Shop")
     local L, R = twoCol(p)
     subTitle(L, "Seeds")
     howItWorks(L, "Buys the seeds you tick the instant they restock. Empty picker = buy every seed in stock you can afford.")
@@ -1621,38 +1758,39 @@ do
     toggleRow(R, "Auto Buy Crates", "Buys every crate in stock on restock.", "autoBuyCrate")
 end
 
--- STEAL
+addGroup("Steal")
 do
-    local p = addTab("Steal", "🌙")
+    local p = addTab("Steal")
     local L, R = twoCol(p)
-    colTitle(L, "Night Raiding"); subTitle(L, "Auto Steal")
+    subTitle(L, "Auto Steal")
     howItWorks(L, "Steals ripe fruit from every other garden, most valuable first. Grabs multiple fruit per plant in one trip. Works only at NIGHT.")
     toggleRow(L, "Auto Steal", "Raid all gardens by fruit value.", "autoSteal")
     toggleRow(L, "Return Home After", "Teleport back to your garden each pass.", "stealReturn")
     sliderRow(L, "Fruits Per Steal", 1, 10, S.stealMult, 0, function(v) S.stealMult = v end)
-    colTitle(R, "Manual"); subTitle(R, "Actions")
+
+    subTitle(R, "Manual")
     actionRow(R, "Steal Most Valuable", "Grab the single highest-value fruit now.", function()
         if not isNight() then setStatus("not night - cannot steal") return end
         local t = stealTargets(); if t[1] then stealModel(t[1].model, S.stealMult); setStatus("stole fruit worth " .. math.floor(t[1].value)) else setStatus("nothing to steal") end
     end)
 end
 
--- DEFENSE
+addGroup("Defense")
 do
-    local p = addTab("Defense", "🛡️")
+    local p = addTab("Defense")
     local L = oneCol(p)
-    colTitle(L, "Protect Your Garden"); subTitle(L, "Defense")
+    subTitle(L, "Defense")
     howItWorks(L, "Panic harvest instantly collects all your ripe crops the moment night begins, before thieves can reach them. Retaliate shovels anyone standing on your plot.")
     toggleRow(L, "Panic Harvest At Night", "Grab all ripe fruit when night starts.", "panicHarvest")
     toggleRow(L, "Retaliate (shovel intruders)", "Hit any non-owner standing in your plot.", "retaliate")
     actionRow(L, "Harvest Everything Now", "Emergency-collect all ripe fruit.", function() setStatus("harvested " .. harvestAll(false)) end)
 end
 
--- EVENT
+addGroup("Event")
 do
-    local p = addTab("Event", "✨")
+    local p = addTab("Event")
     local L = oneCol(p)
-    colTitle(L, "Gold Moon"); subTitle(L, "Seed Pack Grabber")
+    subTitle(L, "Seed Pack Grabber")
     howItWorks(L, "During the Gold Moon, Gold/Rainbow seed packs spawn around the map. The hub flies to one and completes its hold-to-claim prompt. It only returns to your garden once the event ends.")
     toggleRow(L, "Auto Grab Seed Packs", "Fly to and claim spawned packs.", "autoGrabPacks")
     toggleRow(L, "Rare Only (Gold / Rainbow)", "Ignore ordinary seed packs.", "grabRareOnly")
@@ -1668,18 +1806,17 @@ do
     end)
 end
 
-addGroup("Garden")
--- TIMERS
+addGroup("Timers")
 do
     local p = addTab("Timers")
     local L, R = twoCol(p)
-    colTitle(L, "Active Event"); subTitle(L, "Cycle")
+    subTitle(L, "Cycle")
     local function tRow(parent, leftText)
-        local f = card(parent); padAll(f, 12, 12, 9, 9)
-        local Lb = Instance.new("TextLabel"); Lb.BackgroundTransparency = 1; Lb.Size = UDim2.new(1,-90,0,16); Lb.Font = FM; Lb.Text = leftText
-        Lb.TextSize = 13; Lb.TextColor3 = C.text; Lb.TextXAlignment = Enum.TextXAlignment.Left; Lb.Parent = f
-        local Rb = Instance.new("TextLabel"); Rb.AnchorPoint = Vector2.new(1,0); Rb.BackgroundTransparency = 1; Rb.Position = UDim2.new(1,0,0,0); Rb.Size = UDim2.fromOffset(86,16)
-        Rb.Font = FB; Rb.Text = "-"; Rb.TextSize = 13; Rb.TextColor3 = C.white; Rb.TextXAlignment = Enum.TextXAlignment.Right; Rb.Parent = f
+        local f = card(parent); padAll(f, 10, 10, 7, 7)
+        local Lb = Instance.new("TextLabel"); Lb.BackgroundTransparency = 1; Lb.Size = UDim2.new(1,-78,0,14); Lb.Font = FM; Lb.Text = leftText
+        Lb.TextSize = 11.5; Lb.TextColor3 = C.text; Lb.TextXAlignment = Enum.TextXAlignment.Left; Lb.Parent = f
+        local Rb = Instance.new("TextLabel"); Rb.AnchorPoint = Vector2.new(1,0); Rb.BackgroundTransparency = 1; Rb.Position = UDim2.new(1,0,0,0); Rb.Size = UDim2.fromOffset(76,14)
+        Rb.Font = FB; Rb.Text = "-"; Rb.TextSize = 11.5; Rb.TextColor3 = C.white; Rb.TextXAlignment = Enum.TextXAlignment.Right; Rb.Parent = f
         return Lb, Rb
     end
     local evL, evR = tRow(L, "-")
@@ -1695,9 +1832,9 @@ do
     end)
 end
 
--- ITEMS
+addGroup("Items")
 do
-    local p = addTab("Items", "📦")
+    local p = addTab("Items")
     local L, R = twoCol(p)
     subTitle(L, "Auto Open")
     toggleRow(L, "Auto Open Eggs", "Opens every egg you own on a loop.", "autoEggs")
@@ -1707,18 +1844,16 @@ do
     actionRow(L, "Open All Crates", "Open your whole crate inventory now.", function() local d = getData() local b = d and d.Inventory and d.Inventory.Crates if b then for n in pairs(b) do task.spawn(function() fire(Net.Crate.OpenCrate, n) end) task.wait(0.15) end end setStatus("opened crates") end)
     actionRow(L, "Open All Seed Packs", "Open your whole seed-pack inventory now.", function() local d = getData() local b = d and d.Inventory and d.Inventory.SeedPacks if b then for n in pairs(b) do task.spawn(function() fire(Net.SeedPack.OpenSeedPack, n) end) task.wait(0.15) end end setStatus("opened packs") end)
 
-    subTitle(R, "Garden Snapshots")
-    howItWorks(R, "Stand in any garden and snapshot it to capture exactly which seeds (and how many) plus its building layout. Then pick the snapshot as your Plant Source on the Farm tab to replant it, or use Auto Build to recreate the buildings.")
+    subTitle(R, "Snapshots")
+    howItWorks(R, "Stand in any garden and snapshot it to capture exactly which seeds (and how many) plus its building layout.")
     local snapName = "Snapshot 1"
     inputRow(R, "Snapshot Name", "Name to save the capture under.", snapName, "Snapshot 1", function(t) if t and t ~= "" then snapName = t end end)
     actionRow(R, "Snapshot This Garden", "Capture the garden you're standing in.", function()
         local ok, msg = captureSnapshot(snapName)
         if ok then notify('Saved "' .. snapName .. '" - ' .. msg, "Garden Snapshot", C.green) else setStatus(tostring(msg)) end
     end)
-    subTitle(R, "Auto Build")
     toggleRow(R, "Auto Build Snapshot", "Recreate the source snapshot's buildings (experimental).", "autoBuild")
     actionRow(R, "Build Snapshot Now", "Place the source snapshot's buildings once.", function() buildSnapshot() end)
-    subTitle(R, "Cleanup")
     dropdownRow(R, "Plants To Remove", "Pick crop types, then Remove Selected.", getPlantedOptions, S.removeCrops, nil, nil)
     actionRow(R, "Remove Selected", "Shovel only the picked crop types.", function()
         if not next(S.removeCrops) then setStatus("pick crops to remove first") return end
@@ -1728,16 +1863,16 @@ do
     actionRow(R, "Remove All Buildings", "Pick up every building on your plot.", function() setStatus("removing buildings...") task.spawn(function() local n = removeAllBuildings() setStatus("removed " .. n .. " buildings") end) end)
 end
 
--- PETS
+addGroup("Pets")
 do
-    local p = addTab("Pets", "🐾")
+    local p = addTab("Pets")
     local L, R = twoCol(p)
-    colTitle(L, "Wild Animals"); subTitle(L, "Auto Tame")
+    subTitle(L, "Auto Tame")
     howItWorks(L, "Sits on wild animals and tames them. Pick which species to chase, or leave empty to tame every wild animal that spawns.")
     toggleRow(L, "Auto Tame Wild Animals", "Tame selected species automatically.", "autoTame")
     dropdownRow(L, "Animals To Tame", "Empty = tame everything.", getAnimalOptions, S.tameAnimals, nil, nil)
 
-    colTitle(R, "Your Pets"); subTitle(R, "Auto Equip")
+    subTitle(R, "Auto Equip")
     howItWorks(R, "Keeps your chosen pets equipped. You can pick up to your equip slot count - the picker shows 1/3, 2/3, then MAX in red.")
     toggleRow(R, "Auto Equip Pets", "Keeps the selected pets equipped.", "autoEquipPets")
     dropdownRow(R, "Pets To Equip", "Pick up to your slot count.", getPetOptions, S.equipPets, nil, maxEquip)
@@ -1749,14 +1884,13 @@ do
 end
 
 addGroup("Tools")
--- STATS
 do
     local p = addTab("Stats")
     local L, R = twoCol(p)
     local function statRow(parent, lbl, col)
-        local f = card(parent); padAll(f, 12, 12, 9, 9)
-        local Lb = Instance.new("TextLabel"); Lb.BackgroundTransparency = 1; Lb.Size = UDim2.new(1,-150,0,16); Lb.Font = FM; Lb.Text = lbl; Lb.TextSize = 13; Lb.TextColor3 = C.text; Lb.TextXAlignment = Enum.TextXAlignment.Left; Lb.Parent = f
-        local Rb = Instance.new("TextLabel"); Rb.AnchorPoint = Vector2.new(1,0); Rb.BackgroundTransparency = 1; Rb.Position = UDim2.new(1,0,0,0); Rb.Size = UDim2.fromOffset(146,16); Rb.Font = FB; Rb.Text = "-"; Rb.TextSize = 13; Rb.TextColor3 = col or C.accentText; Rb.TextXAlignment = Enum.TextXAlignment.Right; Rb.TextTruncate = Enum.TextTruncate.AtEnd; Rb.Parent = f
+        local f = card(parent); padAll(f, 10, 10, 7, 7)
+        local Lb = Instance.new("TextLabel"); Lb.BackgroundTransparency = 1; Lb.Size = UDim2.new(1,-130,0,14); Lb.Font = FM; Lb.Text = lbl; Lb.TextSize = 11.5; Lb.TextColor3 = C.text; Lb.TextXAlignment = Enum.TextXAlignment.Left; Lb.Parent = f
+        local Rb = Instance.new("TextLabel"); Rb.AnchorPoint = Vector2.new(1,0); Rb.BackgroundTransparency = 1; Rb.Position = UDim2.new(1,0,0,0); Rb.Size = UDim2.fromOffset(126,14); Rb.Font = FB; Rb.Text = "-"; Rb.TextSize = 11.5; Rb.TextColor3 = col or C.accentText; Rb.TextXAlignment = Enum.TextXAlignment.Right; Rb.TextTruncate = Enum.TextTruncate.AtEnd; Rb.Parent = f
         return Rb
     end
     subTitle(L, "Profit Tracker")
@@ -1773,11 +1907,10 @@ do
     end)
 end
 
--- TELEPORT
 do
-    local p = addTab("Teleport", "📍")
+    local p = addTab("Teleport")
     local L, R = twoCol(p)
-    colTitle(L, "Shops & NPCs"); subTitle(L, "Quick Travel")
+    subTitle(L, "Quick Travel")
     local function tpBtn(parent, label, pad)
         actionRow(parent, label, "Travel to the " .. label .. ".", function()
             local t = Workspace:FindFirstChild("Teleports"); local d = t and t:FindFirstChild(pad)
@@ -1785,24 +1918,26 @@ do
         end, "GO")
     end
     tpBtn(L, "Seed Shop", "Seeds"); tpBtn(L, "Gear Shop", "Gears"); tpBtn(L, "Sell NPC", "Sell"); tpBtn(L, "Props Shop", "Props")
-    colTitle(R, "Garden"); subTitle(R, "Home")
+    subTitle(R, "Home")
     actionRow(R, "My Garden", "Return to your own plot.", function() local plot = myPlot() local sp = plot and plot:FindFirstChild("SpawnPoint") if sp then reach(sp.Position) end setStatus("teleported home") end, "GO")
 end
 
--- VISUAL
 do
-    local p = addTab("Visual", "👁️")
+    local p = addTab("Visual")
     local L = oneCol(p)
-    colTitle(L, "ESP & Alerts"); subTitle(L, "Visual")
+    subTitle(L, "Visual Enhancements")
     howItWorks(L, "Outlines crops on screen and pings you about rare stock. Mutated-fruit ESP is distance-capped so it stays light.")
-    toggleRow(L, "Highlight Ready Crops", "Outlines your own ripe crops in ruby.", "highlightReady")
+    toggleRow(L, "Highlight Ready Crops", "Outlines your own ripe crops in red.", "highlightReady")
     toggleRow(L, "Highlight Mutated Fruit", "Outlines nearby gold/mutated fruit in gold.", "highlightRare")
     toggleRow(L, "Rare Seed Restock Alert", "Notifies when a pricey seed hits the shop.", "rareNotify")
+    toggleRow(L, "Fullbright", "Remove shadows and light the map.", "fullbright")
+    toggleRow(L, "Night Vision", "Green night vision effect.", "nightVision")
+    toggleRow(L, "No Fog", "Remove distance fog.", "noFog")
 end
 
 addGroup("Player")
 do
-    local p = addTab("Player", "🏃")
+    local p = addTab("Player")
     local L, R = twoCol(p)
     subTitle(L, "Movement")
     howItWorks(L, "The game snaps you back if you move too fast, so keep speeds moderate. The hub also paces its teleports in safe hops.")
@@ -1819,9 +1954,9 @@ end
 
 addGroup("Misc")
 do
-    local p = addTab("Misc", "⚙️")
+    local p = addTab("Misc")
     local L = oneCol(p)
-    colTitle(L, "Utility"); subTitle(L, "Auto Progress")
+    subTitle(L, "Auto Progress")
     howItWorks(L, "Hands-off progression: harvests your crops, sells them, buys the best seeds you can afford, plants them across the whole garden, and tames valuable pets (Raccoon, Dragonfly...) when they spawn. Leave it on and your coins + pets snowball.")
     toggleRow(L, "Auto Progress", "Farm, sell, reinvest and tame - automatically.", "autoProgress")
     subTitle(L, "Performance")
@@ -1831,13 +1966,13 @@ do
     actionRow(L, "Rejoin Server", "Teleport into the same place again.", function() pcall(function() game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer) end) end)
     actionRow(L, "Server Hop", "Request a fresh server.", function() pcall(function() Net.AntiAfk.RequestHop:Fire() end) setStatus("requesting new server") end)
     subTitle(L, "Info")
-    local info = card(L); padAll(info, 12, 12, 10, 10); vlist(info, 3)
-    local i1 = Instance.new("TextLabel"); i1.Size = UDim2.new(1,0,0,14); i1.BackgroundTransparency = 1; i1.Font = FR; i1.Text = "Right Shift toggles the menu. The X fully unloads everything."; i1.TextSize = 11; i1.TextColor3 = C.sub; i1.TextWrapped = true; i1.TextXAlignment = Enum.TextXAlignment.Left; i1.AutomaticSize = Enum.AutomaticSize.Y; i1.LayoutOrder = 1; i1.Parent = info
-    local i2 = Instance.new("TextLabel"); i2.Size = UDim2.new(1,0,0,14); i2.BackgroundTransparency = 1; i2.Font = FR; i2.Text = "UserId " .. LocalPlayer.UserId .. "   -   Plot " .. (myPlot() and myPlot().Name or "?"); i2.TextSize = 11; i2.TextColor3 = C.sub; i2.TextXAlignment = Enum.TextXAlignment.Left; i2.LayoutOrder = 2; i2.Parent = info
+    local info = card(L); padAll(info, 10, 10, 8, 8); vlist(info, 3)
+    local i1 = Instance.new("TextLabel"); i1.Size = UDim2.new(1,0,0,13); i1.BackgroundTransparency = 1; i1.Font = FR; i1.Text = "Right Shift toggles the menu. The X fully unloads everything."; i1.TextSize = 10; i1.TextColor3 = C.sub; i1.TextWrapped = true; i1.TextXAlignment = Enum.TextXAlignment.Left; i1.AutomaticSize = Enum.AutomaticSize.Y; i1.LayoutOrder = 1; i1.Parent = info
+    local i2 = Instance.new("TextLabel"); i2.Size = UDim2.new(1,0,0,13); i2.BackgroundTransparency = 1; i2.Font = FR; i2.Text = "UserId " .. LocalPlayer.UserId .. "   -   Plot " .. (myPlot() and myPlot().Name or "?"); i2.TextSize = 10; i2.TextColor3 = C.sub; i2.TextXAlignment = Enum.TextXAlignment.Left; i2.LayoutOrder = 2; i2.Parent = info
     actionRow(L, "Unload Hub", "Stop everything and close.", function() Hub.unload() end)
 end
 
--- SERVER
+addGroup("Server")
 do
     local p = addTab("Server")
     local L, R = twoCol(p)
@@ -1850,16 +1985,14 @@ do
     howItWorks(R, "Paste a Discord webhook URL to get pinged about events. Toggle which events to send.")
     inputRow(R, "Webhook URL", "Discord webhook to post to.", S.webhookUrl, "https://discord.com/api/webhooks/...", function(t) S.webhookUrl = t end)
     toggleRow(R, "Notify: Rare Seed In Stock", "Posts when a 5K+ seed restocks.", "whRareSeed")
-    actionRow(R, "Send Test Message", "Post a test message to your webhook.", function() if sendWebhook("Test from 360's GAG - webhook is working!") then setStatus("test sent") else setStatus("set a webhook URL first") end end)
+    actionRow(R, "Send Test Message", "Post a test message to your webhook.", function() if sendWebhook("Test from Kryvex Hub - webhook is working!") then setStatus("test sent") else setStatus("set a webhook URL first") end end)
 end
 
 --========================== INIT ==================================--
 selectTab("Farm")
--- subtle open animation
--- whole hub scales as one unit (UIScale) so text, boxes & descriptions stay in proportion
-local UI_SCALE = 0.88
-UIScale.Scale = 0.74
+local UI_SCALE = 0.82
+UIScale.Scale = 0.7
 TweenService:Create(UIScale, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = UI_SCALE }):Play()
-notify("Loaded successfully - press Right Shift to toggle the menu.", "360's GAG", C.accent)
+notify("Loaded successfully - press Right Shift to toggle the menu.", "KRYVEX HUB", C.accent)
 setStatus("loaded - Right Shift to toggle")
-print("[360's GAG] loaded.")
+print("[Kryvex Hub] loaded. KX.")
