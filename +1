@@ -1,0 +1,1141 @@
+--[[
+    ██╗  ██╗██████╗ ██╗   ██╗██╗   ██╗███████╗██╗  ██╗
+    ██║ ██╔╝██╔══██╗╚██╗ ██╔╝██║   ██║██╔════╝╚██╗██╔╝
+    █████╔╝ ██████╔╝ ╚████╔╝ ██║   ██║█████╗   ╚███╔╝ 
+    ██╔═██╗ ██╔══██╗  ╚██╔╝  ╚██╗ ██╔╝██╔══╝   ██╔██╗ 
+    ██║  ██╗██║  ██║   ██║    ╚████╔╝ ███████╗██╔╝ ██╗
+    ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝     ╚═══╝  ╚══════╝╚═╝  ╚═╝
+
+    KRYVEX HUB | +1 Speed Monkey Escape
+    Custom GUI | Red Edition | KX Logo
+]]
+
+--// ==========================================
+--// SERVICES
+--// ==========================================
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local VIM = game:GetService("VirtualInputManager")
+local VU = game:GetService("VirtualUser")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+
+local LP = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+--// ==========================================
+--// KRYVEX RED THEME
+--// ==========================================
+local RED = Color3.fromRGB(220, 30, 30)
+local DARK_RED = Color3.fromRGB(140, 15, 15)
+local LIGHT_RED = Color3.fromRGB(255, 60, 60)
+local BG_BLACK = Color3.fromRGB(12, 4, 4)
+local BG_CARD = Color3.fromRGB(22, 7, 7)
+local BG_CARD_HOVER = Color3.fromRGB(35, 10, 10)
+local TEXT_WHITE = Color3.fromRGB(255, 240, 240)
+local TEXT_SUB = Color3.fromRGB(180, 130, 130)
+local OUTLINE = Color3.fromRGB(80, 20, 20)
+
+--// ==========================================
+--// STATE
+--// ==========================================
+local State = {
+    AutoWalk = false,
+    AutoWin = false,
+    AutoTrain = false,
+    AutoRebirth = false,
+    AutoBuyUpgrade = false,
+    Fly = false,
+    FlySpeed = 300,
+    Noclip = false,
+    InfiniteJump = false,
+    WalkSpeed = 16,
+    JumpPower = 50,
+    AntiAFK = false,
+    -- Attığın dosyadan
+    WinPos = Vector3.new(-6809.3223, 531.2539, 1468.8073),
+    WinSpeed = 300,
+    WinHeight = 900,
+}
+
+--// ==========================================
+--// KRYVEX GUI LIBRARY (Custom)
+--// ==========================================
+local Kryvex = {}
+
+function Kryvex.CreateWatermark()
+    local parent = LP:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+    local old = parent:FindFirstChild("KryvexWatermark")
+    if old then old:Destroy() end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "KryvexWatermark"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder = 99999
+    gui.Parent = parent
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 260, 0, 56)
+    frame.Position = UDim2.new(0, 20, 0, 20)
+    frame.BackgroundColor3 = BG_BLACK
+    frame.BackgroundTransparency = 0.1
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Parent = gui
+
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+    
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = RED
+    stroke.Thickness = 2
+    stroke.Transparency = 0.15
+
+    -- KX Logo
+    local kxBox = Instance.new("Frame", frame)
+    kxBox.Size = UDim2.new(0, 42, 0, 42)
+    kxBox.Position = UDim2.new(0, 8, 0.5, 0)
+    kxBox.AnchorPoint = Vector2.new(0, 0.5)
+    kxBox.BackgroundColor3 = DARK_RED
+    kxBox.BorderSizePixel = 0
+    Instance.new("UICorner", kxBox).CornerRadius = UDim.new(1, 0)
+
+    local kxGrad = Instance.new("UIGradient", kxBox)
+    kxGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, LIGHT_RED),
+        ColorSequenceKeypoint.new(1, DARK_RED)
+    })
+    kxGrad.Rotation = 45
+
+    local kxLabel = Instance.new("TextLabel", kxBox)
+    kxLabel.Size = UDim2.new(1, 0, 1, 0)
+    kxLabel.BackgroundTransparency = 1
+    kxLabel.Text = "KX"
+    kxLabel.Font = Enum.Font.GothamBlack
+    kxLabel.TextSize = 20
+    kxLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    kxLabel.TextStrokeTransparency = 0.3
+    kxLabel.TextStrokeColor3 = Color3.fromRGB(60, 0, 0)
+
+    local title = Instance.new("TextLabel", frame)
+    title.Size = UDim2.new(1, -58, 0, 24)
+    title.Position = UDim2.new(0, 56, 0, 6)
+    title.BackgroundTransparency = 1
+    title.Text = "KRYVEX HUB"
+    title.TextColor3 = Color3.fromRGB(255, 50, 50)
+    title.Font = Enum.Font.GothamBlack
+    title.TextSize = 16
+    title.TextXAlignment = Enum.TextXAlignment.Left
+
+    local info = Instance.new("TextLabel", frame)
+    info.Size = UDim2.new(1, -58, 0, 18)
+    info.Position = UDim2.new(0, 56, 0, 30)
+    info.BackgroundTransparency = 1
+    info.Text = "Monkey Escape"
+    info.TextColor3 = TEXT_SUB
+    info.Font = Enum.Font.Code
+    info.TextSize = 11
+    info.TextXAlignment = Enum.TextXAlignment.Left
+
+    local frames, fpsTick = 0, tick()
+    RunService.RenderStepped:Connect(function()
+        frames = frames + 1
+        if tick() - fpsTick >= 1 then
+            local ping = 0
+            pcall(function()
+                ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+            end)
+            info.Text = string.format("Monkey Escape | FPS: %d | Ping: %dms", frames, ping)
+            frames, fpsTick = 0, tick()
+        end
+    end)
+
+    -- Drag
+    local drag, ds, sp
+    frame.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            drag, ds, sp = true, i.Position, frame.Position
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then drag = false end
+            end)
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local d = i.Position - ds
+            frame.Position = UDim2.new(sp.X.Scale, sp.X.Offset + d.X, sp.Y.Scale, sp.Y.Offset + d.Y)
+        end
+    end)
+
+    return gui
+end
+
+--// Notification System
+function Kryvex.Notify(title, content, duration)
+    local parent = LP:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+    
+    if not parent:FindFirstChild("KryvexNotifications") then
+        local notifGui = Instance.new("ScreenGui")
+        notifGui.Name = "KryvexNotifications"
+        notifGui.ResetOnSpawn = false
+        notifGui.IgnoreGuiInset = true
+        notifGui.DisplayOrder = 99998
+        notifGui.Parent = parent
+    end
+
+    local notifGui = parent:FindFirstChild("KryvexNotifications")
+    
+    if not notifGui:FindFirstChild("Holder") then
+        local holder = Instance.new("Frame", notifGui)
+        holder.Name = "Holder"
+        holder.Size = UDim2.new(0, 320, 1, -40)
+        holder.Position = UDim2.new(1, -20, 0, 20)
+        holder.AnchorPoint = Vector2.new(1, 0)
+        holder.BackgroundTransparency = 1
+        holder.Parent = notifGui
+
+        local layout = Instance.new("UIListLayout", holder)
+        layout.Padding = UDim.new(0, 8)
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        layout.VerticalAlignment = Enum.VerticalAlignment.Top
+    end
+
+    local holder = notifGui:FindFirstChild("Holder")
+    
+    local frame = Instance.new("Frame", holder)
+    frame.Size = UDim2.new(1, 0, 0, 62)
+    frame.BackgroundColor3 = BG_CARD
+    frame.BackgroundTransparency = 0
+    frame.BorderSizePixel = 0
+    frame.Position = UDim2.new(1, 0, 0, 0)
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = RED
+    stroke.Thickness = 1.5
+    stroke.Transparency = 0.3
+
+    local accentBar = Instance.new("Frame", frame)
+    accentBar.Size = UDim2.new(0, 4, 1, 0)
+    accentBar.BackgroundColor3 = RED
+    accentBar.BorderSizePixel = 0
+    Instance.new("UICorner", accentBar).CornerRadius = UDim.new(0, 10)
+
+    local t = Instance.new("TextLabel", frame)
+    t.Size = UDim2.new(1, -20, 0, 22)
+    t.Position = UDim2.new(0, 14, 0, 8)
+    t.BackgroundTransparency = 1
+    t.Text = title or "Kryvex"
+    t.TextColor3 = Color3.fromRGB(255, 80, 80)
+    t.Font = Enum.Font.GothamBold
+    t.TextSize = 14
+    t.TextXAlignment = Enum.TextXAlignment.Left
+
+    local c = Instance.new("TextLabel", frame)
+    c.Size = UDim2.new(1, -20, 0, 30)
+    c.Position = UDim2.new(0, 14, 0, 28)
+    c.BackgroundTransparency = 1
+    c.Text = content or ""
+    c.TextColor3 = TEXT_WHITE
+    c.Font = Enum.Font.Gotham
+    c.TextSize = 12
+    c.TextXAlignment = Enum.TextXAlignment.Left
+    c.TextWrapped = true
+
+    local bar = Instance.new("Frame", frame)
+    bar.Size = UDim2.new(1, -20, 0, 3)
+    bar.Position = UDim2.new(0, 10, 1, -6)
+    bar.BackgroundColor3 = RED
+    bar.BorderSizePixel = 0
+    Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+
+    TweenService:Create(frame, TweenInfo.new(0.3), {Position = UDim2.new(0, 0, 0, 0)}):Play()
+    TweenService:Create(bar, TweenInfo.new(duration or 3, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 3)}):Play()
+
+    task.delay(duration or 3, function()
+        TweenService:Create(frame, TweenInfo.new(0.3), {Position = UDim2.new(1, 0, 0, 0)}):Play()
+        task.wait(0.35)
+        frame:Destroy()
+    end)
+end
+
+--// Main Window
+function Kryvex.CreateWindow(title)
+    local parent = LP:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+    local old = parent:FindFirstChild("KryvexHub")
+    if old then old:Destroy() end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "KryvexHub"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder = 9999
+    gui.Parent = parent
+
+    local main = Instance.new("Frame", gui)
+    main.Size = UDim2.new(0, 640, 0, 500)
+    main.Position = UDim2.new(0.5, 0, 0.5, 0)
+    main.AnchorPoint = Vector2.new(0.5, 0.5)
+    main.BackgroundColor3 = BG_BLACK
+    main.BorderSizePixel = 0
+    main.Active = true
+    Instance.new("UICorner", main).CornerRadius = UDim.new(0, 14)
+
+    local mainStroke = Instance.new("UIStroke", main)
+    mainStroke.Color = RED
+    mainStroke.Thickness = 2
+    mainStroke.Transparency = 0.3
+
+    -- Top Bar
+    local topBar = Instance.new("Frame", main)
+    topBar.Size = UDim2.new(1, 0, 0, 44)
+    topBar.BackgroundColor3 = DARK_RED
+    topBar.BorderSizePixel = 0
+    Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 14)
+
+    local topFix = Instance.new("Frame", topBar)
+    topFix.Size = UDim2.new(1, 0, 0, 22)
+    topFix.Position = UDim2.new(0, 0, 1, -22)
+    topFix.BackgroundColor3 = DARK_RED
+    topFix.BorderSizePixel = 0
+
+    -- KX Logo in topbar
+    local titleKx = Instance.new("Frame", topBar)
+    titleKx.Size = UDim2.new(0, 30, 0, 30)
+    titleKx.Position = UDim2.new(0, 8, 0.5, 0)
+    titleKx.AnchorPoint = Vector2.new(0, 0.5)
+    titleKx.BackgroundColor3 = LIGHT_RED
+    titleKx.BorderSizePixel = 0
+    Instance.new("UICorner", titleKx).CornerRadius = UDim.new(1, 0)
+
+    local titleKxGrad = Instance.new("UIGradient", titleKx)
+    titleKxGrad.Color = ColorSequence.new(LIGHT_RED, DARK_RED)
+    titleKxGrad.Rotation = 45
+
+    local titleKxLabel = Instance.new("TextLabel", titleKx)
+    titleKxLabel.Size = UDim2.new(1, 0, 1, 0)
+    titleKxLabel.BackgroundTransparency = 1
+    titleKxLabel.Text = "KX"
+    titleKxLabel.Font = Enum.Font.GothamBlack
+    titleKxLabel.TextSize = 14
+    titleKxLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    local titleLabel = Instance.new("TextLabel", topBar)
+    titleLabel.Size = UDim2.new(1, -100, 1, 0)
+    titleLabel.Position = UDim2.new(0, 46, 0, 0)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "KRYVEX HUB | " .. title
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextSize = 15
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local closeBtn = Instance.new("TextButton", topBar)
+    closeBtn.Size = UDim2.new(0, 30, 0, 30)
+    closeBtn.Position = UDim2.new(1, -38, 0.5, 0)
+    closeBtn.AnchorPoint = Vector2.new(0, 0.5)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(180, 25, 25)
+    closeBtn.BorderSizePixel = 0
+    closeBtn.Text = "×"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.TextSize = 20
+    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+
+    closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
+    closeBtn.MouseEnter:Connect(function()
+        TweenService:Create(closeBtn, TweenInfo.new(0.1), {BackgroundColor3 = RED}):Play()
+    end)
+    closeBtn.MouseLeave:Connect(function()
+        TweenService:Create(closeBtn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(180, 25, 25)}):Play()
+    end)
+
+    -- Tab container
+    local tabBar = Instance.new("ScrollingFrame", main)
+    tabBar.Size = UDim2.new(0, 150, 1, -55)
+    tabBar.Position = UDim2.new(0, 5, 0, 49)
+    tabBar.BackgroundTransparency = 1
+    tabBar.ScrollBarThickness = 0
+    tabBar.CanvasSize = UDim2.new(0, 0, 0, 0)
+    tabBar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    tabBar.Parent = main
+
+    local tabLayout = Instance.new("UIListLayout", tabBar)
+    tabLayout.Padding = UDim.new(0, 5)
+
+    -- Content
+    local contentFrame = Instance.new("Frame", main)
+    contentFrame.Size = UDim2.new(1, -165, 1, -55)
+    contentFrame.Position = UDim2.new(0, 160, 0, 49)
+    contentFrame.BackgroundColor3 = BG_CARD
+    contentFrame.BackgroundTransparency = 0.3
+    contentFrame.BorderSizePixel = 0
+    Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 10)
+
+    local contentStroke = Instance.new("UIStroke", contentFrame)
+    contentStroke.Color = OUTLINE
+    contentStroke.Thickness = 1
+    contentStroke.Transparency = 0.5
+
+    local scroll = Instance.new("ScrollingFrame", contentFrame)
+    scroll.Size = UDim2.new(1, -12, 1, -12)
+    scroll.Position = UDim2.new(0, 6, 0, 6)
+    scroll.BackgroundTransparency = 1
+    scroll.ScrollBarThickness = 4
+    scroll.ScrollBarImageColor3 = RED
+    scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+    local scrollLayout = Instance.new("UIListLayout", scroll)
+    scrollLayout.Padding = UDim.new(0, 7)
+    scrollLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    -- Window drag
+    local dragging, dragStart, startPos
+    topBar.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = i.Position
+            startPos = main.Position
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local delta = i.Position - dragStart
+            main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    -- API
+    local tabs = {}
+    local api = {}
+
+    function api.AddTab(name)
+        local tabBtn = Instance.new("TextButton", tabBar)
+        tabBtn.Size = UDim2.new(1, -10, 0, 34)
+        tabBtn.BackgroundColor3 = BG_CARD
+        tabBtn.BackgroundTransparency = 0.5
+        tabBtn.BorderSizePixel = 0
+        tabBtn.Text = name
+        tabBtn.TextColor3 = TEXT_SUB
+        tabBtn.Font = Enum.Font.GothamBold
+        tabBtn.TextSize = 13
+        tabBtn.LayoutOrder = #tabs + 1
+        Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 6)
+
+        local tabContent = Instance.new("Frame", scroll)
+        tabContent.Size = UDim2.new(1, 0, 0, 0)
+        tabContent.AutomaticSize = Enum.AutomaticSize.Y
+        tabContent.BackgroundTransparency = 1
+        tabContent.Visible = false
+        tabContent.LayoutOrder = #tabs + 1
+
+        local tabContentLayout = Instance.new("UIListLayout", tabContent)
+        tabContentLayout.Padding = UDim.new(0, 7)
+        tabContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+        tabBtn.MouseButton1Click:Connect(function()
+            for _, t in pairs(tabs) do
+                t.btn.BackgroundTransparency = 0.5
+                t.btn.BackgroundColor3 = BG_CARD
+                t.btn.TextColor3 = TEXT_SUB
+                t.content.Visible = false
+            end
+            tabBtn.BackgroundTransparency = 0.2
+            tabBtn.BackgroundColor3 = RED
+            tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            tabContent.Visible = true
+        end)
+        
+        tabBtn.MouseEnter:Connect(function()
+            if tabBtn.BackgroundTransparency > 0.3 then
+                tabBtn.BackgroundColor3 = BG_CARD_HOVER
+            end
+        end)
+        tabBtn.MouseLeave:Connect(function()
+            if tabBtn.BackgroundTransparency > 0.3 then
+                tabBtn.BackgroundColor3 = BG_CARD
+            end
+        end)
+
+        local tabData = {btn = tabBtn, content = tabContent}
+        table.insert(tabs, tabData)
+
+        if #tabs == 1 then
+            tabBtn.BackgroundTransparency = 0.2
+            tabBtn.BackgroundColor3 = RED
+            tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            tabContent.Visible = true
+        end
+
+        local tabApi = {}
+        local order = 0
+
+        function tabApi.AddSection(text)
+            order = order + 1
+            local sec = Instance.new("Frame", tabContent)
+            sec.Size = UDim2.new(1, -10, 0, 28)
+            sec.BackgroundColor3 = DARK_RED
+            sec.BackgroundTransparency = 0.5
+            sec.BorderSizePixel = 0
+            sec.LayoutOrder = order
+            Instance.new("UICorner", sec).CornerRadius = UDim.new(0, 6)
+
+            local secLbl = Instance.new("TextLabel", sec)
+            secLbl.Size = UDim2.new(1, -20, 1, 0)
+            secLbl.Position = UDim2.new(0, 12, 0, 0)
+            secLbl.BackgroundTransparency = 1
+            secLbl.Text = "■  " .. text
+            secLbl.TextColor3 = LIGHT_RED
+            secLbl.Font = Enum.Font.GothamBold
+            secLbl.TextSize = 13
+            secLbl.TextXAlignment = Enum.TextXAlignment.Left
+            return sec
+        end
+
+        function tabApi.AddButton(text, callback)
+            order = order + 1
+            local btn = Instance.new("TextButton", tabContent)
+            btn.Size = UDim2.new(1, -10, 0, 34)
+            btn.BackgroundColor3 = BG_CARD
+            btn.BackgroundTransparency = 0.2
+            btn.BorderSizePixel = 0
+            btn.Text = text
+            btn.TextColor3 = TEXT_WHITE
+            btn.Font = Enum.Font.Gotham
+            btn.TextSize = 13
+            btn.LayoutOrder = order
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+            local s = Instance.new("UIStroke", btn)
+            s.Color = RED
+            s.Thickness = 1
+            s.Transparency = 0.6
+
+            btn.MouseButton1Click:Connect(function() callback() end)
+            btn.MouseEnter:Connect(function()
+                TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = DARK_RED, BackgroundTransparency = 0.3}):Play()
+            end)
+            btn.MouseLeave:Connect(function()
+                TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = BG_CARD, BackgroundTransparency = 0.2}):Play()
+            end)
+            return btn
+        end
+
+        function tabApi.AddToggle(text, default, callback)
+            order = order + 1
+            local state = default
+            local toggle = Instance.new("TextButton", tabContent)
+            toggle.Size = UDim2.new(1, -10, 0, 34)
+            toggle.BackgroundColor3 = BG_CARD
+            toggle.BackgroundTransparency = 0.2
+            toggle.BorderSizePixel = 0
+            toggle.Text = ""
+            toggle.LayoutOrder = order
+            Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 6)
+
+            local s = Instance.new("UIStroke", toggle)
+            s.Color = RED
+            s.Thickness = 1
+            s.Transparency = 0.6
+
+            local lbl = Instance.new("TextLabel", toggle)
+            lbl.Size = UDim2.new(0.72, 0, 1, 0)
+            lbl.Position = UDim2.new(0, 12, 0, 0)
+            lbl.BackgroundTransparency = 1
+            lbl.Text = text
+            lbl.TextColor3 = TEXT_WHITE
+            lbl.Font = Enum.Font.Gotham
+            lbl.TextSize = 13
+            lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+            local circle = Instance.new("Frame", toggle)
+            circle.Size = UDim2.new(0, 22, 0, 22)
+            circle.Position = UDim2.new(1, -30, 0.5, 0)
+            circle.AnchorPoint = Vector2.new(0, 0.5)
+            circle.BorderSizePixel = 0
+            Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+
+            local function update()
+                if state then
+                    TweenService:Create(circle, TweenInfo.new(0.2), {BackgroundColor3 = RED}):Play()
+                    TweenService:Create(toggle, TweenInfo.new(0.2), {BackgroundColor3 = DARK_RED}):Play()
+                else
+                    TweenService:Create(circle, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 20, 20)}):Play()
+                    TweenService:Create(toggle, TweenInfo.new(0.2), {BackgroundColor3 = BG_CARD}):Play()
+                end
+            end
+            update()
+
+            toggle.MouseButton1Click:Connect(function()
+                state = not state
+                update()
+                callback(state)
+            end)
+            return toggle
+        end
+
+        function tabApi.AddSlider(text, min, max, default, callback)
+            order = order + 1
+            local slider = Instance.new("Frame", tabContent)
+            slider.Size = UDim2.new(1, -10, 0, 50)
+            slider.BackgroundColor3 = BG_CARD
+            slider.BackgroundTransparency = 0.2
+            slider.BorderSizePixel = 0
+            slider.LayoutOrder = order
+            Instance.new("UICorner", slider).CornerRadius = UDim.new(0, 6)
+
+            local s = Instance.new("UIStroke", slider)
+            s.Color = RED
+            s.Thickness = 1
+            s.Transparency = 0.6
+
+            local lbl = Instance.new("TextLabel", slider)
+            lbl.Size = UDim2.new(0.7, 0, 0, 22)
+            lbl.Position = UDim2.new(0, 12, 0, 4)
+            lbl.BackgroundTransparency = 1
+            lbl.Text = text
+            lbl.TextColor3 = TEXT_WHITE
+            lbl.Font = Enum.Font.Gotham
+            lbl.TextSize = 13
+            lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+            local val = Instance.new("TextLabel", slider)
+            val.Size = UDim2.new(0.25, 0, 0, 22)
+            val.Position = UDim2.new(0.72, 0, 0, 4)
+            val.BackgroundTransparency = 1
+            val.Text = tostring(default)
+            val.TextColor3 = RED
+            val.Font = Enum.Font.GothamBold
+            val.TextSize = 13
+            val.TextXAlignment = Enum.TextXAlignment.Right
+
+            local bar = Instance.new("Frame", slider)
+            bar.Size = UDim2.new(1, -24, 0, 6)
+            bar.Position = UDim2.new(0, 12, 0, 32)
+            bar.BackgroundColor3 = Color3.fromRGB(50, 15, 15)
+            bar.BorderSizePixel = 0
+            Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+
+            local fill = Instance.new("Frame", bar)
+            fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+            fill.BackgroundColor3 = RED
+            fill.BorderSizePixel = 0
+            Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
+
+            local dragging, startX, startVal
+            bar.InputBegan:Connect(function(i)
+                if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+                    dragging = true
+                    startX = i.Position
+                    startVal = fill.Size.X.Scale
+                    i.Changed:Connect(function()
+                        if i.UserInputState == Enum.UserInputState.End then dragging = false end
+                    end)
+                end
+            end)
+            UIS.InputChanged:Connect(function(i)
+                if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+                    local delta = (i.Position.X - startX.X) / bar.AbsoluteSize.X
+                    local newScale = math.clamp(startVal + delta, 0, 1)
+                    fill.Size = UDim2.new(newScale, 0, 1, 0)
+                    local v = math.floor(min + (max - min) * newScale)
+                    val.Text = tostring(v)
+                    callback(v)
+                end
+            end)
+            return slider
+        end
+
+        function tabApi.AddDropdown(text, options, callback)
+            order = order + 1
+            local dd = Instance.new("Frame", tabContent)
+            dd.Size = UDim2.new(1, -10, 0, 34)
+            dd.BackgroundColor3 = BG_CARD
+            dd.BackgroundTransparency = 0.2
+            dd.BorderSizePixel = 0
+            dd.LayoutOrder = order
+            dd.ClipsDescendants = false
+            Instance.new("UICorner", dd).CornerRadius = UDim.new(0, 6)
+
+            local s = Instance.new("UIStroke", dd)
+            s.Color = RED
+            s.Thickness = 1
+            s.Transparency = 0.6
+
+            local ddBtn = Instance.new("TextButton", dd)
+            ddBtn.Size = UDim2.new(1, 0, 1, 0)
+            ddBtn.BackgroundTransparency = 1
+            ddBtn.Text = text .. "  ▼"
+            ddBtn.TextColor3 = TEXT_WHITE
+            ddBtn.Font = Enum.Font.Gotham
+            ddBtn.TextSize = 13
+
+            local list = Instance.new("ScrollingFrame", dd)
+            list.Size = UDim2.new(1, 0, 0, 0)
+            list.Position = UDim2.new(0, 0, 1, 2)
+            list.BackgroundColor3 = BG_BLACK
+            list.BorderSizePixel = 0
+            list.ScrollBarThickness = 3
+            list.ScrollBarImageColor3 = RED
+            list.Visible = false
+            list.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            list.CanvasSize = UDim2.new(0, 0, 0, 0)
+            list.ZIndex = 10
+            Instance.new("UICorner", list).CornerRadius = UDim.new(0, 6)
+
+            local listStroke = Instance.new("UIStroke", list)
+            listStroke.Color = RED
+            listStroke.Thickness = 1
+            listStroke.Transparency = 0.5
+
+            local layout = Instance.new("UIListLayout", list)
+            layout.Padding = UDim.new(0, 3)
+
+            local padding = Instance.new("UIPadding", list)
+            padding.PaddingTop = UDim.new(0, 4)
+            padding.PaddingLeft = UDim.new(0, 4)
+            padding.PaddingRight = UDim.new(0, 4)
+
+            local isOpen = false
+            for _, opt in ipairs(options) do
+                local optBtn = Instance.new("TextButton", list)
+                optBtn.Size = UDim2.new(1, -8, 0, 28)
+                optBtn.BackgroundColor3 = BG_CARD
+                optBtn.BackgroundTransparency = 0.4
+                optBtn.BorderSizePixel = 0
+                optBtn.Text = opt
+                optBtn.TextColor3 = TEXT_WHITE
+                optBtn.Font = Enum.Font.Gotham
+                optBtn.TextSize = 12
+                Instance.new("UICorner", optBtn).CornerRadius = UDim.new(0, 4)
+                optBtn.MouseButton1Click:Connect(function()
+                    ddBtn.Text = opt .. "  ▼"
+                    list.Visible = false
+                    isOpen = false
+                    callback(opt)
+                end)
+                optBtn.MouseEnter:Connect(function()
+                    optBtn.BackgroundColor3 = DARK_RED
+                end)
+                optBtn.MouseLeave:Connect(function()
+                    optBtn.BackgroundColor3 = BG_CARD
+                end)
+            end
+            
+            list.Size = UDim2.new(1, 0, 0, math.min(#options * 31 + 8, 180))
+
+            ddBtn.MouseButton1Click:Connect(function()
+                isOpen = not isOpen
+                list.Visible = isOpen
+            end)
+            return dd
+        end
+
+        function tabApi.AddInput(text, placeholder, callback)
+            order = order + 1
+            local inp = Instance.new("Frame", tabContent)
+            inp.Size = UDim2.new(1, -10, 0, 34)
+            inp.BackgroundColor3 = BG_CARD
+            inp.BackgroundTransparency = 0.2
+            inp.BorderSizePixel = 0
+            inp.LayoutOrder = order
+            Instance.new("UICorner", inp).CornerRadius = UDim.new(0, 6)
+
+            local s = Instance.new("UIStroke", inp)
+            s.Color = RED
+            s.Thickness = 1
+            s.Transparency = 0.6
+
+            local box = Instance.new("TextBox", inp)
+            box.Size = UDim2.new(1, -20, 1, 0)
+            box.Position = UDim2.new(0, 10, 0, 0)
+            box.BackgroundTransparency = 1
+            box.Text = ""
+            box.PlaceholderText = text .. " (" .. placeholder .. ")"
+            box.PlaceholderColor3 = TEXT_SUB
+            box.TextColor3 = TEXT_WHITE
+            box.Font = Enum.Font.Gotham
+            box.TextSize = 13
+            box.TextXAlignment = Enum.TextXAlignment.Left
+            box.ClearTextOnFocus = false
+
+            box.FocusLost:Connect(function() callback(box.Text) end)
+            return inp
+        end
+
+        function tabApi.AddLabel(text)
+            order = order + 1
+            local lbl = Instance.new("TextLabel", tabContent)
+            lbl.Size = UDim2.new(1, -10, 0, 22)
+            lbl.BackgroundTransparency = 1
+            lbl.Text = text
+            lbl.TextColor3 = TEXT_SUB
+            lbl.Font = Enum.Font.Gotham
+            lbl.TextSize = 12
+            lbl.TextXAlignment = Enum.TextXAlignment.Left
+            lbl.LayoutOrder = order
+            return lbl
+        end
+
+        return tabApi
+    end
+
+    return api, gui
+end
+
+--// ==========================================
+--// START GUI
+--// ==========================================
+Kryvex.CreateWatermark()
+local Hub, HubGui = Kryvex.CreateWindow("Monkey Escape")
+
+--// ==========================================
+--// FLY SYSTEM
+--// ==========================================
+local flyConn, flyBV, flyBG
+
+local function stopFly()
+    State.Fly = false
+    if flyConn then flyConn:Disconnect() flyConn = nil end
+    if flyBV then flyBV:Destroy() flyBV = nil end
+    if flyBG then flyBG:Destroy() flyBG = nil end
+    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.PlatformStand = false
+        hum:ChangeState(Enum.HumanoidStateType.Running)
+    end
+end
+
+local function startFly()
+    local char = LP.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hrp or not hum then return end
+    if flyBV then flyBV:Destroy() end
+    if flyBG then flyBG:Destroy() end
+    if flyConn then flyConn:Disconnect() end
+    hum.PlatformStand = true
+    flyBG = Instance.new("BodyGyro")
+    flyBG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+    flyBG.P = 50000
+    flyBG.CFrame = hrp.CFrame
+    flyBG.Parent = hrp
+    flyBV = Instance.new("BodyVelocity")
+    flyBV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+    flyBV.Velocity = Vector3.zero
+    flyBV.Parent = hrp
+    flyConn = RunService.RenderStepped:Connect(function()
+        if not State.Fly then return end
+        local cam = Camera.CFrame
+        local speed = State.FlySpeed
+        local dir = Vector3.zero
+        if UIS:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.LookVector * speed end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.LookVector * speed end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.RightVector * speed end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.RightVector * speed end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.yAxis * speed end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir = dir - Vector3.yAxis * speed end
+        flyBV.Velocity = dir
+        flyBG.CFrame = cam
+    end)
+end
+
+--// ==========================================
+--// AUTO FARM TAB
+--// ==========================================
+local FarmTab = Hub.AddTab("Auto Farm")
+
+FarmTab.AddSection("Farming")
+
+FarmTab.AddToggle("Auto Walk", false, function(v)
+    State.AutoWalk = v
+    if v then
+        task.spawn(function()
+            while State.AutoWalk do
+                local char = LP.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    hum:Move(Vector3.new(0, 0, 1), true)
+                    task.wait(0.1)
+                    hum:Move(Vector3.new(0, 0, -1), true)
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+end)
+
+FarmTab.AddToggle("Auto Train", false, function(v)
+    State.AutoTrain = v
+    if v then
+        task.spawn(function()
+            while State.AutoTrain do
+                pcall(function()
+                    local char = LP.Character
+                    if char and char:FindFirstChild("HumanoidRootPart") then
+                        char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(0, 0, -1)
+                    end
+                end)
+                task.wait(0.05)
+            end
+        end)
+    end
+end)
+
+FarmTab.AddSection("Auto Win")
+
+FarmTab.AddToggle("Auto Win (Smooth Travel)", false, function(v)
+    State.AutoWin = v
+    if v then
+        task.spawn(function()
+            while State.AutoWin do
+                local char = LP.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp and State.WinPos then
+                    if (hrp.Position - State.WinPos).Magnitude > 5 then
+                        State.Fly = true
+                        startFly()
+                        local oldNoclip = State.Noclip
+                        State.Noclip = true
+                        Kryvex.Notify("Kryvex | Auto Win", "Rising up...", 2)
+                        local startCF = hrp.CFrame
+                        local upCF = startCF * CFrame.new(0, State.WinHeight, 0)
+                        for i = 0, 1, 0.05 do
+                            if not State.AutoWin or not hrp.Parent then break end
+                            hrp.CFrame = startCF:Lerp(upCF, i)
+                            task.wait(0.02)
+                        end
+                        if not State.AutoWin or not hrp.Parent then State.Noclip = oldNoclip return end
+                        task.wait(0.2)
+                        Kryvex.Notify("Kryvex | Auto Win", "Traveling...", 2)
+                        local c1 = hrp.CFrame
+                        local target = Vector3.new(State.WinPos.X, hrp.Position.Y, State.WinPos.Z)
+                        local c2 = CFrame.new(target)
+                        local steps = math.max(1, math.floor((hrp.Position - target).Magnitude / (State.WinSpeed / 30)))
+                        for j = 1, steps do
+                            if not State.AutoWin or not hrp.Parent then break end
+                            hrp.CFrame = c1:Lerp(c2, j / steps)
+                            task.wait(0.03)
+                        end
+                        if not State.AutoWin or not hrp.Parent then State.Noclip = oldNoclip return end
+                        task.wait(0.2)
+                        Kryvex.Notify("Kryvex | Auto Win", "Descending...", 2)
+                        local c3 = hrp.CFrame
+                        local c4 = CFrame.new(State.WinPos)
+                        for k = 0, 1, 0.01 do
+                            if not State.AutoWin or not hrp.Parent then break end
+                            hrp.CFrame = c3:Lerp(c4, k)
+                            task.wait(0.01)
+                        end
+                        if hrp.Parent then hrp.CFrame = c4 end
+                        State.Noclip = oldNoclip
+                        stopFly()
+                        Kryvex.Notify("Kryvex | Auto Win", "Arrived! Resetting in 3s...", 3)
+                        task.wait(3)
+                        local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+                        if hum then hum.Health = 0 end
+                        Kryvex.Notify("Kryvex | Auto Win", "Next loop in 5s...", 5)
+                        task.wait(5)
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+end)
+
+FarmTab.AddSlider("Win Height", 100, 3000, 900, function(v)
+    State.WinHeight = v
+end)
+
+FarmTab.AddSlider("Win Speed", 50, 2000, 300, function(v)
+    State.WinSpeed = v
+end)
+
+FarmTab.AddSection("Auto Rebirth / Upgrade")
+
+FarmTab.AddToggle("Auto Rebirth", false, function(v)
+    State.AutoRebirth = v
+    if v then
+        task.spawn(function()
+            while State.AutoRebirth do
+                pcall(function()
+                    local rebirth = ReplicatedStorage:FindFirstChild("Rebirth", true)
+                    if rebirth then
+                        if rebirth:IsA("RemoteEvent") then rebirth:FireServer()
+                        elseif rebirth:IsA("RemoteFunction") then rebirth:InvokeServer() end
+                    end
+                end)
+                task.wait(2)
+            end
+        end)
+    end
+end)
+
+FarmTab.AddToggle("Auto Buy Upgrades", false, function(v)
+    State.AutoBuyUpgrade = v
+    if v then
+        task.spawn(function()
+            while State.AutoBuyUpgrade do
+                pcall(function()
+                    local upgrade = ReplicatedStorage:FindFirstChild("Upgrade", true)
+                    if upgrade then
+                        if upgrade:IsA("RemoteEvent") then upgrade:FireServer()
+                        elseif upgrade:IsA("RemoteFunction") then upgrade:InvokeServer() end
+                    end
+                end)
+                task.wait(1)
+            end
+        end)
+    end
+end)
+
+--// ==========================================
+--// MOVEMENT TAB
+--// ==========================================
+local MoveTab = Hub.AddTab("Movement")
+
+MoveTab.AddSection("Flight")
+
+MoveTab.AddToggle("Fly (WASD + Space / Ctrl)", false, function(v)
+    State.Fly = v
+    if v then startFly() else stopFly() end
+end)
+
+MoveTab.AddSlider("Fly Speed", 10, 2000, 300, function(v) State.FlySpeed = v end)
+
+LP.CharacterAdded:Connect(function()
+    task.wait(1)
+    if State.Fly then startFly() end
+end)
+
+MoveTab.AddSection("Movement")
+
+MoveTab.AddToggle("Noclip", false, function(v)
+    State.Noclip = v
+end)
+
+-- Noclip loop
+RunService.Stepped:Connect(function()
+    if State.Noclip and LP.Character then
+        for _, p in ipairs(LP.Character:GetDescendants()) do
+            if p:IsA("BasePart") then p.CanCollide = false end
+        end
+    end
+end)
+
+--// ==========================================
+--// PLAYER TAB
+--// ==========================================
+local PlayerTab = Hub.AddTab("Player")
+
+PlayerTab.AddSection("Speed")
+
+PlayerTab.AddSlider("Walk Speed", 16, 1000, 16, function(v)
+    State.WalkSpeed = v
+    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.WalkSpeed = v end
+end)
+
+PlayerTab.AddSlider("Jump Power", 50, 1000, 50, function(v)
+    State.JumpPower = v
+    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.UseJumpPower = true hum.JumpPower = v end
+end)
+
+PlayerTab.AddSection("Jump")
+
+PlayerTab.AddToggle("Infinite Jump", false, function(v)
+    State.InfiniteJump = v
+end)
+
+UIS.JumpRequest:Connect(function()
+    if State.InfiniteJump then
+        local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState("Jumping") end
+    end
+end)
+
+-- Character reset
+LP.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = State.WalkSpeed
+        hum.UseJumpPower = true
+        hum.JumpPower = State.JumpPower
+    end
+end)
+
+--// ==========================================
+--// MISC TAB
+--// ==========================================
+local MiscTab = Hub.AddTab("Misc")
+
+MiscTab.AddSection("Utility")
+
+MiscTab.AddToggle("Anti AFK", false, function(v)
+    State.AntiAFK = v
+end)
+
+LP.Idled:Connect(function()
+    if State.AntiAFK then
+        VU:CaptureController()
+        VU:ClickButton2(Vector2.new())
+    end
+end)
+
+MiscTab.AddButton("Rejoin Server", function()
+    TeleportService:Teleport(game.PlaceId, LP)
+end)
+
+MiscTab.AddSection("Server Info")
+
+MiscTab.AddButton("Copy Job ID", function()
+    if setclipboard then
+        setclipboard(game.JobId)
+        Kryvex.Notify("Kryvex", "Job ID copied!", 3)
+    end
+end)
+
+MiscTab.AddSection("Danger Zone")
+
+MiscTab.AddButton("Unload Kryvex Hub", function()
+    State.AutoWalk = false
+    State.AutoWin = false
+    State.AutoTrain = false
+    State.AutoRebirth = false
+    State.AutoBuyUpgrade = false
+    State.InfiniteJump = false
+    State.Noclip = false
+    stopFly()
+    HubGui:Destroy()
+    local wm = LP:FindFirstChildOfClass("PlayerGui"):FindFirstChild("KryvexWatermark")
+    if wm then wm:Destroy() end
+end)
+
+MiscTab.AddSection("About")
+
+MiscTab.AddLabel("KRYVEX HUB | Red Edition")
+MiscTab.AddLabel("Made by Kryvex")
+MiscTab.AddLabel("")
+
+MiscTab.AddButton("Copy Discord Link", function()
+    if setclipboard then
+        setclipboard("https://discord.gg/kryvex")
+        Kryvex.Notify("Kryvex | Discord", "Link copied!", 3)
+    end
+end)
+
+--// Loaded Notification
+task.wait(0.5)
+Kryvex.Notify("KRYVEX HUB", "Loaded successfully!", 4)
+task.wait(0.5)
+Kryvex.Notify("Welcome", "Hello " .. LP.DisplayName .. "!", 4)
