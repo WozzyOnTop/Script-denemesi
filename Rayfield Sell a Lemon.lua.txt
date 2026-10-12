@@ -1,20 +1,30 @@
---// Rayfield
+--// Kryvex Hub | Sell Lemons
+--// Rayfield UI
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Vibe Code Central / Sell Lemons",
-    LoadingTitle = "Vibe Codey baby",
-    LoadingSubtitle = "By Claude",
+    Name = "Kryvex Hub | Sell Lemons",
+    LoadingTitle = "Kryvex Hub",
+    LoadingSubtitle = "by Kryvex",
     ConfigurationSaving = {
         Enabled = false,
     },
     KeySystem = false,
 })
 
+--// Colors
+local RED = Color3.fromRGB(220, 30, 30)
+local DARK_RED = Color3.fromRGB(140, 15, 15)
+local ACCENT_RED = Color3.fromRGB(255, 60, 60)
+
 local MainTab = Window:CreateTab("Main", 4483362458)
+local ExtraTab = Window:CreateTab("Extras", 4483362458)
+local PlayerTab = Window:CreateTab("Player", 4483362458)
 
 --// Services
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 --// Find Tycoon
@@ -30,11 +40,10 @@ end)()
 
 if not userTycoon then
     Rayfield:Notify({
-        Title = "Error",
+        Title = "Kryvex Error",
         Content = "Tycoon not found!",
         Duration = 5,
     })
-    return
 end
 
 --// Variables
@@ -44,18 +53,17 @@ local AutoFruit = false
 local AutoRebirth = false
 local AutoEvolve = false
 local AutoPowerLevel = false
+local AutoCollectCash = false
+local AntiAFK = false
 
--- live counters for the status panel (proof the autos are actually firing)
-local stats = { buys = 0, upgrades = 0, fruit = 0, rebirths = 0, evolves = 0 }
+local stats = { buys = 0, upgrades = 0, fruit = 0, rebirths = 0, evolves = 0, cash = 0 }
 
-local Buying = false
-
--- FASTER Auto Buy: every buyable item model has a child "Purchase" RemoteFunction
--- (e.g. ...ItemName.Purchase). We invoke it DIRECTLY instead of walking the
--- character to the button and firetouchinterest-ing it, so buying is instant and
--- works no matter where you are. The server still validates cost/availability.
+--// Auto Buy
 local function buyAllAffordable()
-    for _, obj in ipairs(userTycoon.Purchases:GetDescendants()) do
+    if not userTycoon then return end
+    local purchases = userTycoon:FindFirstChild("Purchases")
+    if not purchases then return end
+    for _, obj in ipairs(purchases:GetDescendants()) do
         if obj:IsA("Model") then
             local shown = obj:GetAttribute("Shown")
             local purchased = obj:GetAttribute("Purchased")
@@ -72,27 +80,22 @@ end
 
 task.spawn(function()
     while true do
-        task.wait(0.05)   -- a few sweeps per second is plenty for direct remotes
-
-        if AutoBuy then
+        task.wait(0.05)
+        if AutoBuy and userTycoon then
             pcall(buyAllAffordable)
         end
     end
 end)
 
--- FASTER Auto Upgrade. The old version scanned thousands of tycoon objects EVERY
--- frame and fired 100 server calls per machine per frame (huge FPS/network drag).
--- Now we cache the Upgrade remotes, refreshing only every 3s (to catch tycoon
--- rebuilds), and each machine just climbs from its last reached level upward,
--- stopping as soon as the server rejects (can't afford / maxed). Once maxed it
--- costs ~nothing. The level tracker resets on refresh so it re-climbs as cash grows.
-local upgradeRemotes  = {}
-local upgradeLevel    = {}   -- [remote] = highest level reached this scan window
+--// Auto Upgrade
+local upgradeRemotes = {}
+local upgradeLevel = {}
 local lastUpgradeScan = 0
 
 local function refreshUpgradeRemotes()
     upgradeRemotes = {}
-    upgradeLevel   = {}
+    upgradeLevel = {}
+    if not userTycoon then return end
     local purchases = userTycoon:FindFirstChild("Purchases")
     if not purchases then return end
     for _, obj in ipairs(purchases:GetDescendants()) do
@@ -105,13 +108,11 @@ end
 task.spawn(function()
     while true do
         task.wait(0.25)
-
-        if AutoUpgrade then
+        if AutoUpgrade and userTycoon then
             if tick() - lastUpgradeScan > 3 then
                 refreshUpgradeRemotes()
                 lastUpgradeScan = tick()
             end
-
             for _, remote in ipairs(upgradeRemotes) do
                 if remote.Parent then
                     local lvl = (upgradeLevel[remote] or 0) + 1
@@ -128,11 +129,9 @@ task.spawn(function()
     end
 end)
 
---// Auto Power Level (RemoteFunction userTycoon.Remotes.UpgradePowerLevel)
--- Experimental: calls UpgradePowerLevel repeatedly; the server validates cost.
--- If the game needs an argument here we'll see it do nothing (harmless, pcall'd)
--- and can probe the exact arg like we did for WakeIncomeStream.
+--// Auto Power Level
 local function getPowerLevelRemote()
+    if not userTycoon then return nil end
     local remotes = userTycoon:FindFirstChild("Remotes")
     return remotes and remotes:FindFirstChild("UpgradePowerLevel")
 end
@@ -140,7 +139,6 @@ end
 task.spawn(function()
     while true do
         task.wait(0.25)
-
         if AutoPowerLevel then
             local remote = getPowerLevelRemote()
             if remote then
@@ -150,33 +148,25 @@ task.spawn(function()
     end
 end)
 
---// Auto Rebirth — OPTIMAL (RemoteFunction userTycoon.Remotes.Rebirth:InvokeServer())
--- Reads the rebirth menu's "Rebirth to get... X investors" value and only
--- rebirths when it's worth it, so we don't waste tycoon rebuilds (which crash
--- the client if spammed). Each investor = +1% cash.
---
---   RebirthGainMultiple : rebirth when (pending investors) >= (current) * this.
---                         1.0 = the classic "only rebirth to at least DOUBLE
---                         your investors" rule. Raise it (e.g. 2.0) to rebirth
---                         less often for bigger jumps; lower it (0.25) for more.
---   MinPotential        : never rebirth for fewer than this many investors.
+--// Auto Rebirth
 local RebirthGainMultiple = 1.0
-local MinPotential        = 1
-local RebirthCooldown     = 2     -- seconds to let the tycoon rebuild after each rebirth
-local RebirthTimeout      = 8     -- max seconds to wait for "Rebirthed" before next
-local rebirthBusy         = false
+local MinPotential = 1
+local RebirthCooldown = 2
+local RebirthTimeout = 8
+local rebirthBusy = false
 
 local function getRebirthRemote()
+    if not userTycoon then return nil end
     local remotes = userTycoon:FindFirstChild("Remotes")
     return remotes and remotes:FindFirstChild("Rebirth")
 end
 
 local function getRebirthedSignal()
+    if not userTycoon then return nil end
     local remotes = userTycoon:FindFirstChild("Remotes")
     return remotes and remotes:FindFirstChild("Rebirthed")
 end
 
--- parse word/abbrev formatted numbers like "457.345 billion" or "22.4Qn"
 local NUM_SCALE = {
     thousand=1e3, million=1e6, billion=1e9, trillion=1e12, quadrillion=1e15,
     quintillion=1e18, sextillion=1e21, septillion=1e24, octillion=1e27,
@@ -197,50 +187,42 @@ local function parseNumber(s)
     return val
 end
 
--- read the InvestorsMenu values (works whether or not the menu is open)
 local function investorBody()
     local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-    local r  = pg and pg:FindFirstChild("Rebirth")
+    local r = pg and pg:FindFirstChild("Rebirth")
     local im = r and r:FindFirstChild("InvestorsMenu")
     return im and im:FindFirstChild("Body")
 end
 local function readQuantity(frameName)
-    local body  = investorBody()
+    local body = investorBody()
     local frame = body and body:FindFirstChild(frameName)
-    local q     = frame and frame:FindFirstChild("Quantity")
+    local q = frame and frame:FindFirstChild("Quantity")
     return q and parseNumber(q.Text)
 end
-local function getCurrentInvestors()   return readQuantity("Amount")    or 0 end
-local function getPotentialInvestors() return readQuantity("Potential")       end
+local function getCurrentInvestors() return readQuantity("Amount") or 0 end
+local function getPotentialInvestors() return readQuantity("Potential") end
 
 task.spawn(function()
     while true do
         task.wait(0.5)
-
         if AutoRebirth and not rebirthBusy then
-            local remote    = getRebirthRemote()
+            local remote = getRebirthRemote()
             local potential = getPotentialInvestors()
-            local current   = getCurrentInvestors()
-
-            -- optimal gate: only rebirth when the payout is worth it
+            local current = getCurrentInvestors()
             local worthIt = remote and potential
                 and potential >= MinPotential
                 and potential >= current * RebirthGainMultiple
-
             if worthIt then
                 rebirthBusy = true
-
                 pcall(function()
-                    local done   = false
+                    local done = false
                     local signal = getRebirthedSignal()
                     local conn
                     if signal and signal:IsA("RemoteEvent") then
                         conn = signal.OnClientEvent:Connect(function() done = true end)
                     end
-
-                    remote:InvokeServer()   -- yields until the server responds
+                    remote:InvokeServer()
                     stats.rebirths = stats.rebirths + 1
-
                     local t = 0
                     while not done and t < RebirthTimeout do
                         task.wait(0.1)
@@ -248,37 +230,35 @@ task.spawn(function()
                     end
                     if conn then conn:Disconnect() end
                 end)
-
-                task.wait(RebirthCooldown)   -- let the tycoon settle before next
+                task.wait(RebirthCooldown)
                 rebirthBusy = false
             end
         end
     end
 end)
 
---// Auto Evolve — OPTIMAL (RemoteFunction userTycoon.Remotes.Evolve)
--- Evolution gives x10 income SPEED each, but you can only evolve once the
--- evolution progress bar fills. We read EvolutionMenu.Body.Progress ("1.9%")
--- and evolve when it reaches EvolveAt%. Waits for the "Evolved" event, like rebirth.
-local EvolveAt        = 100   -- % progress required before evolving (100 = full bar)
-local EvolveCooldown  = 2
-local EvolveTimeout   = 8
-local evolveBusy      = false
+--// Auto Evolve
+local EvolveAt = 100
+local EvolveCooldown = 2
+local EvolveTimeout = 8
+local evolveBusy = false
 
 local function getEvolveRemote()
+    if not userTycoon then return nil end
     local remotes = userTycoon:FindFirstChild("Remotes")
     return remotes and remotes:FindFirstChild("Evolve")
 end
 local function getEvolvedSignal()
+    if not userTycoon then return nil end
     local remotes = userTycoon:FindFirstChild("Remotes")
     return remotes and remotes:FindFirstChild("Evolved")
 end
 local function getEvolveProgress()
     local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-    local r  = pg and pg:FindFirstChild("Rebirth")
+    local r = pg and pg:FindFirstChild("Rebirth")
     local em = r and r:FindFirstChild("EvolutionMenu")
     local body = em and em:FindFirstChild("Body")
-    local p  = body and body:FindFirstChild("Progress")
+    local p = body and body:FindFirstChild("Progress")
     if not p then return nil end
     return tonumber(tostring(p.Text):match("[%d%.]+"))
 end
@@ -286,15 +266,13 @@ end
 task.spawn(function()
     while true do
         task.wait(0.5)
-
         if AutoEvolve and not evolveBusy then
-            local remote   = getEvolveRemote()
+            local remote = getEvolveRemote()
             local progress = getEvolveProgress()
-
             if remote and progress and progress >= EvolveAt then
                 evolveBusy = true
                 pcall(function()
-                    local done   = false
+                    local done = false
                     local signal = getEvolvedSignal()
                     local conn
                     if signal and signal:IsA("RemoteEvent") then
@@ -315,19 +293,36 @@ task.spawn(function()
     end
 end)
 
---// Pull All Levers — the 4 colored sewer door levers (Map.Sewer.Doors*.Lever).
--- They're touch-activated (no prompt/clickdetector), so we firetouchinterest each
--- one. Also touches the sewer collectible keys (CashVine / SewerAlien) so the run
--- actually pays out. Returns how many levers it pulled.
+--// Auto Collect Cash (NEW)
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if AutoCollectCash then
+            local char = LocalPlayer.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                for _, obj in ipairs(workspace:GetDescendants()) do
+                    if obj:IsA("BasePart") and (obj.Name == "Cash" or obj.Name == "MoneyDrop" or obj.Name:lower():find("cash")) then
+                        pcall(function()
+                            firetouchinterest(hrp, obj, 0)
+                            firetouchinterest(hrp, obj, 1)
+                            stats.cash = stats.cash + 1
+                        end)
+                    end
+                end
+            end
+        end
+    end
+end)
+
+--// Pull All Levers
 local function pullAllLevers()
     local char = LocalPlayer.Character
-    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return 0 end
-
-    local map   = workspace:FindFirstChild("Map")
+    local map = workspace:FindFirstChild("Map")
     local sewer = map and map:FindFirstChild("Sewer")
-    local root  = sewer or workspace
-
+    local root = sewer or workspace
     local pulled = 0
     for _, o in ipairs(root:GetDescendants()) do
         if o:IsA("BasePart") and (o.Name == "Lever" or string.find(string.lower(o.Name), "lever", 1, true)) then
@@ -338,8 +333,6 @@ local function pullAllLevers()
             pulled = pulled + 1
         end
     end
-
-    -- touch the sewer collectible keys so the reward is actually grabbed
     if sewer then
         for _, o in ipairs(sewer:GetDescendants()) do
             if o:IsA("BasePart") and (o.Name == "VineKey" or o.Name == "UFOKey") then
@@ -350,12 +343,10 @@ local function pullAllLevers()
             end
         end
     end
-
     return pulled
 end
 
---// Sewer Run — pull levers + grab keys + open door from where you are (these
--- fire fine at range), then TELEPORT only to the CashVine to harvest the reward.
+--// Sewer Run
 local function touchPart(hrp, part)
     pcall(function()
         firetouchinterest(hrp, part, 0)
@@ -365,21 +356,16 @@ end
 
 local function doSewerRun()
     local char = LocalPlayer.Character
-    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return false, "no character" end
-
-    local map   = workspace:FindFirstChild("Map")
+    local map = workspace:FindFirstChild("Map")
     local sewer = map and map:FindFirstChild("Sewer")
     if not sewer then return false, "sewer not loaded" end
-
-    -- 1) pull all levers (fired in place)
     for _, o in ipairs(sewer:GetDescendants()) do
         if o:IsA("BasePart") and string.find(string.lower(o.Name), "lever", 1, true) then
             touchPart(hrp, o)
         end
     end
-
-    -- 2) grab the keys (VineKey = door key, UFOKey = investor boost)
     for _, folderName in ipairs({ "CashVine", "SewerAlien" }) do
         local folder = sewer:FindFirstChild(folderName)
         if folder then
@@ -391,10 +377,7 @@ local function doSewerRun()
         end
     end
     task.wait(0.3)
-
     local cashVine = sewer:FindFirstChild("CashVine")
-
-    -- 3) open the VineDoor (fired in place; we now hold the key)
     if cashVine then
         local vineDoor = cashVine:FindFirstChild("VineDoor")
         if vineDoor then
@@ -404,8 +387,6 @@ local function doSewerRun()
         end
     end
     task.wait(0.3)
-
-    -- 4) TELEPORT to the CashVine and harvest it
     if cashVine then
         local vineModel = cashVine:FindFirstChild("CashVine")
         if vineModel then
@@ -417,107 +398,81 @@ local function doSewerRun()
             end
         end
     end
-
     return true
 end
 
---// Teleport to the Sewer Alien — fixed coordinates
+--// Teleport to Sewer Alien
 local SEWER_ALIEN_POS = Vector3.new(-42, -41, 180)
 local function teleportToAlien()
     local char = LocalPlayer.Character
-    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return false, "no character" end
-
     pcall(function() hrp.CFrame = CFrame.new(SEWER_ALIEN_POS) end)
     return true
 end
 
-local Trees = {}
+--// Teleport to Tycoon (NEW)
+local function teleportToTycoon()
+    if not userTycoon then return false, "no tycoon" end
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false, "no character" end
+    local base = userTycoon:FindFirstChild("Base") or userTycoon:FindFirstChild("Conveyor") or userTycoon
+    if base and base:IsA("BasePart") then
+        hrp.CFrame = base.CFrame + Vector3.new(0, 10, 0)
+    else
+        local pivot = userTycoon:GetPivot()
+        hrp.CFrame = pivot + Vector3.new(0, 15, 0)
+    end
+    return true
+end
 
+--// Fruit Trees
+local Trees = {}
 local function addTree(obj)
     if obj:IsA("Model") and obj.Name == "LemonTree" then
-
         if not table.find(Trees, obj) then
             table.insert(Trees, obj)
         end
     end
 end
-
 local function removeTree(obj)
-
     local index = table.find(Trees, obj)
-
-    if index then
-        table.remove(Trees, index)
-    end
+    if index then table.remove(Trees, index) end
 end
 
--- initial scan
-for _, v in ipairs(workspace:GetDescendants()) do
-    addTree(v)
-end
-
--- realtime update
+for _, v in ipairs(workspace:GetDescendants()) do addTree(v) end
 workspace.DescendantAdded:Connect(addTree)
 workspace.DescendantRemoving:Connect(removeTree)
 
 local function noCollisionTree(tree)
-
     for _, obj in ipairs(tree:GetDescendants()) do
-        if obj:IsA("BasePart") then
-            obj.CanCollide = false
-        end
+        if obj:IsA("BasePart") then obj.CanCollide = false end
     end
 end
 
 local function teleportToTree(tree)
-
     local character = LocalPlayer.Character
-    if not character then
-        return false
-    end
-
+    if not character then return false end
     local hrp = character:FindFirstChild("HumanoidRootPart")
-    if not hrp then
-        return false
-    end
-
+    if not hrp then return false end
     local cf = tree:GetPivot()
-
     hrp.CFrame = cf + Vector3.new(0, 5, 0)
-
     return true
 end
 
 local function collectFruit(tree)
-
     noCollisionTree(tree)
-
-    local success = teleportToTree(tree)
-
-    if not success then
-        return
-    end
-
+    if not teleportToTree(tree) then return end
     for _, obj in ipairs(tree:GetDescendants()) do
-
         if obj:IsA("BasePart") and obj.Name == "Fruit" then
-
             obj.CanCollide = false
-
             local clickPart = obj:FindFirstChild("ClickPart")
-
             if clickPart then
-
                 local detector = clickPart:FindFirstChildOfClass("ClickDetector")
-
                 if detector then
-
                     task.wait(0.45)
-
-                    pcall(function()
-                        fireclickdetector(detector)
-                    end)
+                    pcall(function() fireclickdetector(detector) end)
                     stats.fruit = stats.fruit + 1
                 end
             end
@@ -528,26 +483,62 @@ end
 task.spawn(function()
     while true do
         task.wait(0.1)
-
         if AutoFruit then
-
             for _, tree in ipairs(Trees) do
-
-                if not AutoFruit then
-                    break
-                end
-
+                if not AutoFruit then break end
                 if tree and tree.Parent then
-
-                    pcall(function()
-                        collectFruit(tree)
-                    end)
+                    pcall(function() collectFruit(tree) end)
                 end
             end
         end
     end
 end)
 
+--// Anti AFK (NEW)
+task.spawn(function()
+    local vu = game:GetService("VirtualUser")
+    LocalPlayer.Idled:Connect(function()
+        if AntiAFK then
+            vu:CaptureController()
+            vu:ClickButton2(Vector2.new())
+        end
+    end)
+end)
+
+--// Speed & Jump (NEW)
+local WalkSpeedValue = 32
+local JumpPowerValue = 100
+
+local function applySpeed()
+    local char = LocalPlayer.Character
+    if char then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then hum.WalkSpeed = WalkSpeedValue end
+    end
+end
+
+local function applyJump()
+    local char = LocalPlayer.Character
+    if char then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.UseJumpPower = true
+            hum.JumpPower = JumpPowerValue
+        end
+    end
+end
+
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
+    applySpeed()
+    applyJump()
+end)
+
+--// ==========================================
+--//                 MAIN TAB
+--// ==========================================
+
+MainTab:CreateSection("Automation")
 
 MainTab:CreateToggle({
     Name = "Auto Buy",
@@ -555,12 +546,7 @@ MainTab:CreateToggle({
     Flag = "AutoBuy",
     Callback = function(Value)
         AutoBuy = Value
-
-        Rayfield:Notify({
-            Title = "Auto Buy",
-            Content = Value and "Enabled" or "Disabled",
-            Duration = 3,
-        })
+        Rayfield:Notify({ Title = "Kryvex | Auto Buy", Content = Value and "Enabled" or "Disabled", Duration = 3 })
     end,
 })
 
@@ -570,12 +556,7 @@ MainTab:CreateToggle({
     Flag = "AutoUpgrade",
     Callback = function(Value)
         AutoUpgrade = Value
-
-        Rayfield:Notify({
-            Title = "Auto Upgrade",
-            Content = Value and "Enabled" or "Disabled",
-            Duration = 3,
-        })
+        Rayfield:Notify({ Title = "Kryvex | Auto Upgrade", Content = Value and "Enabled" or "Disabled", Duration = 3 })
     end,
 })
 
@@ -585,12 +566,7 @@ MainTab:CreateToggle({
     Flag = "AutoFruit",
     Callback = function(Value)
         AutoFruit = Value
-
-        Rayfield:Notify({
-            Title = "Auto Fruit",
-            Content = Value and "Enabled" or "Disabled",
-            Duration = 3,
-        })
+        Rayfield:Notify({ Title = "Kryvex | Auto Fruit", Content = Value and "Enabled" or "Disabled", Duration = 3 })
     end,
 })
 
@@ -600,21 +576,11 @@ MainTab:CreateToggle({
     Flag = "AutoRebirth",
     Callback = function(Value)
         AutoRebirth = Value
-
         if Value and not getRebirthRemote() then
-            Rayfield:Notify({
-                Title = "Auto Rebirth",
-                Content = "Rebirth remote not found in your tycoon!",
-                Duration = 5,
-            })
+            Rayfield:Notify({ Title = "Kryvex | Auto Rebirth", Content = "Rebirth remote not found!", Duration = 5 })
             return
         end
-
-        Rayfield:Notify({
-            Title = "Auto Rebirth",
-            Content = Value and "Enabled" or "Disabled",
-            Duration = 3,
-        })
+        Rayfield:Notify({ Title = "Kryvex | Auto Rebirth", Content = Value and "Enabled" or "Disabled", Duration = 3 })
     end,
 })
 
@@ -624,21 +590,11 @@ MainTab:CreateToggle({
     Flag = "AutoEvolve",
     Callback = function(Value)
         AutoEvolve = Value
-
         if Value and not getEvolveRemote() then
-            Rayfield:Notify({
-                Title = "Auto Evolve",
-                Content = "Evolve remote not found in your tycoon!",
-                Duration = 5,
-            })
+            Rayfield:Notify({ Title = "Kryvex | Auto Evolve", Content = "Evolve remote not found!", Duration = 5 })
             return
         end
-
-        Rayfield:Notify({
-            Title = "Auto Evolve",
-            Content = Value and "Enabled (evolves at full progress)" or "Disabled",
-            Duration = 3,
-        })
+        Rayfield:Notify({ Title = "Kryvex | Auto Evolve", Content = Value and "Enabled" or "Disabled", Duration = 3 })
     end,
 })
 
@@ -648,23 +604,29 @@ MainTab:CreateToggle({
     Flag = "AutoPowerLevel",
     Callback = function(Value)
         AutoPowerLevel = Value
-
-        Rayfield:Notify({
-            Title = "Auto Power Level",
-            Content = Value and "Enabled" or "Disabled",
-            Duration = 3,
-        })
+        Rayfield:Notify({ Title = "Kryvex | Auto Power Level", Content = Value and "Enabled" or "Disabled", Duration = 3 })
     end,
 })
 
+MainTab:CreateToggle({
+    Name = "Auto Collect Cash (NEW)",
+    CurrentValue = false,
+    Flag = "AutoCollectCash",
+    Callback = function(Value)
+        AutoCollectCash = Value
+        Rayfield:Notify({ Title = "Kryvex | Auto Cash", Content = Value and "Enabled" or "Disabled", Duration = 3 })
+    end,
+})
+
+MainTab:CreateSection("Sewer / Levers")
+
 MainTab:CreateButton({
-    Name = "Pull All Levers (sewer)",
+    Name = "Pull All Levers (Sewer)",
     Callback = function()
         local n = pullAllLevers()
         Rayfield:Notify({
-            Title = "Pull All Levers",
-            Content = n > 0 and ("Pulled " .. n .. " lever(s) + grabbed sewer keys")
-                or "No levers found (is the sewer loaded?)",
+            Title = "Kryvex | Pull All Levers",
+            Content = n > 0 and ("Pulled " .. n .. " lever(s) + grabbed sewer keys") or "No levers found",
             Duration = 4,
         })
     end,
@@ -673,13 +635,12 @@ MainTab:CreateButton({
 MainTab:CreateButton({
     Name = "Vine Harvest",
     Callback = function()
-        Rayfield:Notify({ Title = "Vine Harvest", Content = "Running...", Duration = 2 })
+        Rayfield:Notify({ Title = "Kryvex | Vine Harvest", Content = "Running...", Duration = 2 })
         task.spawn(function()
             local ok, err = doSewerRun()
             Rayfield:Notify({
-                Title = "Vine Harvest",
-                Content = ok and "Done! Levers pulled, keys grabbed, vine harvested."
-                    or ("Failed: " .. tostring(err)),
+                Title = "Kryvex | Vine Harvest",
+                Content = ok and "Done! Levers pulled, keys grabbed, vine harvested." or ("Failed: " .. tostring(err)),
                 Duration = 5,
             })
         end)
@@ -691,22 +652,135 @@ MainTab:CreateButton({
     Callback = function()
         local ok, err = teleportToAlien()
         Rayfield:Notify({
-            Title = "Teleport to Sewer Alien",
-            Content = ok and "Teleported to the sewer alien (UFO)" or ("Failed: " .. tostring(err)),
+            Title = "Kryvex | Teleport",
+            Content = ok and "Teleported to Sewer Alien" or ("Failed: " .. tostring(err)),
             Duration = 3,
         })
     end,
 })
 
-MainTab:CreateButton({
-    Name = "Destroy GUI",
+--// ==========================================
+--//                EXTRAS TAB
+--// ==========================================
+
+ExtraTab:CreateSection("New Features")
+
+ExtraTab:CreateButton({
+    Name = "Teleport to Tycoon (NEW)",
+    Callback = function()
+        local ok, err = teleportToTycoon()
+        Rayfield:Notify({
+            Title = "Kryvex | Teleport",
+            Content = ok and "Teleported to your Tycoon!" or ("Error: " .. tostring(err)),
+            Duration = 3,
+        })
+    end,
+})
+
+ExtraTab:CreateToggle({
+    Name = "Anti AFK (NEW)",
+    CurrentValue = false,
+    Flag = "AntiAFK",
+    Callback = function(Value)
+        AntiAFK = Value
+        Rayfield:Notify({ Title = "Kryvex | Anti AFK", Content = Value and "Enabled" or "Disabled", Duration = 3 })
+    end,
+})
+
+ExtraTab:CreateSection("Server")
+
+ExtraTab:CreateButton({
+    Name = "Rejoin Server",
+    Callback = function()
+        Rayfield:Notify({ Title = "Kryvex | Rejoin", Content = "Reconnecting...", Duration = 2 })
+        task.wait(1)
+        game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
+    end,
+})
+
+ExtraTab:CreateButton({
+    Name = "Server Hop",
+    Callback = function()
+        Rayfield:Notify({ Title = "Kryvex | Server Hop", Content = "Searching for a new server...", Duration = 3 })
+        local HttpService = game:GetService("HttpService")
+        local TS = game:GetService("TeleportService")
+        local plr = LocalPlayer
+        local servers = {}
+        pcall(function()
+            local res = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
+            local data = HttpService:JSONDecode(res)
+            for _, v in pairs(data.data) do
+                if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    table.insert(servers, v.id)
+                end
+            end
+            if #servers > 0 then
+                TS:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], plr)
+            else
+                Rayfield:Notify({ Title = "Kryvex | Server Hop", Content = "No servers found!", Duration = 3 })
+            end
+        end)
+    end,
+})
+
+ExtraTab:CreateButton({
+    Name = "Close Kryvex Hub",
     Callback = function()
         Rayfield:Destroy()
     end,
 })
 
---// LIVE STATUS PANEL — proves the autos are firing (counters tick, FPS, cash).
--- Native Instance.new GUI (Delta-safe), draggable, parented to PlayerGui.
+--// ==========================================
+--//                PLAYER TAB
+--// ==========================================
+
+PlayerTab:CreateSection("Speed & Jump")
+
+PlayerTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {16, 250},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = 32,
+    Flag = "WalkSpeedSlider",
+    Callback = function(Value)
+        WalkSpeedValue = Value
+        applySpeed()
+    end,
+})
+
+PlayerTab:CreateSlider({
+    Name = "JumpPower",
+    Range = {50, 500},
+    Increment = 5,
+    Suffix = "Power",
+    CurrentValue = 100,
+    Flag = "JumpPowerSlider",
+    Callback = function(Value)
+        JumpPowerValue = Value
+        applyJump()
+    end,
+})
+
+PlayerTab:CreateButton({
+    Name = "Apply Speed",
+    Callback = function()
+        applySpeed()
+        Rayfield:Notify({ Title = "Kryvex | Speed", Content = "Speed applied: " .. WalkSpeedValue, Duration = 3 })
+    end,
+})
+
+PlayerTab:CreateButton({
+    Name = "Apply Jump",
+    Callback = function()
+        applyJump()
+        Rayfield:Notify({ Title = "Kryvex | Jump", Content = "Jump applied: " .. JumpPowerValue, Duration = 3 })
+    end,
+})
+
+--// ==========================================
+--//            KRYVEX STATUS PANEL
+--// ==========================================
 task.spawn(function()
     local parent = LocalPlayer:FindFirstChildOfClass("PlayerGui")
     if not parent then
@@ -714,52 +788,70 @@ task.spawn(function()
         parent = (okh and hui) or game:GetService("CoreGui")
     end
     pcall(function()
-        local old = parent:FindFirstChild("AutoStatusGui")
+        local old = parent:FindFirstChild("KryvexStatusGui")
         if old then old:Destroy() end
     end)
 
     local gui = Instance.new("ScreenGui")
-    gui.Name = "AutoStatusGui"
+    gui.Name = "KryvexStatusGui"
     gui.ResetOnSpawn = false
     gui.IgnoreGuiInset = true
     gui.DisplayOrder = 9999
     gui.Parent = parent
 
+    -- Main frame - RED
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 200, 0, 168)
+    frame.Size = UDim2.new(0, 210, 0, 200)
     frame.Position = UDim2.new(0, 10, 0, 90)
-    frame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 5, 5)
     frame.BackgroundTransparency = 0.1
     frame.BorderSizePixel = 0
     frame.Active = true
     frame.Parent = gui
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local corner = Instance.new("UICorner", frame)
+    corner.CornerRadius = UDim.new(0, 8)
 
+    -- Red border
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = RED
+    stroke.Thickness = 2
+    stroke.Transparency = 0.3
+
+    -- Title - RED
     local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 24)
-    title.BackgroundColor3 = Color3.fromRGB(38, 40, 54)
+    title.Size = UDim2.new(1, 0, 0, 26)
+    title.BackgroundColor3 = DARK_RED
     title.BorderSizePixel = 0
-    title.Text = "AUTO STATUS"
-    title.TextColor3 = Color3.fromRGB(120, 235, 140)
+    title.Text = "KRYVEX STATUS"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
     title.Font = Enum.Font.GothamBold
-    title.TextSize = 13
+    title.TextSize = 14
     title.Parent = frame
-    Instance.new("UICorner", title).CornerRadius = UDim.new(0, 8)
+    local tc = Instance.new("UICorner", title)
+    tc.CornerRadius = UDim.new(0, 8)
+
+    -- Red line
+    local line = Instance.new("Frame")
+    line.Size = UDim2.new(1, 0, 0, 2)
+    line.Position = UDim2.new(0, 0, 0, 26)
+    line.BackgroundColor3 = RED
+    line.BorderSizePixel = 0
+    line.Parent = frame
 
     local body = Instance.new("TextLabel")
-    body.Size = UDim2.new(1, -12, 1, -30)
-    body.Position = UDim2.new(0, 8, 0, 28)
+    body.Size = UDim2.new(1, -12, 1, -34)
+    body.Position = UDim2.new(0, 8, 0, 32)
     body.BackgroundTransparency = 1
     body.TextXAlignment = Enum.TextXAlignment.Left
     body.TextYAlignment = Enum.TextYAlignment.Top
     body.RichText = true
     body.Text = "starting..."
-    body.TextColor3 = Color3.fromRGB(235, 235, 245)
+    body.TextColor3 = Color3.fromRGB(255, 220, 220)
     body.Font = Enum.Font.Code
     body.TextSize = 12
     body.Parent = frame
 
-    -- drag (mouse + touch)
+    -- Drag
     local UIS = game:GetService("UserInputService")
     local dragging, ds, sp
     title.InputBegan:Connect(function(i)
@@ -779,7 +871,7 @@ task.spawn(function()
         end
     end)
 
-    -- FPS counter
+    -- FPS
     local RunService = game:GetService("RunService")
     local frames, fps, fpsT = 0, 0, tick()
     RunService.RenderStepped:Connect(function()
@@ -787,30 +879,31 @@ task.spawn(function()
         if tick() - fpsT >= 1 then fps, frames, fpsT = frames, 0, tick() end
     end)
 
-    local function on(b) return b and "<font color='#7CFF7C'>ON</font>" or "<font color='#777'>off</font>" end
+    local function on(b) return b and "<font color='#FF5555'>ON</font>" or "<font color='#777'>off</font>" end
 
     while gui.Parent do
         local cashStr = "?"
         local ls = LocalPlayer:FindFirstChild("leaderstats")
-        local c  = ls and ls:FindFirstChild("Cash")
+        local c = ls and ls:FindFirstChild("Cash")
         if c then cashStr = tostring(c.Value) end
 
         body.Text = string.format(
-            "FPS:  %d\nCash: %s\n"
-          .. "Buys:  %d  %s\nUpgr:  %d  %s\nFruit: %d  %s\nReb:   %d  %s\nEvo:   %d  %s",
+            "FPS:   %d\nCash:  %s\n"
+          .. "Buys:  %d  %s\nUpgr:  %d  %s\nFruit: %d  %s\nReb:   %d  %s\nEvo:   %d  %s\nCashC: %d  %s",
             fps, cashStr,
             stats.buys,     on(AutoBuy),
             stats.upgrades, on(AutoUpgrade),
             stats.fruit,    on(AutoFruit),
             stats.rebirths, on(AutoRebirth),
-            stats.evolves,  on(AutoEvolve)
+            stats.evolves,  on(AutoEvolve),
+            stats.cash,     on(AutoCollectCash)
         )
         task.wait(0.25)
     end
 end)
 
 Rayfield:Notify({
-    Title = "Loaded",
-    Content = "Tycoon Autofarm Loaded Successfully",
+    Title = "Kryvex Hub",
+    Content = "Kryvex Hub | Sell Lemons loaded!",
     Duration = 5,
 })
