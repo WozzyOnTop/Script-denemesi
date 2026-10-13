@@ -1,0 +1,1911 @@
+local RAW = "https://raw.githubusercontent.com/Young0xHUB/MuscleLegends/main/modules/"
+local Environment = getgenv and getgenv() or _G
+local PREVIEW_MODE = false
+
+local previousCleanup = Environment.Young0xLoaderCleanup
+if type(previousCleanup) == "function" then
+    pcall(previousCleanup)
+end
+
+local MODULES = {
+    { name = "Public Training", file = "pt.lua",  icon = "rbxthumb://type=Asset&id=134462651083567&w=420&h=420", iconSize = 136, iconY = 68, mobileIconSize = 120, mobileIconY = 68, accent = Color3.fromRGB(47, 214, 127) },
+    { name = "Auto Boss",       file = "AutoBoss.lua", icon = "rbxthumb://type=Asset&id=4842722798&w=420&h=420", iconSize = 148, iconY = 68, mobileIconSize = 132, mobileIconY = 68, accent = Color3.fromRGB(47, 214, 127) },
+    { name = "FG100",           file = "000.lua", icon = "rbxthumb://type=Asset&id=101264601033096&w=420&h=420", iconSize = 180, iconY = 68, mobileIconSize = 158, mobileIconY = 68, accent = Color3.fromRGB(239, 69, 82), paid = true },
+}
+
+local DISCORD_URL = "https://discord.gg/young0xhub"
+local DISCORD_ROBLOX_ICON = "rbxthumb://type=Asset&id=16584754901&w=420&h=420"
+local DISCORD_ICON_DATA = "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGYklEQVR4nO2dfcxXYxjHj15VPEwvE5bWUsIf3h4V8jJ52SwbNlboZdLWY5iXZbM1Yiyv8Z/+UEtGzFDYlJrxVIQp60VJQkUZSVT09rFLF549+/3Oue9z7nN+5+e5Ptvzz9PvOdf3/l3n3G/nur9FkWEYhmEYhmEYhmEYhmEYhmFkAjgMOAW4CXgUeAtYBfwGbAVG5BBzBPC9xlilMSX2aOBU0RS1JYCTgDv1i/iZeH4EOgaM3RHYlhBzO/A2cBcwMPo/ApwMTAW+xI8DwMUBdVwE7PfU8BXwuDzJUT0DdALGAYs9Gr8NeEnvzguAI3PQdQQwTJ/SFx2emJZ8CNwCdI7qBe0WpD/e4PgEfKpPz/lAuxpplrHjXuBdYJ+D7q36+cOjMgOMAr5xaNAmYApwYlQygD6qTTQm8R1wQ1Q2gOOAdxyehrnAlUB7j2v3Ai4EJgBPAnOAD4B1wGYdhPfrz3b93Tr9jHz2Cf1buUZPj7jtVetc1R7HfPkOojKgDY3rh6UxLwOnOVyrHTBYx5BX9A4Mzbd6bYlxjks3Kdq1DXGJke/gvKiWqNCdMSKXAI0Og+y1wEzPATYUEnMGcA3QLUFrI7A05lq/yLQ+quHgvTxG3JS4RRZwFjA9IaFFI1qeBc5MWMw+mHATOnfJwQBujRG1q9KCTrukUTqzKjufACMrdWl6M0obqzG6sESooK66/VCNP4Hurf7m8oQnqqx8JtpbtaU7sDfmbzbKOqzIhExyaMh7uriTmcoi6p+FwGXapmaHz99WVDIaHPagDP5ePHYtIiG317qldcT4IhIiW9aGGyvyTsYljkKM/xiaZ0JebRHIcGN2nvtVcVM9ozJ/+Oyh+STk7ioBjWSa8kjIMofARmXez+MdwcEqwYxkZJf4+KJX5kY8d4RMSD1sBpadpaGS0c+6qyDId9gnREJsqyQcE0Mk5M2Agto6r4WorZKSSyMMv2aqxNRKPyMs6QshgIcDizHggSwJ+bggkbu15qpRX4A1aInOU8CeOowTfvoLHONQIBYCeb/SL0ZHf2B1HcVJQgr6jk6TkCsKEPc10MNBSw8tHCh7HFcuTZOQyWUa4DhUXFD2OK7clyYh83IWtSCFpoUljpPveiSh7ioEY1NournEcXzY7CvoBPLHuwYWGFDiOL709hF0dQGCvGuWgG4ljuPLVT6CHilAUGyleSXkiFuJ4/jykI+gNwoQlKYrGVjiOPkN7MDKAgSNS/FFjS9xnHyK6PT8w+8FCEozHV1U4ji+7HQVcyzFMczz6FzZ4/jSy0XQuQUK2ui4pdHT8XRvreP4MsQlIeI7UiSyodc/YU3wRR3F8SH5SDVwP8UjW9/T9ATuUfozBHg68LZ4UXFcmeySEDkNaxTDcy4JESccoxjmuSTko4LEGLDEJSHra62yDbHWJSG1cFNoq/zgkpAdGQKItdHzalVRi1lLkYdwZmpbXeycqrHdJSFSmZGWfx0MgEF1ahSQxPKW7nLAGNKzyyUhvhZ4LWnt3tBZPU+yJLks7Na2dK7g6pCW/S4JcXGCq8bIKtfsq9Z9RZQVheaAWgH2rdI28UNJywaXhIjZV1p2xRmv6HuGmXVyeHSvah0Q054xCSY0SUxw3X7PWnXxepzDmhzvUs/CNZSPNaotSX/Wl3gLnD2C1VZPisuyILO1JqBDQqx/SjlXUjtWqobBCVo7aJukij0LG7yPSqvjdIg1yVrgOkcrvd662zxL/XLzOLl1UBe/szRWYvWH+nxdr23Jinyng7yS0WrqKqaSIRAT5Yk+VSAcKjaQ9zNjpSgAeEG708+BLWp62dKRbqf+Tv5thXYLs9UBTq4x1McLWH3BmlIYQFdjU2a3bO0vxbYuFDt0QTW8rD7rHLIffAb4KWC7FwdzLtWTVI9lXKNU60unaXI6BRGbvn3D9b1Ilml/JfapUXT49ukALF6EeTA9uGD3dokZZx6I+8XZeYuXafGNgaesMoA35Co8vk0NqiEUq9Xss7guWRMzXE/pHsz4SCe/7M8ZuZPVvDPrODGi5mOjGipPTXmXTYpKAuksRNZr2xOdu2sCcIZOM5sd7rgFtfofEWLWG6Ipaeu9WTcaT4/qCaCLHq2+R9+RLNM1wh4170+slSoaPdY2XzVuUc0ztA1SRNelcFGGYRiGYRiGYRiGYRiGYRiGYRiGYURtg78AMLqLjkX9nPAAAAAASUVORK5CYII="
+local YOUTUBE_URL = "https://www.youtube.com/@Young0xHub"
+local YOUTUBE_ROBLOX_ICON = "rbxthumb://type=Asset&id=85469926655680&w=420&h=420"
+local SKULLS_BACKGROUND = "rbxassetid://93236131139308"
+local LOADER_BUILD = "loader-2026.10.11-halloween-theme"
+
+local function resolveEmbeddedIcon(path, data, fallback)
+    local decoder = rawget(Environment, "base64_decode") or rawget(Environment, "base64decode")
+    local writer = rawget(Environment, "writefile")
+    local customAsset = rawget(Environment, "getcustomasset") or rawget(Environment, "getsynasset")
+    if type(customAsset) == "function" then
+        local fileExists = rawget(Environment, "isfile")
+        if type(fileExists) == "function" then
+            local checked, exists = pcall(fileExists, path)
+            if checked and exists then
+                local loaded, asset = pcall(customAsset, path)
+                if loaded and type(asset) == "string" and asset ~= "" then
+                    return asset
+                end
+            end
+        end
+        if type(decoder) == "function" and type(writer) == "function" then
+            local makeFolder = rawget(Environment, "makefolder")
+            local isFolder = rawget(Environment, "isfolder")
+            if type(makeFolder) == "function" then
+                pcall(function()
+                    if type(isFolder) ~= "function" or not isFolder("Young0xHub") then
+                        makeFolder("Young0xHub")
+                    end
+                end)
+            end
+            local decoded, bytes = pcall(decoder, data)
+            if decoded and type(bytes) == "string" then
+                local written = pcall(writer, path, bytes)
+                if written then
+                    local loaded, asset = pcall(customAsset, path)
+                    if loaded and type(asset) == "string" and asset ~= "" then
+                        return asset
+                    end
+                end
+            end
+        end
+    end
+    return fallback
+end
+
+local function resolveDiscordIcon()
+    return resolveEmbeddedIcon(
+        "Young0xHub/discord-white.png",
+        DISCORD_ICON_DATA,
+        DISCORD_ROBLOX_ICON
+    )
+end
+
+local function resolveYouTubeIcon()
+    return YOUTUBE_ROBLOX_ICON
+end
+
+local function moduleInMaintenance(file)
+    for _, module in ipairs(MODULES) do
+        if module.file == file then
+            return module.maintenance == true
+        end
+    end
+    return false
+end
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local ContentProvider = game:GetService("ContentProvider")
+local HttpService = game:GetService("HttpService")
+
+local function clientUsesMobileLayout(viewport)
+    local platformIsMobile = false
+    local readPlatform, platform = pcall(function()
+        return UserInputService:GetPlatform()
+    end)
+    if readPlatform then
+        platformIsMobile = platform == Enum.Platform.Android
+            or platform == Enum.Platform.IOS
+    end
+
+    local phoneSized = viewport.X <= 1100 and viewport.Y <= 700
+    return platformIsMobile or UserInputService.TouchEnabled or phoneSized
+end
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local camera = workspace.CurrentCamera
+local legacyExecutor = rawget(_G, "syn") or rawget(Environment, "syn")
+local requestFn = request or http_request or (legacyExecutor and legacyExecutor.request)
+
+local GUI_NAME = "Young0xLoader"
+local WIDTH = 780
+local HEIGHT = 360
+local SHOP_WIDTH = 620
+local SHOP_HEIGHT = 470
+local HEADER_HEIGHT = 72
+local DESKTOP_MAX_SCALE = 0.82
+local COMPACT_DESKTOP_MAX_SCALE = 0.78
+local MOBILE_MAX_SCALE = 0.48
+
+local COLOR = {
+    Panel = Color3.fromRGB(9, 5, 8),
+    PanelSoft = Color3.fromRGB(18, 9, 13),
+    Hover = Color3.fromRGB(48, 23, 27),
+    White = Color3.fromRGB(255, 246, 232),
+    Text = Color3.fromRGB(240, 213, 190),
+    Subtext = Color3.fromRGB(184, 150, 137),
+    Border = Color3.fromRGB(255, 132, 35),
+    Divider = Color3.fromRGB(112, 58, 30),
+    Disabled = Color3.fromRGB(105, 77, 71),
+    Green = Color3.fromRGB(139, 224, 104),
+    Error = Color3.fromRGB(255, 65, 76),
+    Orange = Color3.fromRGB(255, 112, 28),
+    Purple = Color3.fromRGB(177, 93, 255),
+}
+
+local function create(className, properties, parent)
+    local object = Instance.new(className)
+    for property, value in pairs(properties) do
+        object[property] = value
+    end
+    object.Parent = parent
+    return object
+end
+
+local function corner(parent, radius)
+    return create("UICorner", {
+        CornerRadius = UDim.new(0, radius),
+    }, parent)
+end
+
+local function stroke(parent, color, thickness, transparency)
+    return create("UIStroke", {
+        Color = color,
+        Thickness = thickness or 1,
+        Transparency = transparency or 0,
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+    }, parent)
+end
+
+local function playTween(target, duration, properties, style, direction)
+    local animation = TweenService:Create(
+        target,
+        TweenInfo.new(
+            duration,
+            style or Enum.EasingStyle.Quart,
+            direction or Enum.EasingDirection.Out
+        ),
+        properties
+    )
+    animation:Play()
+    return animation
+end
+
+local showLoaderStatus
+local setFG100AccessVisual
+
+local function fg100Notice(text)
+    if type(showLoaderStatus) == "function" then
+        showLoaderStatus(text, COLOR.Error, 3.2)
+    end
+end
+
+local function fg100LoadingNotice()
+    if type(showLoaderStatus) == "function" then
+        showLoaderStatus("Cargando FG100...", COLOR.Subtext, 45)
+    end
+end
+
+local function fg100PaidAccessNotice()
+    if type(showLoaderStatus) == "function" then
+        showLoaderStatus("No tenés acceso al FG100, abrí un ticket para adquirirlo.", COLOR.Error, 2.8)
+        return
+    end
+    fg100Notice("No tenés acceso al FG100, abrí un ticket para adquirirlo.")
+end
+
+local FG100_API_BASE = "https://api.young0x.com"
+local FG100_DEVICE_FOLDER = "Young0xHub"
+local FG100_DEVICE_FILE_LEGACY = FG100_DEVICE_FOLDER
+    .. "/fg100-device-"
+    .. tostring(player.UserId)
+    .. ".txt"
+local FG100_DEVICE_CACHE = Environment.Young0xFG100Devices
+if type(FG100_DEVICE_CACHE) ~= "table" then
+    FG100_DEVICE_CACHE = {}
+    Environment.Young0xFG100Devices = FG100_DEVICE_CACHE
+end
+
+local function fg100ExecutionContext()
+    local executorName, executorVersion = "No disponible", ""
+    local identify = rawget(Environment, "identifyexecutor")
+        or rawget(Environment, "getexecutorname")
+    if type(identify) == "function" then
+        local ok, name, version = pcall(identify)
+        if ok and name ~= nil then
+            executorName = tostring(name)
+            executorVersion = version ~= nil and tostring(version) or ""
+        end
+    end
+    local platform = "No disponible"
+    pcall(function()
+        platform = tostring(UserInputService:GetPlatform()):gsub("Enum.Platform.", "")
+    end)
+    local serverType = "Publico"
+    pcall(function()
+        if tostring(game.PrivateServerId or "") ~= "" then
+            serverType = "Privado"
+        end
+    end)
+    return {
+        username = player.Name,
+        displayName = player.DisplayName,
+        executor = executorName,
+        executorVersion = executorVersion,
+        platform = platform,
+        placeId = tostring(game.PlaceId),
+        universeId = tostring(game.GameId),
+        jobId = tostring(game.JobId),
+        playerCount = #Players:GetPlayers(),
+        maxPlayers = Players.MaxPlayers,
+        serverType = serverType,
+    }
+end
+
+local function validFG100DeviceToken(value)
+    return type(value) == "string" and #value >= 32 and #value <= 256
+end
+
+local function fg100LocalFingerprint(value)
+    local first, second = 2166136261, 2246822519
+    for index = 1, #value do
+        local byte = string.byte(value, index)
+        first = (first * 131 + byte) % 4294967296
+        second = (second * 137 + byte + index) % 4294967296
+    end
+    return string.format("%08x%08x", first, second)
+end
+
+local function fg100DeviceKey(hwid)
+    return tostring(player.UserId) .. ":" .. fg100LocalFingerprint(hwid)
+end
+
+local function fg100DeviceFile(hwid)
+    return FG100_DEVICE_FOLDER
+        .. "/fg100-device-"
+        .. tostring(player.UserId)
+        .. "-"
+        .. fg100LocalFingerprint(hwid)
+        .. ".txt"
+end
+
+local function loadFG100DeviceToken(hwid)
+    local key = fg100DeviceKey(hwid)
+    local cached = FG100_DEVICE_CACHE[key]
+    if type(cached) == "table" and validFG100DeviceToken(cached.token) then
+        return cached.token, cached.legacy == true
+    end
+    if type(isfile) ~= "function" or type(readfile) ~= "function" then
+        return nil
+    end
+    local path = fg100DeviceFile(hwid)
+    local okExists, exists = pcall(isfile, path)
+    if okExists and exists then
+        local okRead, value = pcall(readfile, path)
+        if okRead and validFG100DeviceToken(value) then
+            FG100_DEVICE_CACHE[key] = { token = value, legacy = false }
+            return value, false
+        end
+    end
+    okExists, exists = pcall(isfile, FG100_DEVICE_FILE_LEGACY)
+    if not okExists or not exists then
+        return nil
+    end
+    local okRead, value = pcall(readfile, FG100_DEVICE_FILE_LEGACY)
+    if okRead and validFG100DeviceToken(value) then
+        FG100_DEVICE_CACHE[key] = { token = value, legacy = true }
+        return value, true
+    end
+    return nil
+end
+
+local function saveFG100DeviceToken(value, hwid)
+    if not validFG100DeviceToken(value) then
+        return false
+    end
+    local key = fg100DeviceKey(hwid)
+    FG100_DEVICE_CACHE[key] = { token = value, legacy = false }
+    if type(writefile) ~= "function" then
+        return false
+    end
+    if type(makefolder) == "function" then
+        pcall(makefolder, FG100_DEVICE_FOLDER)
+    end
+    return pcall(writefile, fg100DeviceFile(hwid), value)
+end
+
+local function clearFG100DeviceToken(hwid)
+    FG100_DEVICE_CACHE[fg100DeviceKey(hwid)] = nil
+    if type(isfile) ~= "function" or type(delfile) ~= "function" then
+        return
+    end
+    local path = fg100DeviceFile(hwid)
+    local okExists, exists = pcall(isfile, path)
+    if okExists and exists then
+        pcall(delfile, path)
+    end
+end
+
+local function clearFG100LegacyDeviceToken()
+    if type(isfile) ~= "function" or type(delfile) ~= "function" then
+        return
+    end
+    local okExists, exists = pcall(isfile, FG100_DEVICE_FILE_LEGACY)
+    if okExists and exists then
+        pcall(delfile, FG100_DEVICE_FILE_LEGACY)
+    end
+end
+
+local function rejectFG100DeviceToken(hwid, cameFromLegacy)
+    clearFG100DeviceToken(hwid)
+    if cameFromLegacy then
+        clearFG100LegacyDeviceToken()
+    end
+end
+
+local function fg100AttemptFile(hwid)
+    return FG100_DEVICE_FOLDER
+        .. "/fg100-attempt-"
+        .. tostring(player.UserId)
+        .. "-"
+        .. fg100LocalFingerprint(hwid)
+        .. ".txt"
+end
+
+local FG100_ATTEMPTS = Environment.Young0xFG100ActivationAttempts
+if type(FG100_ATTEMPTS) ~= "table" then
+    FG100_ATTEMPTS = {}
+    Environment.Young0xFG100ActivationAttempts = FG100_ATTEMPTS
+end
+
+local function validFG100Attempt(value)
+    return type(value) == "string" and #value >= 32 and #value <= 128
+        and value:match("^[%w_-]+$") ~= nil
+end
+
+local function fg100ActivationRequestId(hwid, activationCode)
+    local key = fg100DeviceKey(hwid)
+    local value = FG100_ATTEMPTS[key]
+    if not validFG100Attempt(value) and type(readfile) == "function" then
+        local ok, saved = pcall(readfile, fg100AttemptFile(hwid))
+        if ok and validFG100Attempt(saved) then value = saved end
+    end
+    if not validFG100Attempt(value) then
+        local material = tostring(player.UserId) .. ":" .. hwid .. ":" .. tostring(activationCode)
+        value = "fg100-" .. fg100LocalFingerprint(material)
+            .. "-" .. fg100LocalFingerprint(tostring(activationCode) .. ":" .. hwid)
+    end
+    assert(validFG100Attempt(value), "activation request unavailable")
+    FG100_ATTEMPTS[key] = value
+    if type(writefile) == "function" then
+        if type(makefolder) == "function" then pcall(makefolder, FG100_DEVICE_FOLDER) end
+        pcall(writefile, fg100AttemptFile(hwid), value)
+    end
+    return value
+end
+
+local function clearFG100Attempt(hwid)
+    FG100_ATTEMPTS[fg100DeviceKey(hwid)] = nil
+    if type(delfile) == "function" then pcall(delfile, fg100AttemptFile(hwid)) end
+end
+
+local function fg100ResponseStatus(response)
+    local value = response and (response.StatusCode or response.Status or response.status_code)
+    local direct = tonumber(value)
+    if direct then
+        return direct
+    end
+    local digits = tostring(value or ""):match("%d+")
+    return digits and tonumber(digits) or 0
+end
+
+local function fg100ResponseBody(response)
+    return response and (response.Body or response.body)
+end
+
+local FG100_RETRY_DELAYS = { 0.45, 0.9, 1.6 }
+local FG100_REQUEST_TIMEOUT = 12
+
+local function fg100TransientStatus(status)
+    return status == -1
+        or status == 0
+        or status == 408
+        or status == 425
+        or status == 500
+        or status == 502
+        or status == 503
+        or status == 504
+        or (status >= 520 and status <= 524)
+end
+
+local function fg100Post(path, body, retryTransient)
+    local encoded = HttpService:JSONEncode(body)
+    local lastBody, lastStatus = nil, 0
+    local totalAttempts = retryTransient and (#FG100_RETRY_DELAYS + 1) or 1
+    for attempt = 1, totalAttempts do
+        local completed, ok, response = false, false, nil
+        task.spawn(function()
+            ok, response = pcall(requestFn, {
+                Url = FG100_API_BASE .. path,
+                Method = "POST",
+                Headers = {
+                    ["content-type"] = "application/json",
+                    ["cache-control"] = "no-store",
+                },
+                Body = encoded,
+            })
+            completed = true
+        end)
+        local deadline = os.clock() + FG100_REQUEST_TIMEOUT
+        while not completed and os.clock() < deadline do
+            task.wait(0.05)
+        end
+        if not completed then
+            lastBody, lastStatus = nil, -1
+        elseif ok and type(response) == "table" then
+            lastBody = fg100ResponseBody(response)
+            lastStatus = fg100ResponseStatus(response)
+        else
+            lastBody, lastStatus = nil, 0
+        end
+
+        if not fg100TransientStatus(lastStatus) or attempt >= totalAttempts then
+            return lastBody, lastStatus
+        end
+        fg100LoadingNotice()
+        task.wait(FG100_RETRY_DELAYS[attempt])
+    end
+    return lastBody, lastStatus
+end
+
+local function decodeFG100Response(raw)
+    if type(raw) ~= "string" then
+        return nil
+    end
+    local ok, decoded = pcall(HttpService.JSONDecode, HttpService, raw)
+    return ok and type(decoded) == "table" and decoded or nil
+end
+
+local function validFG100Session(session, status)
+    return status == 200 and type(session) == "table" and session.ok == true
+        and type(session.sessionId) == "string" and #session.sessionId >= 20
+        and type(session.sessionToken) == "string" and #session.sessionToken >= 32
+end
+
+local function fg100SessionFailure(session, status, hwid)
+    local code = session and tostring(session.code or "") or ""
+    if status == 403 and code == "device_activation_required" then
+        clearFG100DeviceToken(hwid)
+        if type(setFG100AccessVisual) == "function" then setFG100AccessVisual(false) end
+        fg100Notice("Este dispositivo no está vinculado. Usá /fg100 registrar.")
+    elseif status == 403 and code == "device_credential_invalid" then
+        clearFG100DeviceToken(hwid)
+        if type(setFG100AccessVisual) == "function" then setFG100AccessVisual(false) end
+        fg100Notice("Este dispositivo necesita activarse de nuevo. Usá /fg100 registrar.")
+    elseif status == 403 and code == "unauthorized" then
+        Environment.Young0xFG100AccessDenied = true
+        if type(setFG100AccessVisual) == "function" then setFG100AccessVisual(false) end
+        fg100PaidAccessNotice()
+    elseif status == 429 then
+        Environment.Young0xFG100RetryAt = os.clock() + 8
+        fg100LoadingNotice()
+    elseif fg100TransientStatus(status) then
+        Environment.Young0xFG100RetryAt = os.clock() + 4
+        fg100LoadingNotice()
+    else
+        fg100Notice("No se pudo confirmar el acceso. Probá FG100 nuevamente")
+    end
+    return false
+end
+
+local function runFG100SecureRequest()
+    if type(requestFn) ~= "function" then
+        fg100Notice("Tu ejecutor no tiene soporte HTTP.")
+        return false
+    end
+    if type(gethwid) ~= "function" then
+        fg100Notice("Tu ejecutor no expone HWID. Usá uno compatible.")
+        return false
+    end
+
+    local okHwid, hwid = pcall(gethwid)
+    if not okHwid or type(hwid) ~= "string" or #hwid < 8 then
+        fg100Notice("No se pudo leer el HWID de este ejecutor.")
+        return false
+    end
+
+    local deviceToken, deviceTokenFromLegacy = loadFG100DeviceToken(hwid)
+    local activationCode = Environment.Young0xFG100ActivationCode
+    local activationUserId = Environment.Young0xFG100ActivationUserId
+    if type(activationCode) == "string" and #activationCode >= 20
+        and activationUserId ~= nil and tostring(activationUserId) ~= tostring(player.UserId) then
+        fg100Notice("Este bloque es para Roblox ID " .. tostring(activationUserId)
+            .. ". Entrá con esa cuenta o registrá la cuenta que estás usando.")
+        return false
+    end
+    local session, sessionStatus
+    local deviceNotSaved = false
+    local function clearUsedCode()
+        if Environment.Young0xFG100ActivationCode == activationCode then
+            Environment.Young0xFG100ActivationCode = nil
+            Environment.Young0xFG100ActivationUserId = nil
+            clearFG100Attempt(hwid)
+        end
+    end
+    local function requestSession()
+        local raw, status = fg100Post("/v1/fg100/session", {
+            robloxUserId = tostring(player.UserId),
+            hwid = hwid,
+            deviceToken = deviceToken or "",
+        }, true)
+        return decodeFG100Response(raw), status
+    end
+
+    if deviceToken then
+        session, sessionStatus = requestSession()
+        if validFG100Session(session, sessionStatus) then
+            if deviceTokenFromLegacy and saveFG100DeviceToken(deviceToken, hwid) then
+                clearFG100LegacyDeviceToken()
+                deviceTokenFromLegacy = false
+            end
+        else
+            local code = session and tostring(session.code or "") or ""
+            if sessionStatus == 403 and (code == "device_activation_required" or code == "device_credential_invalid"
+                or (code == "unauthorized" and type(activationCode) == "string" and #activationCode >= 20)) then
+                if code ~= "unauthorized" then
+                    rejectFG100DeviceToken(hwid, deviceTokenFromLegacy)
+                    deviceTokenFromLegacy = false
+                end
+                deviceToken = nil
+                if type(activationCode) ~= "string" or #activationCode < 20 then
+                    return fg100SessionFailure(session, sessionStatus, hwid)
+                end
+            else
+                return fg100SessionFailure(session, sessionStatus, hwid)
+            end
+        end
+    end
+
+    if not validFG100Session(session, sessionStatus)
+        and type(activationCode) == "string" and #activationCode >= 20 then
+        local activationRaw, activationStatus = fg100Post("/v1/fg100/activate", {
+            robloxUserId = tostring(player.UserId),
+            hwid = hwid,
+            activationCode = activationCode,
+            activationRequestId = fg100ActivationRequestId(hwid, activationCode),
+        }, true)
+        local activation = decodeFG100Response(activationRaw)
+        if activationStatus ~= 200
+            or not activation
+            or activation.ok ~= true
+            or not validFG100DeviceToken(activation.deviceToken) then
+            local code = activation and tostring(activation.code or "") or ""
+            if activationStatus == 403 and code == "hwid_mismatch" then
+                fg100Notice("El código es para otro HWID. Registrá el HWID de este ejecutor.")
+            elseif activationStatus == 403 and code == "unauthorized" then
+                Environment.Young0xFG100AccessDenied = true
+                if type(setFG100AccessVisual) == "function" then setFG100AccessVisual(false) end
+                fg100PaidAccessNotice()
+            elseif activationStatus == 429 then
+                Environment.Young0xFG100RetryAt = os.clock() + 8
+                fg100LoadingNotice()
+            elseif activationStatus == 403 and code == "activation_expired" then
+                clearUsedCode()
+                fg100Notice("El código venció. Generá uno nuevo con /fg100 registrar.")
+            elseif activationStatus == 403 and code == "invalid_activation" then
+                clearUsedCode()
+                fg100Notice("Ese código no coincide. Usá el último bloque de /fg100 registrar.")
+            elseif activationStatus == 403 and code == "activation_required" then
+                clearUsedCode()
+                fg100Notice("Ese código ya no está disponible. Usá el último bloque de /fg100 registrar.")
+            elseif fg100TransientStatus(activationStatus) then
+                Environment.Young0xFG100RetryAt = os.clock() + 4
+                fg100LoadingNotice()
+            else
+                fg100Notice("No se pudo confirmar la activación. Tu código sigue guardado")
+            end
+            return false
+        end
+        deviceToken = activation.deviceToken
+        deviceNotSaved = not saveFG100DeviceToken(deviceToken, hwid)
+        if deviceNotSaved then
+            fg100Notice("FG100 quedó activado, pero este ejecutor no pudo guardar la credencial. Conservá este bloque para reintentarlo.")
+        end
+    end
+
+    if not validFG100Session(session, sessionStatus) then
+        session, sessionStatus = requestSession()
+    end
+    if not validFG100Session(session, sessionStatus) then
+        return fg100SessionFailure(session, sessionStatus, hwid)
+    end
+    Environment.Young0xFG100AccessDenied = nil
+    Environment.Young0xFG100RetryAt = nil
+    if type(setFG100AccessVisual) == "function" then setFG100AccessVisual(true) end
+
+    local payload, payloadStatus = fg100Post("/v1/fg100/payload", {
+        sessionId = session.sessionId,
+        sessionToken = session.sessionToken,
+        context = fg100ExecutionContext(),
+    })
+    if fg100TransientStatus(payloadStatus) then
+        fg100LoadingNotice()
+        task.wait(FG100_RETRY_DELAYS[1])
+        session, sessionStatus = requestSession()
+        if validFG100Session(session, sessionStatus) then
+            payload, payloadStatus = fg100Post("/v1/fg100/payload", {
+                sessionId = session.sessionId,
+                sessionToken = session.sessionToken,
+                context = fg100ExecutionContext(),
+            })
+        else
+            return fg100SessionFailure(session, sessionStatus, hwid)
+        end
+    end
+    if payloadStatus ~= 200 or type(payload) ~= "string" or #payload < 64 then
+        if fg100TransientStatus(payloadStatus) then
+            Environment.Young0xFG100RetryAt = os.clock() + 4
+            fg100LoadingNotice()
+        else
+            fg100Notice("No se pudo iniciar FG100. Probá nuevamente")
+        end
+        return false
+    end
+
+    Environment.Young0xFG100Auth = {
+        userId = player.UserId,
+        verified = true,
+        expiresAt = os.time() + math.max(1, tonumber(session.expiresIn) or 30),
+    }
+    local chunk, compileError = loadstring(payload, "FG100")
+    payload = nil
+    if not chunk then
+        Environment.Young0xFG100Auth = nil
+        fg100Notice("Error al preparar FG100.")
+        warn("[Young0x Hub] FG100 compile error: " .. tostring(compileError))
+        return false
+    end
+    local runFinished, runSucceeded, runFailure = false, false, nil
+    local okSpawn = pcall(task.spawn, function()
+        runSucceeded, runFailure = pcall(chunk)
+        chunk = nil
+        runFinished = true
+    end)
+    if not okSpawn then
+        Environment.Young0xFG100Auth = nil
+        fg100Notice("FG100 no pudo iniciarse.")
+        return false
+    end
+
+    local launchDeadline = os.clock() + 18
+    local launchedGui = nil
+    repeat
+        launchedGui = playerGui:FindFirstChild("FG100Hub")
+            or playerGui:FindFirstChild("Young0xFG100Hub")
+        if launchedGui or (runFinished and not runSucceeded) then
+            break
+        end
+        task.wait(0.05)
+    until os.clock() >= launchDeadline
+
+    launchedGui = launchedGui
+        or playerGui:FindFirstChild("FG100Hub")
+        or playerGui:FindFirstChild("Young0xFG100Hub")
+    if not launchedGui then
+        Environment.Young0xFG100Auth = nil
+        if runFinished and not runSucceeded then
+            warn("[Young0x Hub] FG100 runtime error: " .. tostring(runFailure))
+        else
+            warn("[Young0x Hub] FG100 launch confirmation timed out")
+        end
+        fg100LoadingNotice()
+        return false
+    end
+
+    task.spawn(function()
+        while not runFinished do
+            task.wait(0.1)
+        end
+        if not runSucceeded then
+            Environment.Young0xFG100Auth = nil
+            warn("[Young0x Hub] FG100 runtime error after launch: " .. tostring(runFailure))
+        end
+    end)
+
+    if deviceNotSaved then
+        fg100Notice("FG100 activado. Tu ejecutor no pudo guardarlo en disco; la credencial se conserva durante esta sesión.")
+    end
+    clearUsedCode()
+    return true
+end
+
+local FG100_AUTOSTART_ATTEMPTS = 3
+
+local function runFG100Secure()
+    local current = Environment.Young0xFG100Starting
+    if type(current) == "table" and type(current.startedAt) == "number"
+        and os.clock() - current.startedAt < 15 then
+        fg100LoadingNotice()
+        return false
+    end
+
+    local attempt = { startedAt = os.clock() }
+    Environment.Young0xFG100Starting = attempt
+    local ok, result = true, false
+    for automaticAttempt = 1, FG100_AUTOSTART_ATTEMPTS do
+        local retryAt = tonumber(Environment.Young0xFG100RetryAt) or 0
+        if retryAt > os.clock() then
+            fg100LoadingNotice()
+            task.wait(math.max(0, retryAt - os.clock()))
+        end
+
+        local existing = playerGui:FindFirstChild("FG100Hub")
+            or playerGui:FindFirstChild("Young0xFG100Hub")
+        if existing then
+            result = true
+            break
+        end
+
+        Environment.Young0xFG100RetryAt = nil
+        ok, result = pcall(runFG100SecureRequest)
+        if not ok or result == true then
+            break
+        end
+
+        retryAt = tonumber(Environment.Young0xFG100RetryAt) or 0
+        if retryAt <= os.clock() or automaticAttempt >= FG100_AUTOSTART_ATTEMPTS then
+            break
+        end
+    end
+    if Environment.Young0xFG100Starting == attempt then
+        Environment.Young0xFG100Starting = nil
+    end
+    if not ok then
+        fg100LoadingNotice()
+        warn("[Young0x Hub] FG100 start error: " .. tostring(result))
+        return false
+    end
+    return result == true
+end
+
+local function runModule(file)
+    if moduleInMaintenance(file) then
+        return false
+    end
+    if file == "000.lua" then
+        return runFG100Secure()
+    end
+    local ok, err = pcall(function()
+        local url = RAW .. file
+        local separator = string.find(url, "?", 1, true) and "&" or "?"
+        url = url .. separator .. "v=" .. tostring(os.time())
+        loadstring(game:HttpGet(url, true))()
+    end)
+    if not ok then
+        warn("[Young0x Hub] " .. file .. ": " .. tostring(err))
+    end
+    return ok
+end
+
+do
+    local initialCamera = workspace.CurrentCamera
+    local initialViewport = initialCamera and initialCamera.ViewportSize or Vector2.new(WIDTH, HEIGHT)
+    local discordIcon = resolveDiscordIcon()
+    local youtubeIcon = resolveYouTubeIcon()
+    local preloadTargets = {}
+    local function queueIconPreload(image)
+        local target = Instance.new("ImageLabel")
+        target.BackgroundTransparency = 1
+        target.Image = image
+        preloadTargets[#preloadTargets + 1] = target
+    end
+    queueIconPreload("rbxassetid://277037195")
+    queueIconPreload(discordIcon)
+    queueIconPreload(youtubeIcon)
+    for _, module in ipairs(MODULES) do
+        queueIconPreload(module.icon)
+    end
+    task.spawn(function()
+        pcall(function()
+            ContentProvider:PreloadAsync(preloadTargets)
+        end)
+        for _, target in ipairs(preloadTargets) do
+            target:Destroy()
+        end
+        table.clear(preloadTargets)
+    end)
+    for _, name in ipairs({ GUI_NAME, "HubGui" }) do
+        local previous = playerGui:FindFirstChild(name)
+        if previous then
+            previous:Destroy()
+        end
+    end
+
+    local closing = false
+    local launching = false
+    local transitioning = false
+    local dragging = false
+    local dragInput
+    local dragStart
+    local dragOrigin
+    local dragTarget = UDim2.new(0.5, 0, 0.5, 0)
+    local connections = {}
+    local moduleStates = {}
+    local statusSerial = 0
+    local shopStatusSerial = 0
+    local currentWidth = WIDTH
+    local currentHeight = HEIGHT
+    local closeOnly
+    local closeAndRun
+    local updateScale
+
+    local gui = create("ScreenGui", {
+        Name = GUI_NAME,
+        ResetOnSpawn = false,
+        IgnoreGuiInset = true,
+        AutoLocalize = false,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        DisplayOrder = 999999,
+    }, playerGui)
+    gui:SetAttribute("Young0xBuild", LOADER_BUILD)
+    gui:SetAttribute("Theme", "Halloween")
+
+    local function track(connection)
+        connections[#connections + 1] = connection
+        return connection
+    end
+
+    local function destroyLoader()
+        if Environment.Young0xLoaderCleanup == destroyLoader then
+            Environment.Young0xLoaderCleanup = nil
+        end
+        for _, connection in ipairs(connections) do
+            pcall(function()
+                connection:Disconnect()
+            end)
+        end
+        table.clear(connections)
+        if gui and gui.Parent then
+            gui:Destroy()
+        end
+    end
+
+    Environment.Young0xLoaderCleanup = destroyLoader
+
+    track(playerGui.ChildAdded:Connect(function(child)
+        if child.Name == "FG100Hub" or child.Name == "Young0xFG100Hub" then
+            task.defer(destroyLoader)
+        end
+    end))
+
+    local stage = create("CanvasGroup", {
+        Name = "Loader",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.fromOffset(WIDTH, HEIGHT),
+        Position = UDim2.new(0.5, 0, 0.5, 14),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        GroupTransparency = 1,
+        ZIndex = 10,
+    }, gui)
+
+    local scale = create("UIScale", { Scale = 0.93 }, stage)
+
+    local shadow = create("Frame", {
+        Name = "Shadow",
+        Size = UDim2.new(1, -10, 1, -6),
+        Position = UDim2.fromOffset(5, 10),
+        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+        BackgroundTransparency = 0.38,
+        BorderSizePixel = 0,
+        ZIndex = 10,
+    }, stage)
+    corner(shadow, 25)
+
+    local panel = create("Frame", {
+        Name = "Panel",
+        Size = UDim2.fromScale(1, 1),
+        BackgroundColor3 = COLOR.Panel,
+        BorderSizePixel = 0,
+        ClipsDescendants = true,
+        ZIndex = 11,
+    }, stage)
+    corner(panel, 22)
+    stroke(panel, COLOR.Border, 2, 0.08)
+    create("UIGradient", {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(28, 11, 16)),
+            ColorSequenceKeypoint.new(0.52, COLOR.Panel),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 8, 25)),
+        }),
+        Rotation = 135,
+    }, panel)
+
+    local surface = create("ImageLabel", {
+        Name = "Surface",
+        Size = UDim2.fromScale(1, 1),
+        BackgroundTransparency = 1,
+        Image = SKULLS_BACKGROUND,
+        ImageColor3 = Color3.fromRGB(255, 116, 34),
+        ImageTransparency = 0.68,
+        ScaleType = Enum.ScaleType.Crop,
+        ZIndex = 12,
+    }, panel)
+    corner(surface, 22)
+
+    local loaderPage = create("CanvasGroup", {
+        Name = "Main",
+        Size = UDim2.fromScale(1, 1),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        GroupTransparency = 0,
+        ZIndex = 13,
+    }, panel)
+
+    local header = create("Frame", {
+        Name = "Header",
+        Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Active = true,
+        ZIndex = 20,
+    }, loaderPage)
+
+    local titleButton = create("TextLabel", {
+        Name = "Title",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(1, -360, 0, 42),
+        Position = UDim2.new(0.5, 0, 0.5, 1),
+        BackgroundTransparency = 1,
+        Text = "🎃 Young0x Hub 🎃",
+        Font = Enum.Font.GothamBlack,
+        TextSize = 38,
+        TextColor3 = COLOR.White,
+        TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+        TextStrokeTransparency = 0.58,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        ZIndex = 21,
+    }, header)
+    local titleGradient = create("UIGradient", {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, COLOR.White),
+            ColorSequenceKeypoint.new(0.28, Color3.fromRGB(255, 188, 92)),
+            ColorSequenceKeypoint.new(0.52, COLOR.Orange),
+            ColorSequenceKeypoint.new(0.76, COLOR.Purple),
+            ColorSequenceKeypoint.new(1, COLOR.White),
+        }),
+        Rotation = 0,
+        Offset = Vector2.new(-1, 0),
+    }, titleButton)
+    local function animateTitleGradient()
+        if closing or not titleGradient.Parent then
+            return
+        end
+        titleGradient.Offset = Vector2.new(-1, 0)
+        local sweep = playTween(titleGradient, 2.2, { Offset = Vector2.new(1, 0) }, Enum.EasingStyle.Sine)
+        track(sweep.Completed:Connect(function()
+            task.delay(0.45, animateTitleGradient)
+        end))
+    end
+    task.defer(animateTitleGradient)
+
+    create("Frame", {
+        Name = "HeaderDivider",
+        Size = UDim2.new(1, -36, 0, 1),
+        Position = UDim2.new(0, 18, 1, -1),
+        BackgroundColor3 = COLOR.Divider,
+        BackgroundTransparency = 0.28,
+        BorderSizePixel = 0,
+        ZIndex = 20,
+    }, header)
+
+    local function createHeaderIcon(name, image, x)
+        local button = create("TextButton", {
+            Name = name,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.fromOffset(52, 52),
+            Position = UDim2.new(0, x, 0.5, 0),
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            AutoButtonColor = false,
+            Text = "",
+            ZIndex = 24,
+        }, header)
+        local buttonScale = create("UIScale", { Scale = 1 }, button)
+        if image then
+            create("ImageLabel", {
+                Name = "Icon",
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Size = UDim2.fromOffset(38, 38),
+                Position = UDim2.fromScale(0.5, 0.5),
+                BackgroundTransparency = 1,
+                Image = image,
+                ImageColor3 = COLOR.White,
+                ScaleType = Enum.ScaleType.Fit,
+                ZIndex = 25,
+            }, button)
+        end
+        return button, buttonScale
+    end
+
+    local function drawDiscordLogo(parent, iconSize)
+        return create("ImageLabel", {
+            Name = "DiscordLogo",
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.fromOffset(iconSize, iconSize),
+            Position = UDim2.fromScale(0.5, 0.5),
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            Image = discordIcon,
+            ScaleType = Enum.ScaleType.Fit,
+            ZIndex = 25,
+        }, parent)
+    end
+
+    local discordButton, discordScale = createHeaderIcon(
+        "Discord",
+        nil,
+        40
+    )
+    drawDiscordLogo(discordButton, 42)
+    local shopButton, shopScale = createHeaderIcon(
+        "Shop",
+        "rbxthumb://type=Asset&id=11385419687&w=420&h=420",
+        96
+    )
+    local youtubeButton, youtubeScale = createHeaderIcon(
+        "YouTube",
+        youtubeIcon,
+        152
+    )
+
+    local closeButton = create("TextButton", {
+        Name = "Close",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.fromOffset(84, 72),
+        Position = UDim2.new(1, -43, 0.5, 0),
+        BackgroundTransparency = 1,
+        AutoButtonColor = false,
+        Text = "X",
+        Font = Enum.Font.Garamond,
+        TextSize = 66,
+        TextColor3 = COLOR.White,
+        ZIndex = 24,
+    }, header)
+    local closeScale = create("UIScale", { Scale = 1 }, closeButton)
+
+    local moduleArea = create("Frame", {
+        Name = "Modules",
+        Size = UDim2.new(1, -24, 0, 244),
+        Position = UDim2.fromOffset(12, HEADER_HEIGHT + 2),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 14,
+    }, loaderPage)
+
+    local moduleCount = #MODULES
+    local moduleVisualWidth = moduleCount >= 3 and 224 or 340
+    local moduleNameSize = moduleCount >= 3 and 25 or 29
+    for dividerIndex = 1, moduleCount - 1 do
+        create("Frame", {
+            Name = "Divider" .. dividerIndex,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.fromOffset(1, 160),
+            Position = UDim2.new(dividerIndex / moduleCount, 0, 0.5, 0),
+            BackgroundColor3 = COLOR.Divider,
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            ZIndex = 17,
+        }, moduleArea)
+    end
+
+    local statusLabel = create("TextLabel", {
+        Name = "Status",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(1, -64, 0, 38),
+        Position = UDim2.new(0.5, 0, 1, -25),
+        BackgroundTransparency = 1,
+        Text = "",
+        Font = Enum.Font.GothamMedium,
+        TextSize = 19,
+        TextColor3 = COLOR.Error,
+        TextTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        ZIndex = 25,
+    }, loaderPage)
+
+    local shopPage = create("CanvasGroup", {
+        Name = "FG100Shop",
+        Size = UDim2.fromScale(1, 1),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        GroupTransparency = 1,
+        Visible = false,
+        ZIndex = 30,
+    }, panel)
+
+    local shopHeader = create("Frame", {
+        Name = "Header",
+        Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Active = true,
+        ZIndex = 31,
+    }, shopPage)
+
+    local shopTitle = create("TextLabel", {
+        Name = "Title",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(1, -100, 0, 32),
+        Position = UDim2.new(0.5, 0, 0, 23),
+        BackgroundTransparency = 1,
+        Text = "FG100",
+        Font = Enum.Font.Garamond,
+        TextSize = 38,
+        TextColor3 = COLOR.White,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        ZIndex = 32,
+    }, shopHeader)
+    create("UIGradient", {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, COLOR.Purple),
+            ColorSequenceKeypoint.new(0.5, COLOR.White),
+            ColorSequenceKeypoint.new(1, COLOR.Orange),
+        }),
+    }, shopTitle)
+
+    create("TextLabel", {
+        Name = "Subtitle",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(1, -100, 0, 18),
+        Position = UDim2.new(0.5, 0, 0, 49),
+        BackgroundTransparency = 1,
+        Text = "🎃 ACCESO PERMANENTE 🎃",
+        Font = Enum.Font.Garamond,
+        TextSize = 19,
+        TextColor3 = COLOR.Text,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        ZIndex = 32,
+    }, shopHeader)
+
+    create("Frame", {
+        Name = "HeaderDivider",
+        Size = UDim2.new(1, -36, 0, 1),
+        Position = UDim2.new(0, 18, 1, -1),
+        BackgroundColor3 = COLOR.Divider,
+        BackgroundTransparency = 0.28,
+        BorderSizePixel = 0,
+        ZIndex = 31,
+    }, shopHeader)
+
+    create("TextLabel", {
+        Name = "GuideTitle",
+        AnchorPoint = Vector2.new(0.5, 0),
+        Size = UDim2.new(1, -48, 0, 38),
+        Position = UDim2.new(0.5, 0, 0, 88),
+        BackgroundTransparency = 1,
+        Text = "¿CÓMO ADQUIRIR EL FG100?",
+        Font = Enum.Font.Garamond,
+        TextSize = 28,
+        TextColor3 = COLOR.White,
+        TextStrokeColor3 = COLOR.White,
+        TextStrokeTransparency = 0.72,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        ZIndex = 32,
+    }, shopPage)
+
+    local guideSteps = {
+        "1. Unite al servidor de Discord.",
+        "2. Abrí un ticket solo si estás interesado en comprarlo.",
+        "3. Un helper te guiará para registrarte.",
+    }
+    for index, stepText in ipairs(guideSteps) do
+        create("TextLabel", {
+            Name = "GuideStep" .. index,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.new(1, -60, 0, 30),
+            Position = UDim2.new(0.5, 0, 0, 139 + ((index - 1) * 28)),
+            BackgroundTransparency = 1,
+            Text = stepText,
+            Font = Enum.Font.Garamond,
+            TextSize = 21,
+            TextColor3 = COLOR.Text,
+            TextStrokeColor3 = COLOR.Text,
+            TextStrokeTransparency = 0.8,
+            TextWrapped = true,
+            TextXAlignment = Enum.TextXAlignment.Center,
+            TextYAlignment = Enum.TextYAlignment.Center,
+            ZIndex = 32,
+        }, shopPage)
+    end
+
+    create("TextLabel", {
+        Name = "PricesTitle",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(1, -80, 0, 30),
+        Position = UDim2.new(0.5, 0, 0, 243),
+        BackgroundTransparency = 1,
+        Text = "PRECIOS:",
+        Font = Enum.Font.Garamond,
+        TextSize = 25,
+        TextColor3 = COLOR.White,
+        TextStrokeColor3 = COLOR.White,
+        TextStrokeTransparency = 0.76,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        ZIndex = 33,
+    }, shopPage)
+
+    local prices = { "5 USD", "500 ROBUX", "$3.500 ARS" }
+    for index, priceText in ipairs(prices) do
+        create("TextLabel", {
+            Name = "Price" .. index,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.new(1 / 3, -12, 0, 42),
+            Position = UDim2.new((index - 0.5) / 3, 0, 0, 281),
+            BackgroundTransparency = 1,
+            Text = priceText,
+            Font = Enum.Font.Garamond,
+            TextSize = 25,
+            TextColor3 = COLOR.White,
+            TextStrokeColor3 = COLOR.White,
+            TextStrokeTransparency = 0.78,
+            TextXAlignment = Enum.TextXAlignment.Center,
+            ZIndex = 33,
+        }, shopPage)
+    end
+    for index = 1, 2 do
+        create("Frame", {
+            Name = "PriceDivider" .. index,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.fromOffset(1, 34),
+            Position = UDim2.new(index / 3, 0, 0, 281),
+            BackgroundColor3 = COLOR.Divider,
+            BackgroundTransparency = 0.18,
+            BorderSizePixel = 0,
+            ZIndex = 33,
+        }, shopPage)
+    end
+
+    local shopDiscord = create("TextButton", {
+        Name = "Discord",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.fromOffset(84, 76),
+        Position = UDim2.new(0.5, 0, 0, 350),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        AutoButtonColor = false,
+        Text = "",
+        ZIndex = 33,
+    }, shopPage)
+    local shopDiscordIcon = drawDiscordLogo(shopDiscord, 64)
+    shopDiscordIcon.Position = UDim2.fromScale(0.5, 0.5)
+    shopDiscordIcon.ZIndex = 35
+
+    local shopStatus = create("TextLabel", {
+        Name = "Status",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(1, -80, 0, 32),
+        Position = UDim2.new(0.5, 0, 0, 395),
+        BackgroundTransparency = 1,
+        Text = "",
+        Font = Enum.Font.Garamond,
+        TextSize = 23,
+        TextColor3 = COLOR.Green,
+        TextTransparency = 1,
+        ZIndex = 34,
+    }, shopPage)
+
+    local backButton = create("TextButton", {
+        Name = "Back",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.fromOffset(172, 42),
+        Position = UDim2.new(0.5, 0, 1, -26),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        AutoButtonColor = false,
+        Text = "‹  VOLVER",
+        Font = Enum.Font.GothamBold,
+        TextSize = 23,
+        TextColor3 = COLOR.White,
+        ZIndex = 33,
+    }, shopPage)
+    local backStroke = stroke(backButton, COLOR.Divider, 1, 1)
+    local backScale = create("UIScale", { Scale = 1 }, backButton)
+
+    showLoaderStatus = function(text, color, duration)
+        if closing or not statusLabel.Parent then
+            return
+        end
+        statusSerial += 1
+        local serial = statusSerial
+        statusLabel.Text = text
+        statusLabel.TextColor3 = color or COLOR.Text
+        playTween(statusLabel, 0.16, { TextTransparency = 0 }, Enum.EasingStyle.Quart)
+        task.delay(duration or 2.4, function()
+            if serial ~= statusSerial or not statusLabel.Parent then
+                return
+            end
+            local fade = playTween(statusLabel, 0.22, { TextTransparency = 1 }, Enum.EasingStyle.Quart)
+            track(fade.Completed:Connect(function()
+                if serial == statusSerial and statusLabel.Parent then
+                    statusLabel.Text = ""
+                    statusLabel.TextTransparency = 1
+                end
+            end))
+            task.delay(0.25, function()
+                if serial == statusSerial and statusLabel.Parent then
+                    statusLabel.Text = ""
+                    statusLabel.TextTransparency = 1
+                end
+            end)
+        end)
+    end
+
+    local function showShopStatus(text)
+        shopStatusSerial += 1
+        local serial = shopStatusSerial
+        shopStatus.Text = text
+        playTween(shopStatus, 0.16, { TextTransparency = 0 }, Enum.EasingStyle.Quart)
+        task.delay(2, function()
+            if serial ~= shopStatusSerial or not shopStatus.Parent then
+                return
+            end
+            playTween(shopStatus, 0.2, { TextTransparency = 1 }, Enum.EasingStyle.Quart)
+            task.delay(0.22, function()
+                if serial == shopStatusSerial and shopStatus.Parent then
+                    shopStatus.Text = ""
+                    shopStatus.TextTransparency = 1
+                end
+            end)
+        end)
+    end
+
+    local function copyDiscord(fromShop)
+        local clipboard = rawget(Environment, "setclipboard")
+            or rawget(Environment, "toclipboard")
+            or rawget(_G, "setclipboard")
+            or rawget(_G, "toclipboard")
+        if type(clipboard) == "function" then
+            pcall(clipboard, DISCORD_URL)
+        end
+        if fromShop then
+            showShopStatus("Link copiado")
+        else
+            showLoaderStatus("Link copiado", COLOR.Green, 2)
+        end
+    end
+
+    local function copyYouTube()
+        local clipboard = rawget(Environment, "setclipboard")
+            or rawget(Environment, "toclipboard")
+            or rawget(_G, "setclipboard")
+            or rawget(_G, "toclipboard")
+        if type(clipboard) == "function" then
+            pcall(clipboard, YOUTUBE_URL)
+        end
+        showLoaderStatus("Link copiado", COLOR.Green, 2)
+    end
+
+    local function animateButton(button, buttonScale, callback, hoverScale)
+        track(button.MouseEnter:Connect(function()
+            if not closing then
+                playTween(buttonScale, 0.22, { Scale = hoverScale or 1.15 }, Enum.EasingStyle.Back)
+            end
+        end))
+        track(button.MouseLeave:Connect(function()
+            playTween(buttonScale, 0.2, { Scale = 1 }, Enum.EasingStyle.Quint)
+        end))
+        track(button.Activated:Connect(function()
+            if closing or transitioning then
+                return
+            end
+            playTween(buttonScale, 0.07, { Scale = 0.88 }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+            task.delay(0.07, function()
+                if buttonScale.Parent then
+                    playTween(buttonScale, 0.2, { Scale = hoverScale or 1.15 }, Enum.EasingStyle.Back)
+                end
+            end)
+            callback()
+        end))
+    end
+
+    local function setModuleHover(state, hovering)
+        state.hovered = hovering
+        if state.module.maintenance then
+            return
+        end
+        playTween(state.button, 0.26, {
+            BackgroundTransparency = hovering and 0.91 or 1,
+        }, Enum.EasingStyle.Quint)
+        playTween(state.visualScale, 0.32, {
+            Scale = hovering and 1.095 or 1,
+        }, hovering and Enum.EasingStyle.Back or Enum.EasingStyle.Quint)
+        playTween(state.icon, 0.26, {
+            ImageTransparency = hovering and 0 or 0.03,
+        }, Enum.EasingStyle.Quint)
+        playTween(state.name, 0.28, {
+            TextColor3 = hovering and COLOR.White or COLOR.Text,
+        }, Enum.EasingStyle.Quint)
+        playTween(state.dot, 0.28, {
+            Size = hovering and UDim2.fromOffset(13, 13) or UDim2.fromOffset(10, 10),
+        }, Enum.EasingStyle.Back)
+    end
+
+    local function pulseModule(state)
+        state.clickSerial += 1
+        local serial = state.clickSerial
+        playTween(state.visualScale, 0.08, { Scale = 0.94 }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+        task.delay(0.08, function()
+            if serial == state.clickSerial and state.visualScale.Parent then
+                playTween(state.visualScale, 0.24, {
+                    Scale = state.hovered and 1.095 or 1,
+                }, Enum.EasingStyle.Back)
+            end
+        end)
+    end
+
+    local function hasFG100LocalAccess()
+        if playerGui:FindFirstChild("FG100Hub") or playerGui:FindFirstChild("Young0xFG100Hub") then
+            return true
+        end
+        if Environment.Young0xFG100AccessDenied == true then
+            return false
+        end
+        if type(Environment.Young0xFG100) == "table" then
+            return true
+        end
+        local auth = Environment.Young0xFG100Auth
+        if type(auth) == "table" and auth.verified == true
+            and tostring(auth.userId) == tostring(player.UserId) then
+            return true
+        end
+        if type(Environment.Young0xFG100ActivationCode) == "string"
+            and #Environment.Young0xFG100ActivationCode >= 20
+            and (Environment.Young0xFG100ActivationUserId == nil
+                or tostring(Environment.Young0xFG100ActivationUserId) == tostring(player.UserId)) then
+            return true
+        end
+        if type(gethwid) == "function" then
+            local ok, hwid = pcall(gethwid)
+            if ok and type(hwid) == "string" and #hwid >= 8 then
+                local token = loadFG100DeviceToken(hwid)
+                return validFG100DeviceToken(token)
+            end
+        end
+        return false
+    end
+
+    local initialFG100Access = hasFG100LocalAccess()
+
+    for index, module in ipairs(MODULES) do
+        local maintenance = module.maintenance == true
+        if module.file == "000.lua" then
+            module.accent = initialFG100Access and COLOR.Green or COLOR.Error
+        end
+
+        local button = create("TextButton", {
+            Name = "Module_" .. index,
+            Size = UDim2.new(1 / moduleCount, 0, 1, 0),
+            Position = UDim2.new((index - 1) / moduleCount, 0, 0, 0),
+            BackgroundColor3 = COLOR.Hover,
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            AutoButtonColor = false,
+            Text = "",
+            ZIndex = 15,
+        }, moduleArea)
+
+        local visual = create("Frame", {
+            Name = "Visual",
+            AnchorPoint = Vector2.new(0.5, 0),
+            Size = UDim2.fromOffset(moduleVisualWidth, 224),
+            Position = UDim2.new(0.5, 0, 0, 2),
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            ZIndex = 18,
+        }, button)
+        local visualScale = create("UIScale", { Scale = 1 }, visual)
+
+        local icon = create("ImageLabel", {
+            Name = "Icon",
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.fromOffset(module.iconSize or 84, module.iconSize or 84),
+            Position = UDim2.new(0.5, 0, 0, module.iconY or 57),
+            BackgroundTransparency = 1,
+            Image = module.icon,
+            ImageColor3 = maintenance and COLOR.Disabled or COLOR.White,
+            ImageTransparency = maintenance and 0.26 or 0.03,
+            ScaleType = Enum.ScaleType.Fit,
+            ZIndex = 19,
+        }, visual)
+
+        local nameLabel = create("TextLabel", {
+            Name = "Name",
+            Size = UDim2.new(1, 0, 0, 42),
+            Position = UDim2.fromOffset(0, 158),
+            BackgroundTransparency = 1,
+            Text = module.name,
+            Font = Enum.Font.GothamBold,
+            TextSize = moduleNameSize,
+            TextColor3 = maintenance and COLOR.Disabled or COLOR.Text,
+            TextXAlignment = Enum.TextXAlignment.Center,
+            TextTruncate = Enum.TextTruncate.AtEnd,
+            ZIndex = 19,
+        }, visual)
+
+        local dot = create("Frame", {
+            Name = "StatusDot",
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.fromOffset(12, 12),
+            Position = UDim2.new(0.5, 0, 0, 214),
+            BackgroundColor3 = maintenance and COLOR.Disabled or module.accent,
+            BorderSizePixel = 0,
+            ZIndex = 19,
+        }, visual)
+        corner(dot, 99)
+
+        local state = {
+            module = module,
+            button = button,
+            visual = visual,
+            visualScale = visualScale,
+            icon = icon,
+            name = nameLabel,
+            dot = dot,
+            hovered = false,
+            clickSerial = 0,
+            offsetX = 0,
+            offsetY = 0,
+        }
+        moduleStates[index] = state
+
+        track(button.MouseEnter:Connect(function()
+            if not closing then
+                setModuleHover(state, true)
+            end
+        end))
+
+        track(button.MouseLeave:Connect(function()
+            setModuleHover(state, false)
+        end))
+
+        track(button.Activated:Connect(function()
+            if closing or launching or transitioning then
+                return
+            end
+            pulseModule(state)
+            if maintenance then
+                showLoaderStatus("Actualización en curso", COLOR.Subtext, 2.2)
+                return
+            end
+
+            if module.file == "000.lua" then
+                local existing = playerGui:FindFirstChild("FG100Hub")
+                    or playerGui:FindFirstChild("Young0xFG100Hub")
+                if existing then
+                    setFG100AccessVisual(true)
+                    closeOnly()
+                    return
+                end
+                launching = true
+                button.Active = false
+                showLoaderStatus("Cargando FG100...", COLOR.Text, 45)
+                task.spawn(function()
+                    local launched = runModule(module.file)
+                    launching = false
+                    if button.Parent then
+                        button.Active = true
+                    end
+                    if launched and gui.Parent then
+                        setFG100AccessVisual(true)
+                        destroyLoader()
+                    end
+                end)
+                return
+            end
+
+            launching = true
+            task.delay(0.12, function()
+                if gui.Parent then
+                    closeAndRun(module.file)
+                end
+            end)
+        end))
+    end
+
+    setFG100AccessVisual = function(hasAccess)
+        for _, state in ipairs(moduleStates) do
+            if state.module.file == "000.lua" then
+                local color = hasAccess and COLOR.Green or COLOR.Error
+                state.module.accent = color
+                playTween(state.dot, 0.24, { BackgroundColor3 = color }, Enum.EasingStyle.Quint)
+                break
+            end
+        end
+    end
+
+    local function exitAnimation(onComplete)
+        if closing then
+            return
+        end
+        closing = true
+        dragging = false
+        local exitTween = playTween(stage, 0.2, {
+            GroupTransparency = 1,
+            Position = UDim2.new(stage.Position.X.Scale, stage.Position.X.Offset, stage.Position.Y.Scale, stage.Position.Y.Offset + 18),
+        }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+        playTween(scale, 0.2, { Scale = scale.Scale * 0.93 }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+        track(exitTween.Completed:Connect(function()
+            destroyLoader()
+            if onComplete then
+                onComplete()
+            end
+        end))
+    end
+
+    closeOnly = function()
+        if launching then
+            return
+        end
+        exitAnimation()
+    end
+
+    closeAndRun = function(file)
+        exitAnimation(function()
+            runModule(file)
+        end)
+    end
+
+    local function showShop()
+        if closing or transitioning or launching then
+            return
+        end
+        transitioning = true
+        statusSerial += 1
+        shopStatus.Text = ""
+        shopStatus.TextTransparency = 1
+        playTween(loaderPage, 0.16, { GroupTransparency = 1 }, Enum.EasingStyle.Quart)
+        playTween(stage, 0.38, { Size = UDim2.fromOffset(SHOP_WIDTH, SHOP_HEIGHT) }, Enum.EasingStyle.Quint)
+        task.delay(0.16, function()
+            if not stage.Parent then return end
+            loaderPage.Visible = false
+            shopPage.Visible = true
+            shopPage.GroupTransparency = 1
+            playTween(shopPage, 0.24, { GroupTransparency = 0 }, Enum.EasingStyle.Quint)
+            currentWidth = SHOP_WIDTH
+            currentHeight = SHOP_HEIGHT
+            if updateScale then
+                updateScale(true)
+            end
+            task.delay(0.24, function()
+                transitioning = false
+            end)
+        end)
+    end
+
+    local function showLoader()
+        if closing or transitioning then
+            return
+        end
+        transitioning = true
+        shopStatusSerial += 1
+        shopStatus.Text = ""
+        shopStatus.TextTransparency = 1
+        playTween(shopPage, 0.16, { GroupTransparency = 1 }, Enum.EasingStyle.Quart)
+        playTween(stage, 0.38, { Size = UDim2.fromOffset(WIDTH, HEIGHT) }, Enum.EasingStyle.Quint)
+        task.delay(0.16, function()
+            if not stage.Parent then return end
+            shopPage.Visible = false
+            loaderPage.Visible = true
+            loaderPage.GroupTransparency = 1
+            playTween(loaderPage, 0.24, { GroupTransparency = 0 }, Enum.EasingStyle.Quint)
+            currentWidth = WIDTH
+            currentHeight = HEIGHT
+            if updateScale then
+                updateScale(true)
+            end
+            task.delay(0.24, function()
+                transitioning = false
+            end)
+        end)
+    end
+
+    animateButton(discordButton, discordScale, function()
+        copyDiscord(false)
+    end, 1.16)
+    animateButton(shopButton, shopScale, showShop, 1.16)
+    animateButton(youtubeButton, youtubeScale, copyYouTube, 1.16)
+    track(shopDiscord.Activated:Connect(function()
+        copyDiscord(true)
+    end))
+    animateButton(backButton, backScale, showLoader, 1.035)
+    track(backButton.MouseEnter:Connect(function()
+        if not closing then
+            playTween(backButton, 0.2, {
+                BackgroundTransparency = 1,
+                TextColor3 = COLOR.White,
+            }, Enum.EasingStyle.Quint)
+            playTween(backStroke, 0.2, { Transparency = 1 }, Enum.EasingStyle.Quint)
+        end
+    end))
+    track(backButton.MouseLeave:Connect(function()
+        playTween(backButton, 0.2, {
+            BackgroundTransparency = 1,
+            TextColor3 = COLOR.White,
+        }, Enum.EasingStyle.Quint)
+        playTween(backStroke, 0.2, { Transparency = 1 }, Enum.EasingStyle.Quint)
+    end))
+
+    local function bindClose(button, buttonScale)
+        track(button.MouseEnter:Connect(function()
+            if not closing then
+                playTween(buttonScale, 0.2, { Scale = 1.12 }, Enum.EasingStyle.Back)
+            end
+        end))
+        track(button.MouseLeave:Connect(function()
+            playTween(buttonScale, 0.18, { Scale = 1 }, Enum.EasingStyle.Quint)
+        end))
+        track(button.Activated:Connect(closeOnly))
+    end
+    bindClose(closeButton, closeScale)
+
+    local function bindDrag(dragHeader)
+        track(dragHeader.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragInput = input
+                dragStart = input.Position
+                dragOrigin = dragTarget
+                track(input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end))
+            end
+        end))
+    end
+    bindDrag(header)
+    bindDrag(titleButton)
+    bindDrag(shopHeader)
+    bindDrag(shopTitle)
+
+    track(UserInputService.InputChanged:Connect(function(input)
+        if dragging and not closing
+            and (input == dragInput or input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            dragTarget = UDim2.new(
+                dragOrigin.X.Scale,
+                dragOrigin.X.Offset + delta.X,
+                dragOrigin.Y.Scale,
+                dragOrigin.Y.Offset + delta.Y
+            )
+        end
+    end))
+
+    track(RunService.RenderStepped:Connect(function(deltaTime)
+        if not closing then
+            local dragAlpha = 1 - math.exp(-10 * math.min(deltaTime, 0.05))
+            stage.Position = stage.Position:Lerp(dragTarget, dragAlpha)
+        end
+
+        local pointer = UserInputService:GetMouseLocation()
+        for _, state in ipairs(moduleStates) do
+            local targetX = 0
+            local targetY = 0
+            if state.hovered and not state.module.maintenance and loaderPage.Visible then
+                local absolutePosition = state.button.AbsolutePosition
+                local absoluteSize = state.button.AbsoluteSize
+                if absoluteSize.X > 0 and absoluteSize.Y > 0 then
+                    local relativeX = math.clamp((pointer.X - absolutePosition.X) / absoluteSize.X - 0.5, -0.5, 0.5)
+                    local relativeY = math.clamp((pointer.Y - absolutePosition.Y) / absoluteSize.Y - 0.5, -0.5, 0.5)
+                    targetX = relativeX * 14
+                    targetY = relativeY * 10
+                end
+            end
+            local motionAlpha = 1 - math.exp(-13 * math.min(deltaTime, 0.05))
+            state.offsetX += (targetX - state.offsetX) * motionAlpha
+            state.offsetY += (targetY - state.offsetY) * motionAlpha
+            state.visual.Position = UDim2.new(0.5, state.offsetX, 0, 2 + state.offsetY)
+        end
+    end))
+
+    updateScale = function(animated)
+        camera = workspace.CurrentCamera or camera
+        if not camera then
+            return
+        end
+        local viewport = camera.ViewportSize
+        local mobile = clientUsesMobileLayout(viewport)
+        for _, state in ipairs(moduleStates) do
+            local iconSize = mobile
+                and (state.module.mobileIconSize or state.module.iconSize or 84)
+                or (state.module.iconSize or 84)
+            local iconY = mobile
+                and (state.module.mobileIconY or state.module.iconY or 57)
+                or (state.module.iconY or 57)
+            state.icon.Size = UDim2.fromOffset(iconSize, iconSize)
+            state.icon.Position = UDim2.new(0.5, 0, 0, iconY)
+        end
+        local compactDesktop = not mobile
+            and (viewport.X <= 1100 or viewport.Y <= 650)
+        local horizontalPadding
+        local verticalPadding
+        local maximumScale
+        local minimumScale
+
+        if mobile then
+            horizontalPadding = math.max(52, viewport.X * 0.18)
+            verticalPadding = math.max(92, viewport.Y * 0.32)
+            maximumScale = MOBILE_MAX_SCALE
+            minimumScale = 0.22
+        elseif compactDesktop then
+            horizontalPadding = 28
+            verticalPadding = 40
+            maximumScale = COMPACT_DESKTOP_MAX_SCALE
+            minimumScale = 0.30
+        else
+            horizontalPadding = 34
+            verticalPadding = 46
+            maximumScale = DESKTOP_MAX_SCALE
+            minimumScale = 0.30
+        end
+
+        local availableWidth = math.max(viewport.X - horizontalPadding, 1)
+        local availableHeight = math.max(viewport.Y - verticalPadding, 1)
+        local fittedScale = math.min(
+            availableWidth / currentWidth,
+            availableHeight / currentHeight,
+            maximumScale
+        )
+        local targetScale = math.max(fittedScale, minimumScale)
+        if animated then
+            playTween(scale, 0.3, { Scale = targetScale }, Enum.EasingStyle.Quint)
+        else
+            scale.Scale = targetScale
+        end
+    end
+
+    local function applyTypography(object)
+        if object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox") then
+            object.Font = Enum.Font.Garamond
+        end
+    end
+    for _, object in ipairs(gui:GetDescendants()) do
+        applyTypography(object)
+    end
+    track(gui.DescendantAdded:Connect(applyTypography))
+
+    updateScale()
+    if camera then
+        track(camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateScale))
+    end
+    track(workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+        camera = workspace.CurrentCamera
+        updateScale()
+    end))
+
+    local finalScale = scale.Scale
+    scale.Scale = finalScale * 0.93
+    playTween(stage, 0.3, { GroupTransparency = 0 }, Enum.EasingStyle.Quint)
+    playTween(scale, 0.36, { Scale = finalScale }, Enum.EasingStyle.Back)
+
+    if not PREVIEW_MODE then
+        local resume = Environment.Young0xFG100Resume
+        local resumeFile = type(resume) == "table" and resume.script or nil
+        for _, state in ipairs(moduleStates) do
+            if state.module.file == resumeFile and not state.module.maintenance then
+                task.delay(0.45, function()
+                    if not closing and not launching and state.button.Parent then
+                        state.button:Activate()
+                    end
+                end)
+                break
+            end
+        end
+    end
+
+    return
+end
