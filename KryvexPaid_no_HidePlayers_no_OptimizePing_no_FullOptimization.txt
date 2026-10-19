@@ -4,7 +4,7 @@ local LocalPlayer = Players.LocalPlayer
 
 -- BURAYA Pastebin'in "RAW" (Ham) linkini yapıştırın
 -- Örnek: "https://pastebin.com/raw/abcdef12"
-local pastebinUrl = "https://pastebin.com/raw/h9vu11sE"
+local pastebinUrl = "https://pastebin.com/raw/pbkBFCQt"
 
 -- Pastebin'den veriyi güvenli bir şekilde çekelim
 local success, result = pcall(function()
