@@ -35,7 +35,7 @@ print("✅ Whitelist onaylandı!")
 -- ═══════════════════════════════════════════
 -- NOT: Library 2.txt içeriğini bir yere yükleyip raw linkini buraya koyun
 -- Veya executor'da readfile("Library 2.txt") kullanın
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/Library%202.lua", true))()
+local library = loadstring(game:HttpGet("https://github.com/WozzyOnTop/Script-denemesi/raw/refs/heads/main/Library%202.txt", true))()
 -- Alternatif: local library = loadstring(readfile("Library 2.txt"))()
 
 local displayName = game.Players.LocalPlayer.DisplayName
