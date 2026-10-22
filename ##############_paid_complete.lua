@@ -54,7 +54,7 @@ background = {
 },
 background_transparency = 0.1,
 main_color = Color3.fromRGB(175, 20, 230), -- Açık canlı mor
-min_size = Vector2.new(420, 350),
+min_size = Vector2.new(500, 350),
 can_resize = true
 })
 
