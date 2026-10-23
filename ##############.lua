@@ -364,8 +364,6 @@ end)
 --==================================================
 -- FAST STRENGTH
 --==================================================
-
-tabStrength:AddLabel("————————————————")
 tabStrength:AddLabel("💪 Fast Strength").TextSize = 21
 
 tabs.strength.leaderstats = lp.player:WaitForChild("leaderstats")
