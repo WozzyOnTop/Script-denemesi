@@ -1,0 +1,2433 @@
+-- By WozzyLaco TheDevZig [ https://discord.gg/RZXKb2Uzq ]
+
+local connection = game.Destroying:Connect(function(arg)
+end)
+connection:Disconnect()
+local connection2 = workspace.Destroying:Connect(function(arg2)
+end)
+connection2:Disconnect()
+local Folder = Instance.new("Folder")
+local connection3 = Folder.Destroying:Connect(function(arg3)
+end)
+connection3:Disconnect()
+Folder:GetChildren()
+Folder:Destroy()
+local Folder2 = Instance.new("Folder", Folder)
+local connection4 = Folder2.Destroying:Connect(function(arg4)
+end)
+connection4:Disconnect()
+Folder2.Name = "1011980144"
+Folder:WaitForChild("1011980144")
+Folder:Destroy()
+Folder2:Destroy()
+local HttpService = game:GetService("HttpService")
+local connection5 = HttpService.Destroying:Connect(function(arg5)
+end)
+connection5:Disconnect()
+local RunService = game:GetService("RunService")
+local connection6 = RunService.Destroying:Connect(function(arg6)
+end)
+connection6:Disconnect()
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local hui = gethui()
+local ScreenGui2 = Instance.new("ScreenGui")
+ScreenGui2.IgnoreGuiInset = true
+ScreenGui2.Name = "KeySystemGui"
+ScreenGui2.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui2.Parent = hui
+local Frame2 = Instance.new("Frame")
+Frame2.BackgroundTransparency = 0.1
+Frame2.Position = UDim2.new(0, 0, 0, 0)
+Frame2.Name = "BlurBackground"
+Frame2.Size = UDim2.new(1, 0, 1, 0)
+Frame2.BorderSizePixel = 0
+Frame2.BackgroundColor3 = Color3.fromRGB(20, 10, 35)
+Frame2.Parent = ScreenGui2
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(135, 0, 0)), ColorSequenceKeypoint.new(0.3, Color3.fromRGB(116, 0, 0)), ColorSequenceKeypoint.new(0.7, Color3.fromRGB(103, 0, 0)), ColorSequenceKeypoint.new(1, Color3.fromRGB(85, 0, 0)) })
+UIGradient.Rotation = 45
+UIGradient.Parent = Frame2
+local tween = TweenService:Create(UIGradient, TweenInfo.new(8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Rotation = 225 })
+tween:Play()
+local Frame3 = Instance.new("Frame")
+Frame3.BackgroundTransparency = 0.71
+Frame3.Position = UDim2.new(0.88, 0, 0.07, 0)
+Frame3.Name = "Particle1"
+Frame3.Size = UDim2.new(0, 3, 0, 3)
+Frame3.BorderSizePixel = 0
+Frame3.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame3.Parent = Frame2
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0)
+UICorner.Parent = Frame3
+local Frame4 = Instance.new("Frame")
+Frame4.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame4.BackgroundTransparency = 0.9
+Frame4.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame4.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame4.ZIndex = -1
+Frame4.BorderSizePixel = 0
+Frame4.Size = UDim2.new(1, 4, 1, 4)
+Frame4.Parent = Frame3
+local UICorner2 = Instance.new("UICorner")
+UICorner2.CornerRadius = UDim.new(1, 0)
+UICorner2.Parent = Frame4
+local tween2 = TweenService:Create(Frame4, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween2:Play()
+local tween3 = TweenService:Create(Frame3, TweenInfo.new(12, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.72, Position = UDim2.new(0.5, 0, 0.54, 0), Rotation = -180 })
+tween3:Play()
+local Frame5 = Instance.new("Frame")
+Frame5.BackgroundTransparency = 0.9
+Frame5.Position = UDim2.new(0.18, 0, 0.76, 0)
+Frame5.Name = "Particle2"
+Frame5.Size = UDim2.new(0, 4, 0, 4)
+Frame5.BorderSizePixel = 0
+Frame5.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame5.Parent = Frame2
+local UICorner3 = Instance.new("UICorner")
+UICorner3.CornerRadius = UDim.new(1, 0)
+UICorner3.Parent = Frame5
+local Frame6 = Instance.new("Frame")
+Frame6.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame6.BackgroundTransparency = 0.9
+Frame6.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame6.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame6.ZIndex = -1
+Frame6.BorderSizePixel = 0
+Frame6.Size = UDim2.new(1, 4, 1, 4)
+Frame6.Parent = Frame5
+local UICorner4 = Instance.new("UICorner")
+UICorner4.CornerRadius = UDim.new(1, 0)
+UICorner4.Parent = Frame6
+local tween4 = TweenService:Create(Frame6, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween4:Play()
+local tween5 = TweenService:Create(Frame5, TweenInfo.new(23, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.45, Position = UDim2.new(0.56, 0, 0.88, 0), Rotation = -168 })
+tween5:Play()
+local Frame7 = Instance.new("Frame")
+Frame7.BackgroundTransparency = 0.75
+Frame7.Position = UDim2.new(0.14, 0, 0.17, 0)
+Frame7.Name = "Particle3"
+Frame7.Size = UDim2.new(0, 3, 0, 3)
+Frame7.BorderSizePixel = 0
+Frame7.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame7.Parent = Frame2
+local UICorner5 = Instance.new("UICorner")
+UICorner5.CornerRadius = UDim.new(1, 0)
+UICorner5.Parent = Frame7
+local Frame8 = Instance.new("Frame")
+Frame8.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame8.BackgroundTransparency = 0.9
+Frame8.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame8.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame8.ZIndex = -1
+Frame8.BorderSizePixel = 0
+Frame8.Size = UDim2.new(1, 4, 1, 4)
+Frame8.Parent = Frame7
+local UICorner6 = Instance.new("UICorner")
+UICorner6.CornerRadius = UDim.new(1, 0)
+UICorner6.Parent = Frame8
+local tween6 = TweenService:Create(Frame8, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween6:Play()
+local tween7 = TweenService:Create(Frame7, TweenInfo.new(13, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.45, Position = UDim2.new(0.92, 0, 0.88, 0), Rotation = 103 })
+tween7:Play()
+local Frame9 = Instance.new("Frame")
+Frame9.BackgroundTransparency = 0.72
+Frame9.Position = UDim2.new(0.54, 0, 0.58, 0)
+Frame9.Name = "Particle4"
+Frame9.Size = UDim2.new(0, 5, 0, 5)
+Frame9.BorderSizePixel = 0
+Frame9.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame9.Parent = Frame2
+local UICorner7 = Instance.new("UICorner")
+UICorner7.CornerRadius = UDim.new(1, 0)
+UICorner7.Parent = Frame9
+local Frame10 = Instance.new("Frame")
+Frame10.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame10.BackgroundTransparency = 0.9
+Frame10.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame10.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame10.ZIndex = -1
+Frame10.BorderSizePixel = 0
+Frame10.Size = UDim2.new(1, 4, 1, 4)
+Frame10.Parent = Frame9
+local UICorner8 = Instance.new("UICorner")
+UICorner8.CornerRadius = UDim.new(1, 0)
+UICorner8.Parent = Frame10
+local tween8 = TweenService:Create(Frame10, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween8:Play()
+local tween9 = TweenService:Create(Frame9, TweenInfo.new(14, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.42, Position = UDim2.new(0.26, 0, 0.32, 0), Rotation = 162 })
+tween9:Play()
+local Frame11 = Instance.new("Frame")
+Frame11.BackgroundTransparency = 0.89
+Frame11.Position = UDim2.new(0.77, 0, 0.35, 0)
+Frame11.Name = "Particle5"
+Frame11.Size = UDim2.new(0, 6, 0, 6)
+Frame11.BorderSizePixel = 0
+Frame11.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame11.Parent = Frame2
+local UICorner9 = Instance.new("UICorner")
+UICorner9.CornerRadius = UDim.new(1, 0)
+UICorner9.Parent = Frame11
+local Frame12 = Instance.new("Frame")
+Frame12.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame12.BackgroundTransparency = 0.9
+Frame12.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame12.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame12.ZIndex = -1
+Frame12.BorderSizePixel = 0
+Frame12.Size = UDim2.new(1, 4, 1, 4)
+Frame12.Parent = Frame11
+local UICorner10 = Instance.new("UICorner")
+UICorner10.CornerRadius = UDim.new(1, 0)
+UICorner10.Parent = Frame12
+local tween10 = TweenService:Create(Frame12, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween10:Play()
+local tween11 = TweenService:Create(Frame11, TweenInfo.new(25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.9, Position = UDim2.new(0.8, 0, 0.04, 0), Rotation = 13 })
+tween11:Play()
+local Frame13 = Instance.new("Frame")
+Frame13.BackgroundTransparency = 0.88
+Frame13.Position = UDim2.new(0.99, 0, 0.07, 0)
+Frame13.Name = "Particle6"
+Frame13.Size = UDim2.new(0, 4, 0, 4)
+Frame13.BorderSizePixel = 0
+Frame13.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame13.Parent = Frame2
+local UICorner11 = Instance.new("UICorner")
+UICorner11.CornerRadius = UDim.new(1, 0)
+UICorner11.Parent = Frame13
+local Frame14 = Instance.new("Frame")
+Frame14.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame14.BackgroundTransparency = 0.9
+Frame14.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame14.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame14.ZIndex = -1
+Frame14.BorderSizePixel = 0
+Frame14.Size = UDim2.new(1, 4, 1, 4)
+Frame14.Parent = Frame13
+local UICorner12 = Instance.new("UICorner")
+UICorner12.CornerRadius = UDim.new(1, 0)
+UICorner12.Parent = Frame14
+local tween12 = TweenService:Create(Frame14, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween12:Play()
+local tween13 = TweenService:Create(Frame13, TweenInfo.new(24, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.86, Position = UDim2.new(0.6, 0, 0.01, 0), Rotation = -158 })
+tween13:Play()
+local Frame15 = Instance.new("Frame")
+Frame15.BackgroundTransparency = 0.8
+Frame15.Position = UDim2.new(0.58, 0, 0.96, 0)
+Frame15.Name = "Particle7"
+Frame15.Size = UDim2.new(0, 2, 0, 2)
+Frame15.BorderSizePixel = 0
+Frame15.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame15.Parent = Frame2
+local UICorner13 = Instance.new("UICorner")
+UICorner13.CornerRadius = UDim.new(1, 0)
+UICorner13.Parent = Frame15
+local Frame16 = Instance.new("Frame")
+Frame16.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame16.BackgroundTransparency = 0.9
+Frame16.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame16.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame16.ZIndex = -1
+Frame16.BorderSizePixel = 0
+Frame16.Size = UDim2.new(1, 4, 1, 4)
+Frame16.Parent = Frame15
+local UICorner14 = Instance.new("UICorner")
+UICorner14.CornerRadius = UDim.new(1, 0)
+UICorner14.Parent = Frame16
+local tween14 = TweenService:Create(Frame16, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween14:Play()
+local tween15 = TweenService:Create(Frame15, TweenInfo.new(27, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.77, Position = UDim2.new(0.98, 0, 0.46, 0), Rotation = -125 })
+tween15:Play()
+local Frame17 = Instance.new("Frame")
+Frame17.BackgroundTransparency = 0.87
+Frame17.Position = UDim2.new(0.58, 0, 0.25, 0)
+Frame17.Name = "Particle8"
+Frame17.Size = UDim2.new(0, 2, 0, 2)
+Frame17.BorderSizePixel = 0
+Frame17.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame17.Parent = Frame2
+local UICorner15 = Instance.new("UICorner")
+UICorner15.CornerRadius = UDim.new(1, 0)
+UICorner15.Parent = Frame17
+local Frame18 = Instance.new("Frame")
+Frame18.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame18.BackgroundTransparency = 0.9
+Frame18.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame18.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame18.ZIndex = -1
+Frame18.BorderSizePixel = 0
+Frame18.Size = UDim2.new(1, 4, 1, 4)
+Frame18.Parent = Frame17
+local UICorner16 = Instance.new("UICorner")
+UICorner16.CornerRadius = UDim.new(1, 0)
+UICorner16.Parent = Frame18
+local tween16 = TweenService:Create(Frame18, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween16:Play()
+local tween17 = TweenService:Create(Frame17, TweenInfo.new(14, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.59, Position = UDim2.new(0.64, 0, 0.6, 0), Rotation = -39 })
+tween17:Play()
+local Frame19 = Instance.new("Frame")
+Frame19.BackgroundTransparency = 0.8
+Frame19.Position = UDim2.new(0.71, 0, 0.54, 0)
+Frame19.Name = "Particle9"
+Frame19.Size = UDim2.new(0, 4, 0, 4)
+Frame19.BorderSizePixel = 0
+Frame19.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame19.Parent = Frame2
+local UICorner17 = Instance.new("UICorner")
+UICorner17.CornerRadius = UDim.new(1, 0)
+UICorner17.Parent = Frame19
+local Frame20 = Instance.new("Frame")
+Frame20.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame20.BackgroundTransparency = 0.9
+Frame20.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame20.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame20.ZIndex = -1
+Frame20.BorderSizePixel = 0
+Frame20.Size = UDim2.new(1, 4, 1, 4)
+Frame20.Parent = Frame19
+local UICorner18 = Instance.new("UICorner")
+UICorner18.CornerRadius = UDim.new(1, 0)
+UICorner18.Parent = Frame20
+local tween18 = TweenService:Create(Frame20, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween18:Play()
+local tween19 = TweenService:Create(Frame19, TweenInfo.new(26, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.94, Position = UDim2.new(0.47, 0, 0.84, 0), Rotation = -33 })
+tween19:Play()
+local Frame21 = Instance.new("Frame")
+Frame21.BackgroundTransparency = 0.76
+Frame21.Position = UDim2.new(0.43, 0, 0.78, 0)
+Frame21.Name = "Particle10"
+Frame21.Size = UDim2.new(0, 4, 0, 4)
+Frame21.BorderSizePixel = 0
+Frame21.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame21.Parent = Frame2
+local UICorner19 = Instance.new("UICorner")
+UICorner19.CornerRadius = UDim.new(1, 0)
+UICorner19.Parent = Frame21
+local Frame22 = Instance.new("Frame")
+Frame22.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame22.BackgroundTransparency = 0.9
+Frame22.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame22.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame22.ZIndex = -1
+Frame22.BorderSizePixel = 0
+Frame22.Size = UDim2.new(1, 4, 1, 4)
+Frame22.Parent = Frame21
+local UICorner20 = Instance.new("UICorner")
+UICorner20.CornerRadius = UDim.new(1, 0)
+UICorner20.Parent = Frame22
+local tween20 = TweenService:Create(Frame22, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 8, 1, 8) })
+tween20:Play()
+local tween21 = TweenService:Create(Frame21, TweenInfo.new(20, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.5, Position = UDim2.new(0.14, 0, 0.17, 0), Rotation = -157 })
+tween21:Play()
+local Frame23 = Instance.new("Frame")
+Frame23.BackgroundTransparency = 0.76
+Frame23.Position = UDim2.new(0.87, 0, 0.18, 0)
+Frame23.Name = "Particle11"
+Frame23.Size = UDim2.new(0, 5, 0, 5)
+Frame23.BorderSizePixel = 0
+Frame23.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame23.Parent = Frame2
+local UICorner21 = Instance.new("UICorner")
+UICorner21.CornerRadius = UDim.new(1, 0)
+UICorner21.Parent = Frame23
+local tween22 = TweenService:Create(Frame23, TweenInfo.new(12, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.91, Position = UDim2.new(0.52, 0, 0.61, 0), Rotation = 117 })
+tween22:Play()
+local Frame24 = Instance.new("Frame")
+Frame24.BackgroundTransparency = 0.85
+Frame24.Position = UDim2.new(0.99, 0, 0.96, 0)
+Frame24.Name = "Particle12"
+Frame24.Size = UDim2.new(0, 3, 0, 3)
+Frame24.BorderSizePixel = 0
+Frame24.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame24.Parent = Frame2
+local UICorner22 = Instance.new("UICorner")
+UICorner22.CornerRadius = UDim.new(1, 0)
+UICorner22.Parent = Frame24
+local tween23 = TweenService:Create(Frame24, TweenInfo.new(25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.49, Position = UDim2.new(0.92, 0, 0.03, 0), Rotation = -57 })
+tween23:Play()
+local Frame25 = Instance.new("Frame")
+Frame25.BackgroundTransparency = 0.77
+Frame25.Position = UDim2.new(0.57, 0, 0.31, 0)
+Frame25.Name = "Particle13"
+Frame25.Size = UDim2.new(0, 6, 0, 6)
+Frame25.BorderSizePixel = 0
+Frame25.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame25.Parent = Frame2
+local UICorner23 = Instance.new("UICorner")
+UICorner23.CornerRadius = UDim.new(1, 0)
+UICorner23.Parent = Frame25
+local tween24 = TweenService:Create(Frame25, TweenInfo.new(12, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.77, Position = UDim2.new(0.56, 0, 0.84, 0), Rotation = -153 })
+tween24:Play()
+local Frame26 = Instance.new("Frame")
+Frame26.BackgroundTransparency = 0.81
+Frame26.Position = UDim2.new(0.52, 0, 0.67, 0)
+Frame26.Name = "Particle14"
+Frame26.Size = UDim2.new(0, 3, 0, 3)
+Frame26.BorderSizePixel = 0
+Frame26.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame26.Parent = Frame2
+local UICorner24 = Instance.new("UICorner")
+UICorner24.CornerRadius = UDim.new(1, 0)
+UICorner24.Parent = Frame26
+local tween25 = TweenService:Create(Frame26, TweenInfo.new(23, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.59, Position = UDim2.new(0.5, 0, 0.74, 0), Rotation = -148 })
+tween25:Play()
+local Frame27 = Instance.new("Frame")
+Frame27.BackgroundTransparency = 0.83
+Frame27.Position = UDim2.new(0.42, 0, 0.35, 0)
+Frame27.Name = "Particle15"
+Frame27.Size = UDim2.new(0, 4, 0, 4)
+Frame27.BorderSizePixel = 0
+Frame27.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame27.Parent = Frame2
+local UICorner25 = Instance.new("UICorner")
+UICorner25.CornerRadius = UDim.new(1, 0)
+UICorner25.Parent = Frame27
+local tween26 = TweenService:Create(Frame27, TweenInfo.new(26, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.79, Position = UDim2.new(0.69, 0, 0.15, 0), Rotation = 61 })
+tween26:Play()
+local Frame28 = Instance.new("Frame")
+Frame28.BackgroundTransparency = 0.8
+Frame28.Position = UDim2.new(0.05, 0, 0.99, 0)
+Frame28.Name = "Particle16"
+Frame28.Size = UDim2.new(0, 5, 0, 5)
+Frame28.BorderSizePixel = 0
+Frame28.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame28.Parent = Frame2
+local UICorner26 = Instance.new("UICorner")
+UICorner26.CornerRadius = UDim.new(1, 0)
+UICorner26.Parent = Frame28
+local tween27 = TweenService:Create(Frame28, TweenInfo.new(14, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.4, Position = UDim2.new(0.78, 0, 0.38, 0), Rotation = 176 })
+tween27:Play()
+local Frame29 = Instance.new("Frame")
+Frame29.BackgroundTransparency = 0.78
+Frame29.Position = UDim2.new(0.35, 0, 0.55, 0)
+Frame29.Name = "Particle17"
+Frame29.Size = UDim2.new(0, 1, 0, 1)
+Frame29.BorderSizePixel = 0
+Frame29.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame29.Parent = Frame2
+local UICorner27 = Instance.new("UICorner")
+UICorner27.CornerRadius = UDim.new(1, 0)
+UICorner27.Parent = Frame29
+local tween28 = TweenService:Create(Frame29, TweenInfo.new(12, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.94, Position = UDim2.new(0.47, 0, 0.49, 0), Rotation = 22 })
+tween28:Play()
+local Frame30 = Instance.new("Frame")
+Frame30.BackgroundTransparency = 0.78
+Frame30.Position = UDim2.new(0.35, 0, 0.74, 0)
+Frame30.Name = "Particle18"
+Frame30.Size = UDim2.new(0, 3, 0, 3)
+Frame30.BorderSizePixel = 0
+Frame30.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame30.Parent = Frame2
+local UICorner28 = Instance.new("UICorner")
+UICorner28.CornerRadius = UDim.new(1, 0)
+UICorner28.Parent = Frame30
+local tween29 = TweenService:Create(Frame30, TweenInfo.new(13, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.86, Position = UDim2.new(0.12, 0, 0.21, 0), Rotation = -116 })
+tween29:Play()
+local Frame31 = Instance.new("Frame")
+Frame31.BackgroundTransparency = 0.86
+Frame31.Position = UDim2.new(0.84, 0, 0.16, 0)
+Frame31.Name = "Particle19"
+Frame31.Size = UDim2.new(0, 3, 0, 3)
+Frame31.BorderSizePixel = 0
+Frame31.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame31.Parent = Frame2
+local UICorner29 = Instance.new("UICorner")
+UICorner29.CornerRadius = UDim.new(1, 0)
+UICorner29.Parent = Frame31
+local tween30 = TweenService:Create(Frame31, TweenInfo.new(13, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.83, Position = UDim2.new(0.73, 0, 0.78, 0), Rotation = 165 })
+tween30:Play()
+local Frame32 = Instance.new("Frame")
+Frame32.BackgroundTransparency = 0.86
+Frame32.Position = UDim2.new(0.14, 0, 0.24, 0)
+Frame32.Name = "Particle20"
+Frame32.Size = UDim2.new(0, 1, 0, 1)
+Frame32.BorderSizePixel = 0
+Frame32.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame32.Parent = Frame2
+local UICorner30 = Instance.new("UICorner")
+UICorner30.CornerRadius = UDim.new(1, 0)
+UICorner30.Parent = Frame32
+local tween31 = TweenService:Create(Frame32, TweenInfo.new(27, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.47, Position = UDim2.new(0.48, 0, 0.92, 0), Rotation = -78 })
+tween31:Play()
+local Frame33 = Instance.new("Frame")
+Frame33.BackgroundTransparency = 0.88
+Frame33.Position = UDim2.new(0.58, 0, 0.16, 0)
+Frame33.Name = "Particle21"
+Frame33.Size = UDim2.new(0, 2, 0, 2)
+Frame33.BorderSizePixel = 0
+Frame33.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame33.Parent = Frame2
+local UICorner31 = Instance.new("UICorner")
+UICorner31.CornerRadius = UDim.new(1, 0)
+UICorner31.Parent = Frame33
+local tween32 = TweenService:Create(Frame33, TweenInfo.new(11, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.63, Position = UDim2.new(0.49, 0, 0.19, 0), Rotation = 3 })
+tween32:Play()
+local Frame34 = Instance.new("Frame")
+Frame34.BackgroundTransparency = 0.71
+Frame34.Position = UDim2.new(0.91, 0, 0.36, 0)
+Frame34.Name = "Particle22"
+Frame34.Size = UDim2.new(0, 6, 0, 6)
+Frame34.BorderSizePixel = 0
+Frame34.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame34.Parent = Frame2
+local UICorner32 = Instance.new("UICorner")
+UICorner32.CornerRadius = UDim.new(1, 0)
+UICorner32.Parent = Frame34
+local tween33 = TweenService:Create(Frame34, TweenInfo.new(16, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.87, Position = UDim2.new(1, 0, 0.46, 0), Rotation = -36 })
+tween33:Play()
+local Frame35 = Instance.new("Frame")
+Frame35.BackgroundTransparency = 0.86
+Frame35.Position = UDim2.new(0.26, 0, 0.19, 0)
+Frame35.Name = "Particle23"
+Frame35.Size = UDim2.new(0, 4, 0, 4)
+Frame35.BorderSizePixel = 0
+Frame35.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame35.Parent = Frame2
+local UICorner33 = Instance.new("UICorner")
+UICorner33.CornerRadius = UDim.new(1, 0)
+UICorner33.Parent = Frame35
+local tween34 = TweenService:Create(Frame35, TweenInfo.new(25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.52, Position = UDim2.new(0.13, 0, 0.54, 0), Rotation = 58 })
+tween34:Play()
+local Frame36 = Instance.new("Frame")
+Frame36.BackgroundTransparency = 0.76
+Frame36.Position = UDim2.new(0.23, 0, 0.18, 0)
+Frame36.Name = "Particle24"
+Frame36.Size = UDim2.new(0, 3, 0, 3)
+Frame36.BorderSizePixel = 0
+Frame36.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame36.Parent = Frame2
+local UICorner34 = Instance.new("UICorner")
+UICorner34.CornerRadius = UDim.new(1, 0)
+UICorner34.Parent = Frame36
+local tween35 = TweenService:Create(Frame36, TweenInfo.new(25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.85, Position = UDim2.new(0.9, 0, 0.41, 0), Rotation = -47 })
+tween35:Play()
+local Frame37 = Instance.new("Frame")
+Frame37.BackgroundTransparency = 0.78
+Frame37.Position = UDim2.new(0.29, 0, 0.98, 0)
+Frame37.Name = "Particle25"
+Frame37.Size = UDim2.new(0, 1, 0, 1)
+Frame37.BorderSizePixel = 0
+Frame37.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame37.Parent = Frame2
+local UICorner35 = Instance.new("UICorner")
+UICorner35.CornerRadius = UDim.new(1, 0)
+UICorner35.Parent = Frame37
+local tween36 = TweenService:Create(Frame37, TweenInfo.new(17, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.52, Position = UDim2.new(0.09, 0, 0.12, 0), Rotation = 178 })
+tween36:Play()
+local Frame38 = Instance.new("Frame")
+Frame38.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame38.BackgroundTransparency = 0
+Frame38.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame38.Name = "KeyContainer"
+Frame38.Size = UDim2.new(0, 340, 0, 310)
+Frame38.BorderSizePixel = 0
+Frame38.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame38.Parent = Frame2
+local UICorner36 = Instance.new("UICorner")
+UICorner36.CornerRadius = UDim.new(0, 18)
+UICorner36.Parent = Frame38
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Thickness = 2.5
+UIStroke.Transparency = 0.2
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke.Color = Color3.fromRGB(221, 0, 0)
+UIStroke.Parent = Frame38
+local Frame39 = Instance.new("Frame")
+Frame39.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame39.BackgroundTransparency = 0.85000000000000009
+Frame39.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame39.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+Frame39.ZIndex = -1
+Frame39.BorderSizePixel = 0
+Frame39.Size = UDim2.new(1, 12, 1, 12)
+Frame39.Parent = Frame2
+local UICorner37 = Instance.new("UICorner")
+UICorner37.CornerRadius = UDim.new(0, 24)
+UICorner37.Parent = Frame39
+local tween37 = TweenService:Create(Frame39, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 20, 1, 20) })
+tween37:Play()
+local Frame40 = Instance.new("Frame")
+Frame40.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame40.BackgroundTransparency = 0.9
+Frame40.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame40.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame40.ZIndex = -2
+Frame40.BorderSizePixel = 0
+Frame40.Size = UDim2.new(1, 16, 1, 16)
+Frame40.Parent = Frame2
+local UICorner38 = Instance.new("UICorner")
+UICorner38.CornerRadius = UDim.new(0, 26)
+UICorner38.Parent = Frame40
+local tween38 = TweenService:Create(Frame40, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 24, 1, 24) })
+tween38:Play()
+local Frame41 = Instance.new("Frame")
+Frame41.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame41.BackgroundTransparency = 0.95000000000000007
+Frame41.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame41.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame41.ZIndex = -3
+Frame41.BorderSizePixel = 0
+Frame41.Size = UDim2.new(1, 20, 1, 20)
+Frame41.Parent = Frame2
+local UICorner39 = Instance.new("UICorner")
+UICorner39.CornerRadius = UDim.new(0, 28)
+UICorner39.Parent = Frame41
+local tween39 = TweenService:Create(Frame41, TweenInfo.new(5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.95, Size = UDim2.new(1, 28, 1, 28) })
+tween39:Play()
+local TextButton = Instance.new("TextButton")
+TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextButton.Text = "×"
+TextButton.Name = "CloseButton"
+TextButton.Font = Enum.Font.GothamBold
+TextButton.BackgroundTransparency = 0.1
+TextButton.Position = UDim2.new(1, -35, 0, 8)
+TextButton.Size = UDim2.new(0, 28, 0, 28)
+TextButton.BorderSizePixel = 0
+TextButton.TextSize = 22
+TextButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+TextButton.Parent = Frame38
+local UICorner40 = Instance.new("UICorner")
+UICorner40.CornerRadius = UDim.new(0, 8)
+UICorner40.Parent = TextButton
+local Frame42 = Instance.new("Frame")
+Frame42.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame42.BackgroundTransparency = 0.9
+Frame42.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame42.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Frame42.ZIndex = -1
+Frame42.BorderSizePixel = 0
+Frame42.Size = UDim2.new(1, 6, 1, 6)
+Frame42.Parent = TextButton
+local UICorner41 = Instance.new("UICorner")
+UICorner41.CornerRadius = UDim.new(0, 12)
+UICorner41.Parent = Frame42
+local TextLabel = Instance.new("TextLabel")
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)
+TextLabel.Text = ""
+TextLabel.TextStrokeTransparency = 0.3
+TextLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+TextLabel.Font = Enum.Font.GothamBold
+TextLabel.BackgroundTransparency = 1
+TextLabel.Position = UDim2.new(0.5, 0, 0, 35)
+TextLabel.Name = "TitleLabel"
+TextLabel.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel.TextSize = 32
+TextLabel.Size = UDim2.new(0, 300, 0, 40)
+TextLabel.Parent = Frame38
+local UIGradient2 = Instance.new("UIGradient")
+UIGradient2.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(135, 0, 0)), ColorSequenceKeypoint.new(0.3, Color3.fromRGB(175, 0, 0)), ColorSequenceKeypoint.new(0.7, Color3.fromRGB(215, 0, 0)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0)) })
+UIGradient2.Rotation = 45
+UIGradient2.Parent = TextLabel
+local TextLabel2 = Instance.new("TextLabel")
+TextLabel2.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextLabel2.TextTransparency = 0.7
+TextLabel2.Text = ""
+TextLabel2.Name = "TitleShadow"
+TextLabel2.AnchorPoint = Vector2.new(0.5, 0.5)
+TextLabel2.Font = Enum.Font.GothamBold
+TextLabel2.BackgroundTransparency = 1
+TextLabel2.Position = UDim2.new(0.5, 2, 0, 37)
+TextLabel2.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel2.ZIndex = -1
+TextLabel2.TextSize = 32
+TextLabel2.Size = UDim2.new(0, 300, 0, 40)
+TextLabel2.Parent = Frame38
+local Frame43 = Instance.new("Frame")
+Frame43.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame43.Name = "TitleGlow1"
+Frame43.BackgroundTransparency = 0.88
+Frame43.Position = UDim2.new(0.5, 0, 0, 35)
+Frame43.Size = UDim2.new(0, 200, 0, 40)
+Frame43.ZIndex = -2
+Frame43.BorderSizePixel = 0
+Frame43.BackgroundColor3 = Color3.fromRGB(226, 43, 43)
+Frame43.Parent = Frame38
+local UICorner42 = Instance.new("UICorner")
+UICorner42.CornerRadius = UDim.new(0, 16)
+UICorner42.Parent = Frame43
+local tween40 = TweenService:Create(Frame43, TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.75, Size = UDim2.new(0, 225, 0, 48) })
+tween40:Play()
+local Frame44 = Instance.new("Frame")
+Frame44.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame44.Name = "TitleGlow2"
+Frame44.BackgroundTransparency = 0.90999999999999992
+Frame44.Position = UDim2.new(0.5, 0, 0, 35)
+Frame44.Size = UDim2.new(0, 220, 0, 45)
+Frame44.ZIndex = -3
+Frame44.BorderSizePixel = 0
+Frame44.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame44.Parent = Frame38
+local UICorner43 = Instance.new("UICorner")
+UICorner43.CornerRadius = UDim.new(0, 17)
+UICorner43.Parent = Frame44
+local tween41 = TweenService:Create(Frame44, TweenInfo.new(3.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.79999999999999993, Size = UDim2.new(0, 250, 0, 56) })
+tween41:Play()
+local Frame45 = Instance.new("Frame")
+Frame45.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame45.Name = "TitleGlow3"
+Frame45.BackgroundTransparency = 0.94
+Frame45.Position = UDim2.new(0.5, 0, 0, 35)
+Frame45.Size = UDim2.new(0, 240, 0, 50)
+Frame45.ZIndex = -4
+Frame45.BorderSizePixel = 0
+Frame45.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame45.Parent = Frame38
+local UICorner44 = Instance.new("UICorner")
+UICorner44.CornerRadius = UDim.new(0, 18)
+UICorner44.Parent = Frame45
+local tween42 = TweenService:Create(Frame45, TweenInfo.new(4.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.85, Size = UDim2.new(0, 275, 0, 64) })
+tween42:Play()
+local tween43 = TweenService:Create(UIGradient2, TweenInfo.new(6, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, false), { Rotation = 405 })
+tween43:Play()
+spawn(function(...)
+	TextLabel.Text = "K"
+	TextLabel2.Text = "K"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween44 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween44:Play()
+	local tween45 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween45:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(200, 255, 255)
+	local tween46 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 0, 0) })
+	tween46:Play()
+	local tween47 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween47:Play()
+	local tween48 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween48:Play()
+	wait(0.1)
+	TextLabel.Text = "Kr"
+	TextLabel2.Text = "Kr"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween49 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween49:Play()
+	local tween50 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween50:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(200, 255, 255)
+	local tween51 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(200, 255, 255) })
+	tween51:Play()
+	local tween52 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween52:Play()
+	local tween53 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween53:Play()
+	wait(0.1)
+	TextLabel.Text = "Kry"
+	TextLabel2.Text = "Kry"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween54 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween54:Play()
+	local tween55 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween55:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween56 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(200, 255, 255) })
+	tween56:Play()
+	local tween57 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween57:Play()
+	local tween58 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween58:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryv"
+	TextLabel2.Text = "Kryv"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween59 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween59:Play()
+	local tween60 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween60:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween61 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween61:Play()
+	local tween62 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween62:Play()
+	local tween63 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween63:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryve"
+	TextLabel2.Text = "Kryve"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween64 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween64:Play()
+	local tween65 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween65:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween66 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween66:Play()
+	local tween67 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween67:Play()
+	local tween68 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween68:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryvex"
+	TextLabel2.Text = "Kryvex"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween69 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween69:Play()
+	local tween70 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween70:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(200, 255, 255)
+	local tween71 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween71:Play()
+	local tween72 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween72:Play()
+	local tween73 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween73:Play()
+	wait(0.1)
+	spawn(function(...)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+	end)
+	wait(3)
+	TextLabel.Text = "Kryvex"
+	TextLabel2.Text = "Kryvex"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween74 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween74:Play()
+	local tween75 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween75:Play()
+	local tween76 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween76:Play()
+	local tween77 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween77:Play()
+	wait(0.05)
+	TextLabel.Text = "Kryve"
+	TextLabel2.Text = "Kryve"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween78 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween78:Play()
+	local tween79 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween79:Play()
+	local tween80 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween80:Play()
+	local tween81 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween81:Play()
+	wait(0.05)
+	TextLabel.Text = "Kryv"
+	TextLabel2.Text = "Kryv"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween82 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween82:Play()
+	local tween83 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween83:Play()
+	local tween84 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween84:Play()
+	local tween85 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween85:Play()
+	wait(0.05)
+	TextLabel.Text = "Kry"
+	TextLabel2.Text = "Kry"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween86 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween86:Play()
+	local tween87 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween87:Play()
+	local tween88 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween88:Play()
+	local tween89 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween89:Play()
+	wait(0.05)
+	TextLabel.Text = "Kr"
+	TextLabel2.Text = "Kr"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween90 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween90:Play()
+	local tween91 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween91:Play()
+	local tween92 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween92:Play()
+	local tween93 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween93:Play()
+	wait(0.05)
+	TextLabel.Text = "K"
+	TextLabel2.Text = "K"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween94 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween94:Play()
+	local tween95 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween95:Play()
+	local tween96 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween96:Play()
+	local tween97 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween97:Play()
+	wait(0.05)
+	TextLabel.Text = ""
+	TextLabel2.Text = ""
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween98 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween98:Play()
+	local tween99 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween99:Play()
+	local tween100 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween100:Play()
+	local tween101 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween101:Play()
+	wait(0.05)
+	wait(1)
+	TextLabel.Text = "K"
+	TextLabel2.Text = "K"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween102 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween102:Play()
+	local tween103 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween103:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween104 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(200, 255, 255) })
+	tween104:Play()
+	local tween105 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween105:Play()
+	local tween106 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween106:Play()
+	wait(0.1)
+	TextLabel.Text = "Kr"
+	TextLabel2.Text = "Kr"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween107 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween107:Play()
+	local tween108 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween108:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+	local tween109 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween109:Play()
+	local tween110 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween110:Play()
+	local tween111 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween111:Play()
+	wait(0.1)
+	TextLabel.Text = "Kry"
+	TextLabel2.Text = "Kry"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween112 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween112:Play()
+	local tween113 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween113:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+	local tween114 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 255, 255) })
+	tween114:Play()
+	local tween115 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween115:Play()
+	local tween116 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween116:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryv"
+	TextLabel2.Text = "Kryv"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween117 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween117:Play()
+	local tween118 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween118:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween119 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 255, 255) })
+	tween119:Play()
+	local tween120 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween120:Play()
+	local tween121 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween121:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryve"
+	TextLabel2.Text = "Kryve"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween122 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween122:Play()
+	local tween123 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween123:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(200, 255, 255)
+	local tween124 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween124:Play()
+	local tween125 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween125:Play()
+	local tween126 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween126:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryvex"
+	TextLabel2.Text = "Kryvex"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween127 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween127:Play()
+	local tween128 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween128:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+	local tween129 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(200, 255, 255) })
+	tween129:Play()
+	local tween130 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween130:Play()
+	local tween131 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween131:Play()
+	wait(0.1)
+	spawn(function(...)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+	end)
+	wait(3)
+	TextLabel.Text = "Kryvex"
+	TextLabel2.Text = "Kryvex"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween132 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween132:Play()
+	local tween133 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween133:Play()
+	local tween134 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween134:Play()
+	local tween135 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween135:Play()
+	wait(0.05)
+	TextLabel.Text = "Kryve"
+	TextLabel2.Text = "Kryve"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween136 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween136:Play()
+	local tween137 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween137:Play()
+	local tween138 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween138:Play()
+	local tween139 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween139:Play()
+	wait(0.05)
+	TextLabel.Text = "Kryv"
+	TextLabel2.Text = "Kryv"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween140 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween140:Play()
+	local tween141 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween141:Play()
+	local tween142 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween142:Play()
+	local tween143 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween143:Play()
+	wait(0.05)
+	TextLabel.Text = "Kry"
+	TextLabel2.Text = "Kry"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween144 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween144:Play()
+	local tween145 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween145:Play()
+	local tween146 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween146:Play()
+	local tween147 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween147:Play()
+	wait(0.05)
+	TextLabel.Text = "Kr"
+	TextLabel2.Text = "Kr"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween148 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween148:Play()
+	local tween149 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween149:Play()
+	local tween150 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween150:Play()
+	local tween151 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween151:Play()
+	wait(0.05)
+	TextLabel.Text = "K"
+	TextLabel2.Text = "K"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween152 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween152:Play()
+	local tween153 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween153:Play()
+	local tween154 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween154:Play()
+	local tween155 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween155:Play()
+	wait(0.05)
+	TextLabel.Text = ""
+	TextLabel2.Text = ""
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween156 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween156:Play()
+	local tween157 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween157:Play()
+	local tween158 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween158:Play()
+	local tween159 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween159:Play()
+	wait(0.05)
+	wait(1)
+	TextLabel.Text = "K"
+	TextLabel2.Text = "K"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween160 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween160:Play()
+	local tween161 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween161:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+	local tween162 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 255, 255) })
+	tween162:Play()
+	local tween163 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween163:Play()
+	local tween164 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween164:Play()
+	wait(0.1)
+	TextLabel.Text = "Kr"
+	TextLabel2.Text = "Kr"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween165 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween165:Play()
+	local tween166 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween166:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween167 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 255, 255) })
+	tween167:Play()
+	local tween168 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween168:Play()
+	local tween169 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween169:Play()
+	wait(0.1)
+	TextLabel.Text = "Kry"
+	TextLabel2.Text = "Kry"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween170 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween170:Play()
+	local tween171 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween171:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween172 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween172:Play()
+	local tween173 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween173:Play()
+	local tween174 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween174:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryv"
+	TextLabel2.Text = "Kryv"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween175 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween175:Play()
+	local tween176 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween176:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(200, 255, 255)
+	local tween177 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween177:Play()
+	local tween178 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween178:Play()
+	local tween179 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween179:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryve"
+	TextLabel2.Text = "Kryve"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween180 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween180:Play()
+	local tween181 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween181:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+	local tween182 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(200, 255, 255) })
+	tween182:Play()
+	local tween183 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween183:Play()
+	local tween184 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween184:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryvex"
+	TextLabel2.Text = "Kryvex"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween185 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween185:Play()
+	local tween186 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween186:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween187 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 255, 255) })
+	tween187:Play()
+	local tween188 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween188:Play()
+	local tween189 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween189:Play()
+	wait(0.1)
+	spawn(function(...)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+		TextLabel.Text = "Kryvex"
+		TextLabel2.Text = "Kryvex"
+		wait(0.5)
+		TextLabel.Text = "Kryvex|"
+		TextLabel2.Text = "Kryvex|"
+		wait(0.5)
+	end)
+	wait(3)
+	TextLabel.Text = "Kryvex"
+	TextLabel2.Text = "Kryvex"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween190 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween190:Play()
+	local tween191 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween191:Play()
+	local tween192 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween192:Play()
+	local tween193 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween193:Play()
+	wait(0.05)
+	TextLabel.Text = "Kryve"
+	TextLabel2.Text = "Kryve"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween194 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween194:Play()
+	local tween195 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween195:Play()
+	local tween196 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween196:Play()
+	local tween197 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween197:Play()
+	wait(0.05)
+	TextLabel.Text = "Kryv"
+	TextLabel2.Text = "Kryv"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween198 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween198:Play()
+	local tween199 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween199:Play()
+	local tween200 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween200:Play()
+	local tween201 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween201:Play()
+	wait(0.05)
+	TextLabel.Text = "Kry"
+	TextLabel2.Text = "Kry"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween202 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween202:Play()
+	local tween203 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween203:Play()
+	local tween204 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween204:Play()
+	local tween205 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween205:Play()
+	wait(0.05)
+	TextLabel.Text = "Kr"
+	TextLabel2.Text = "Kr"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween206 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween206:Play()
+	local tween207 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween207:Play()
+	local tween208 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween208:Play()
+	local tween209 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween209:Play()
+	wait(0.05)
+	TextLabel.Text = "K"
+	TextLabel2.Text = "K"
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween210 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween210:Play()
+	local tween211 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween211:Play()
+	local tween212 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween212:Play()
+	local tween213 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween213:Play()
+	wait(0.05)
+	TextLabel.Text = ""
+	TextLabel2.Text = ""
+	TextLabel.TextSize = 34
+	TextLabel2.TextSize = 34
+	local tween214 = TweenService:Create(TextLabel, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween214:Play()
+	local tween215 = TweenService:Create(TextLabel2, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween215:Play()
+	local tween216 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0.5 })
+	tween216:Play()
+	local tween217 = TweenService:Create(TextLabel, TweenInfo.new(0.04, Enum.EasingStyle.Quad), { TextTransparency = 0 })
+	tween217:Play()
+	wait(0.05)
+	wait(1)
+	TextLabel.Text = "K"
+	TextLabel2.Text = "K"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween218 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween218:Play()
+	local tween219 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween219:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(200, 255, 255)
+	local tween220 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween220:Play()
+	local tween221 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween221:Play()
+	local tween222 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween222:Play()
+	wait(0.1)
+	TextLabel.Text = "Kr"
+	TextLabel2.Text = "Kr"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween223 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween223:Play()
+	local tween224 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween224:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(200, 255, 255)
+	local tween225 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(200, 255, 255) })
+	tween225:Play()
+	local tween226 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween226:Play()
+	local tween227 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween227:Play()
+	wait(0.1)
+	TextLabel.Text = "Kry"
+	TextLabel2.Text = "Kry"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween228 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween228:Play()
+	local tween229 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween229:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween230 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(200, 255, 255) })
+	tween230:Play()
+	local tween231 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween231:Play()
+	local tween232 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween232:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryv"
+	TextLabel2.Text = "Kryv"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween233 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween233:Play()
+	local tween234 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween234:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 200, 200)
+	local tween235 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween235:Play()
+	local tween236 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween236:Play()
+	local tween237 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween237:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryve"
+	TextLabel2.Text = "Kryve"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween238 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween238:Play()
+	local tween239 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween239:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+	local tween240 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 200, 200) })
+	tween240:Play()
+	local tween241 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween241:Play()
+	local tween242 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween242:Play()
+	wait(0.1)
+	TextLabel.Text = "Kryvex"
+	TextLabel2.Text = "Kryvex"
+	TextLabel.TextSize = 38
+	TextLabel2.TextSize = 38
+	local tween243 = TweenService:Create(TextLabel, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween243:Play()
+	local tween244 = TweenService:Create(TextLabel2, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { TextSize = 32 })
+	tween244:Play()
+	TextLabel.TextStrokeColor3 = Color3.fromRGB(200, 255, 255)
+	local tween245 = TweenService:Create(TextLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { TextStrokeColor3 = Color3.fromRGB(255, 255, 255) })
+	tween245:Play()
+	local tween246 = TweenService:Create(UIStroke, TweenInfo.new(0.1, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween246:Play()
+	local tween247 = TweenService:Create(UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(221, 0, 0), Transparency = 0.2 })
+	tween247:Play()
+	wait(0.1)
+end)
+local Frame46 = Instance.new("Frame")
+Frame46.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame46.Name = "Sparkle1"
+Frame46.BackgroundTransparency = 0.6
+Frame46.Position = UDim2.new(0.5, -43, 0, 34)
+Frame46.Size = UDim2.new(0, 2, 0, 2)
+Frame46.ZIndex = 1
+Frame46.BorderSizePixel = 0
+Frame46.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame46.Parent = Frame38
+local UICorner45 = Instance.new("UICorner")
+UICorner45.CornerRadius = UDim.new(1, 0)
+UICorner45.Parent = Frame46
+local tween248 = TweenService:Create(Frame46, TweenInfo.new(2.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 29, 0, 32), Rotation = -275, Size = UDim2.new(0, 4, 0, 4) })
+tween248:Play()
+local Frame47 = Instance.new("Frame")
+Frame47.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame47.Name = "Sparkle2"
+Frame47.BackgroundTransparency = 0.6
+Frame47.Position = UDim2.new(0.5, -79, 0, 9)
+Frame47.Size = UDim2.new(0, 2, 0, 2)
+Frame47.ZIndex = 1
+Frame47.BorderSizePixel = 0
+Frame47.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame47.Parent = Frame38
+local UICorner46 = Instance.new("UICorner")
+UICorner46.CornerRadius = UDim.new(1, 0)
+UICorner46.Parent = Frame47
+local tween249 = TweenService:Create(Frame47, TweenInfo.new(3.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -101, 0, 9), Rotation = -327, Size = UDim2.new(0, 4, 0, 4) })
+tween249:Play()
+local Frame48 = Instance.new("Frame")
+Frame48.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame48.Name = "Sparkle3"
+Frame48.BackgroundTransparency = 0.6
+Frame48.Position = UDim2.new(0.5, 87, 0, 56)
+Frame48.Size = UDim2.new(0, 2, 0, 2)
+Frame48.ZIndex = 1
+Frame48.BorderSizePixel = 0
+Frame48.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame48.Parent = Frame38
+local UICorner47 = Instance.new("UICorner")
+UICorner47.CornerRadius = UDim.new(1, 0)
+UICorner47.Parent = Frame48
+local tween250 = TweenService:Create(Frame48, TweenInfo.new(1.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -132, 0, 34), Rotation = -210, Size = UDim2.new(0, 4, 0, 4) })
+tween250:Play()
+local Frame49 = Instance.new("Frame")
+Frame49.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame49.Name = "Sparkle4"
+Frame49.BackgroundTransparency = 0.6
+Frame49.Position = UDim2.new(0.5, 75, 0, 55)
+Frame49.Size = UDim2.new(0, 2, 0, 2)
+Frame49.ZIndex = 1
+Frame49.BorderSizePixel = 0
+Frame49.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame49.Parent = Frame38
+local UICorner48 = Instance.new("UICorner")
+UICorner48.CornerRadius = UDim.new(1, 0)
+UICorner48.Parent = Frame49
+local tween251 = TweenService:Create(Frame49, TweenInfo.new(3.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -121, 0, 56), Rotation = -287, Size = UDim2.new(0, 4, 0, 4) })
+tween251:Play()
+local Frame50 = Instance.new("Frame")
+Frame50.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame50.Name = "Sparkle5"
+Frame50.BackgroundTransparency = 0.6
+Frame50.Position = UDim2.new(0.5, 105, 0, 8)
+Frame50.Size = UDim2.new(0, 2, 0, 2)
+Frame50.ZIndex = 1
+Frame50.BorderSizePixel = 0
+Frame50.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame50.Parent = Frame38
+local UICorner49 = Instance.new("UICorner")
+UICorner49.CornerRadius = UDim.new(1, 0)
+UICorner49.Parent = Frame50
+local tween252 = TweenService:Create(Frame50, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 80, 0, 25), Rotation = 176, Size = UDim2.new(0, 4, 0, 4) })
+tween252:Play()
+local Frame51 = Instance.new("Frame")
+Frame51.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame51.Name = "Sparkle6"
+Frame51.BackgroundTransparency = 0.6
+Frame51.Position = UDim2.new(0.5, -45, 0, 44)
+Frame51.Size = UDim2.new(0, 2, 0, 2)
+Frame51.ZIndex = 1
+Frame51.BorderSizePixel = 0
+Frame51.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame51.Parent = Frame38
+local UICorner50 = Instance.new("UICorner")
+UICorner50.CornerRadius = UDim.new(1, 0)
+UICorner50.Parent = Frame51
+local tween253 = TweenService:Create(Frame51, TweenInfo.new(2.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -70, 0, 61), Rotation = -14, Size = UDim2.new(0, 4, 0, 4) })
+tween253:Play()
+local Frame52 = Instance.new("Frame")
+Frame52.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame52.Name = "Sparkle7"
+Frame52.BackgroundTransparency = 0.6
+Frame52.Position = UDim2.new(0.5, -19, 0, 25)
+Frame52.Size = UDim2.new(0, 2, 0, 2)
+Frame52.ZIndex = 1
+Frame52.BorderSizePixel = 0
+Frame52.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame52.Parent = Frame38
+local UICorner51 = Instance.new("UICorner")
+UICorner51.CornerRadius = UDim.new(1, 0)
+UICorner51.Parent = Frame52
+local tween254 = TweenService:Create(Frame52, TweenInfo.new(1.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 57, 0, 62), Rotation = 193, Size = UDim2.new(0, 4, 0, 4) })
+tween254:Play()
+local Frame53 = Instance.new("Frame")
+Frame53.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame53.Name = "Sparkle8"
+Frame53.BackgroundTransparency = 0.6
+Frame53.Position = UDim2.new(0.5, 95, 0, 59)
+Frame53.Size = UDim2.new(0, 2, 0, 2)
+Frame53.ZIndex = 1
+Frame53.BorderSizePixel = 0
+Frame53.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame53.Parent = Frame38
+local UICorner52 = Instance.new("UICorner")
+UICorner52.CornerRadius = UDim.new(1, 0)
+UICorner52.Parent = Frame53
+local tween255 = TweenService:Create(Frame53, TweenInfo.new(3.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -5, 0, 60), Rotation = -167, Size = UDim2.new(0, 4, 0, 4) })
+tween255:Play()
+local Frame54 = Instance.new("Frame")
+Frame54.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame54.Name = "Sparkle9"
+Frame54.BackgroundTransparency = 0.6
+Frame54.Position = UDim2.new(0.5, -10, 0, 7)
+Frame54.Size = UDim2.new(0, 3, 0, 3)
+Frame54.ZIndex = 1
+Frame54.BorderSizePixel = 0
+Frame54.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame54.Parent = Frame38
+local UICorner53 = Instance.new("UICorner")
+UICorner53.CornerRadius = UDim.new(1, 0)
+UICorner53.Parent = Frame54
+local tween256 = TweenService:Create(Frame54, TweenInfo.new(2.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 18, 0, 59), Rotation = 357, Size = UDim2.new(0, 5, 0, 5) })
+tween256:Play()
+local Frame55 = Instance.new("Frame")
+Frame55.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame55.Name = "Sparkle10"
+Frame55.BackgroundTransparency = 0.6
+Frame55.Position = UDim2.new(0.5, 70, 0, 17)
+Frame55.Size = UDim2.new(0, 3, 0, 3)
+Frame55.ZIndex = 1
+Frame55.BorderSizePixel = 0
+Frame55.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame55.Parent = Frame38
+local UICorner54 = Instance.new("UICorner")
+UICorner54.CornerRadius = UDim.new(1, 0)
+UICorner54.Parent = Frame55
+local tween257 = TweenService:Create(Frame55, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 140, 0, 49), Rotation = 80, Size = UDim2.new(0, 5, 0, 5) })
+tween257:Play()
+local Frame56 = Instance.new("Frame")
+Frame56.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame56.Name = "Sparkle11"
+Frame56.BackgroundTransparency = 0.6
+Frame56.Position = UDim2.new(0.5, -63, 0, 47)
+Frame56.Size = UDim2.new(0, 3, 0, 3)
+Frame56.ZIndex = 1
+Frame56.BorderSizePixel = 0
+Frame56.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame56.Parent = Frame38
+local UICorner55 = Instance.new("UICorner")
+UICorner55.CornerRadius = UDim.new(1, 0)
+UICorner55.Parent = Frame56
+local tween258 = TweenService:Create(Frame56, TweenInfo.new(2.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 130, 0, 64), Rotation = 201, Size = UDim2.new(0, 5, 0, 5) })
+tween258:Play()
+local Frame57 = Instance.new("Frame")
+Frame57.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame57.Name = "Sparkle12"
+Frame57.BackgroundTransparency = 0.6
+Frame57.Position = UDim2.new(0.5, -12, 0, 36)
+Frame57.Size = UDim2.new(0, 3, 0, 3)
+Frame57.ZIndex = 1
+Frame57.BorderSizePixel = 0
+Frame57.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame57.Parent = Frame38
+local UICorner56 = Instance.new("UICorner")
+UICorner56.CornerRadius = UDim.new(1, 0)
+UICorner56.Parent = Frame57
+local tween259 = TweenService:Create(Frame57, TweenInfo.new(3.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -125, 0, 6), Rotation = -97, Size = UDim2.new(0, 5, 0, 5) })
+tween259:Play()
+local Frame58 = Instance.new("Frame")
+Frame58.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame58.Name = "Sparkle13"
+Frame58.BackgroundTransparency = 0.6
+Frame58.Position = UDim2.new(0.5, -48, 0, 16)
+Frame58.Size = UDim2.new(0, 3, 0, 3)
+Frame58.ZIndex = 1
+Frame58.BorderSizePixel = 0
+Frame58.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame58.Parent = Frame38
+local UICorner57 = Instance.new("UICorner")
+UICorner57.CornerRadius = UDim.new(1, 0)
+UICorner57.Parent = Frame58
+local tween260 = TweenService:Create(Frame58, TweenInfo.new(1.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -88, 0, 24), Rotation = -179, Size = UDim2.new(0, 5, 0, 5) })
+tween260:Play()
+local Frame59 = Instance.new("Frame")
+Frame59.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame59.Name = "Sparkle14"
+Frame59.BackgroundTransparency = 0.6
+Frame59.Position = UDim2.new(0.5, -36, 0, 25)
+Frame59.Size = UDim2.new(0, 3, 0, 3)
+Frame59.ZIndex = 1
+Frame59.BorderSizePixel = 0
+Frame59.BackgroundColor3 = Color3.fromRGB(183, 6, 6)
+Frame59.Parent = Frame38
+local UICorner58 = Instance.new("UICorner")
+UICorner58.CornerRadius = UDim.new(1, 0)
+UICorner58.Parent = Frame59
+local tween261 = TweenService:Create(Frame59, TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 96, 0, 20), Rotation = -350, Size = UDim2.new(0, 5, 0, 5) })
+tween261:Play()
+local Frame60 = Instance.new("Frame")
+Frame60.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame60.Name = "Sparkle15"
+Frame60.BackgroundTransparency = 0.6
+Frame60.Position = UDim2.new(0.5, 95, 0, 56)
+Frame60.Size = UDim2.new(0, 1, 0, 1)
+Frame60.ZIndex = 1
+Frame60.BorderSizePixel = 0
+Frame60.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame60.Parent = Frame38
+local UICorner59 = Instance.new("UICorner")
+UICorner59.CornerRadius = UDim.new(0, 1)
+UICorner59.Parent = Frame60
+local tween262 = TweenService:Create(Frame60, TweenInfo.new(2.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -54, 0, 9), Rotation = -160, Size = UDim2.new(0, 3, 0, 3) })
+tween262:Play()
+local Frame61 = Instance.new("Frame")
+Frame61.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame61.Name = "Sparkle16"
+Frame61.BackgroundTransparency = 0.6
+Frame61.Position = UDim2.new(0.5, 119, 0, 45)
+Frame61.Size = UDim2.new(0, 1, 0, 1)
+Frame61.ZIndex = 1
+Frame61.BorderSizePixel = 0
+Frame61.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame61.Parent = Frame38
+local UICorner60 = Instance.new("UICorner")
+UICorner60.CornerRadius = UDim.new(0, 1)
+UICorner60.Parent = Frame61
+local tween263 = TweenService:Create(Frame61, TweenInfo.new(3.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -37, 0, 0), Rotation = 100, Size = UDim2.new(0, 3, 0, 3) })
+tween263:Play()
+local Frame62 = Instance.new("Frame")
+Frame62.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame62.Name = "Sparkle17"
+Frame62.BackgroundTransparency = 0.6
+Frame62.Position = UDim2.new(0.5, 85, 0, 52)
+Frame62.Size = UDim2.new(0, 1, 0, 1)
+Frame62.ZIndex = 1
+Frame62.BorderSizePixel = 0
+Frame62.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame62.Parent = Frame38
+local UICorner61 = Instance.new("UICorner")
+UICorner61.CornerRadius = UDim.new(0, 1)
+UICorner61.Parent = Frame62
+local tween264 = TweenService:Create(Frame62, TweenInfo.new(1.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -96, 0, 22), Rotation = 155, Size = UDim2.new(0, 3, 0, 3) })
+tween264:Play()
+local Frame63 = Instance.new("Frame")
+Frame63.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame63.Name = "Sparkle18"
+Frame63.BackgroundTransparency = 0.6
+Frame63.Position = UDim2.new(0.5, 80, 0, 36)
+Frame63.Size = UDim2.new(0, 1, 0, 1)
+Frame63.ZIndex = 1
+Frame63.BorderSizePixel = 0
+Frame63.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame63.Parent = Frame38
+local UICorner62 = Instance.new("UICorner")
+UICorner62.CornerRadius = UDim.new(0, 1)
+UICorner62.Parent = Frame63
+local tween265 = TweenService:Create(Frame63, TweenInfo.new(2.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 62, 0, 29), Rotation = 33, Size = UDim2.new(0, 3, 0, 3) })
+tween265:Play()
+local Frame64 = Instance.new("Frame")
+Frame64.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame64.Name = "Sparkle19"
+Frame64.BackgroundTransparency = 0.6
+Frame64.Position = UDim2.new(0.5, -54, 0, 14)
+Frame64.Size = UDim2.new(0, 1, 0, 1)
+Frame64.ZIndex = 1
+Frame64.BorderSizePixel = 0
+Frame64.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame64.Parent = Frame38
+local UICorner63 = Instance.new("UICorner")
+UICorner63.CornerRadius = UDim.new(0, 1)
+UICorner63.Parent = Frame64
+local tween266 = TweenService:Create(Frame64, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, -43, 0, 16), Rotation = -162, Size = UDim2.new(0, 3, 0, 3) })
+tween266:Play()
+local Frame65 = Instance.new("Frame")
+Frame65.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame65.Name = "Sparkle20"
+Frame65.BackgroundTransparency = 0.6
+Frame65.Position = UDim2.new(0.5, 43, 0, 21)
+Frame65.Size = UDim2.new(0, 1, 0, 1)
+Frame65.ZIndex = 1
+Frame65.BorderSizePixel = 0
+Frame65.BackgroundColor3 = Color3.fromRGB(201, 0, 0)
+Frame65.Parent = Frame38
+local UICorner64 = Instance.new("UICorner")
+UICorner64.CornerRadius = UDim.new(0, 1)
+UICorner64.Parent = Frame65
+local tween267 = TweenService:Create(Frame65, TweenInfo.new(2.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.2, Position = UDim2.new(0.5, 103, 0, 53), Rotation = -20, Size = UDim2.new(0, 3, 0, 3) })
+tween267:Play()
+local TextLabel3 = Instance.new("TextLabel")
+TextLabel3.TextWrapped = true
+TextLabel3.TextColor3 = Color3.fromRGB(220, 200, 255)
+TextLabel3.Text = ""
+TextLabel3.Font = Enum.Font.Gotham
+TextLabel3.BackgroundTransparency = 1
+TextLabel3.Position = UDim2.new(0, 20, 0, 65)
+TextLabel3.Name = "DescLabel"
+TextLabel3.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel3.TextSize = 15
+TextLabel3.Size = UDim2.new(1, -40, 0, 30)
+TextLabel3.Parent = Frame38
+local TextLabel4 = Instance.new("TextLabel")
+TextLabel4.TextWrapped = true
+TextLabel4.TextColor3 = Color3.fromRGB(255, 120, 120)
+TextLabel4.TextTransparency = 0.8
+TextLabel4.Text = ""
+TextLabel4.Name = "DescGlow"
+TextLabel4.Font = Enum.Font.Gotham
+TextLabel4.BackgroundTransparency = 1
+TextLabel4.Position = UDim2.new(0, 21, 0, 66)
+TextLabel4.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel4.ZIndex = -1
+TextLabel4.TextSize = 15
+TextLabel4.Size = UDim2.new(1, -40, 0, 30)
+TextLabel4.Parent = Frame38
+local Frame66 = Instance.new("Frame")
+Frame66.BackgroundTransparency = 0.1
+Frame66.Position = UDim2.new(0, 20, 0, 110)
+Frame66.Name = "InputFrame"
+Frame66.Size = UDim2.new(1, -40, 0, 45)
+Frame66.BorderSizePixel = 0
+Frame66.BackgroundColor3 = Color3.fromRGB(70, 35, 35)
+Frame66.Parent = Frame38
+local UICorner65 = Instance.new("UICorner")
+UICorner65.CornerRadius = UDim.new(0, 12)
+UICorner65.Parent = Frame66
+local UIStroke2 = Instance.new("UIStroke")
+UIStroke2.Thickness = 1.5
+UIStroke2.Transparency = 0.4
+UIStroke2.Color = Color3.fromRGB(138, 0, 0)
+UIStroke2.Parent = Frame66
+local Frame67 = Instance.new("Frame")
+Frame67.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame67.BackgroundTransparency = 0.9
+Frame67.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame67.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Frame67.ZIndex = -1
+Frame67.BorderSizePixel = 0
+Frame67.Size = UDim2.new(1, 4, 1, 4)
+Frame67.Parent = Frame66
+local UICorner66 = Instance.new("UICorner")
+UICorner66.CornerRadius = UDim.new(0, 14)
+UICorner66.Parent = Frame67
+local TextBox = Instance.new("TextBox")
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.Text = ""
+TextBox.Name = "KeyInput"
+TextBox.ClearTextOnFocus = false
+TextBox.TextXAlignment = Enum.TextXAlignment.Left
+TextBox.Font = Enum.Font.Gotham
+TextBox.BackgroundTransparency = 1
+TextBox.PlaceholderColor3 = Color3.fromRGB(201, 0, 0)
+TextBox.Position = UDim2.new(0, 15, 0, 0)
+TextBox.PlaceholderText = "Enter the Key..."
+TextBox.TextSize = 14
+TextBox.Size = UDim2.new(1, -30, 1, 0)
+TextBox.Parent = Frame66
+TextBox.Focused:Connect(function(arg7)
+	local tween280 = TweenService:Create(UIStroke2, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Thickness = 3, Transparency = 0.1 })
+	tween280:Play()
+	local tween281 = TweenService:Create(Frame66, TweenInfo.new(0.3, Enum.EasingStyle.Back), { Size = UDim2.new(1, -32, 0, 50) })
+	tween281:Play()
+	local tween282 = TweenService:Create(Frame67, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.7, Size = UDim2.new(1, 8, 1, 8) })
+	tween282:Play()
+end)
+TextBox.FocusLost:Connect(function(enterPressed, inputObject)
+	local tween283 = TweenService:Create(UIStroke2, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(201, 0, 0), Thickness = 1.5, Transparency = 0.4 })
+	tween283:Play()
+	local tween284 = TweenService:Create(Frame66, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Size = UDim2.new(1, -40, 0, 45) })
+	tween284:Play()
+	local tween285 = TweenService:Create(Frame67, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.9, Size = UDim2.new(1, 4, 1, 4) })
+	tween285:Play()
+end)
+local Frame68 = Instance.new("Frame")
+Frame68.Name = "ButtonsFrame"
+Frame68.Size = UDim2.new(1, -40, 0, 77)
+Frame68.BackgroundTransparency = 1
+Frame68.Position = UDim2.new(0, 20, 0, 170)
+Frame68.Parent = Frame38
+local TextButton2 = Instance.new("TextButton")
+TextButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextButton2.Text = "Get Key (Discord)"
+TextButton2.Font = Enum.Font.GothamBold
+TextButton2.BackgroundTransparency = 0.05
+TextButton2.Name = "GetKeyButton"
+TextButton2.Size = UDim2.new(1, 0, 0, 35)
+TextButton2.BorderSizePixel = 0
+TextButton2.TextSize = 16
+TextButton2.BackgroundColor3 = Color3.fromRGB(211, 0, 0)
+TextButton2.Parent = Frame68
+local UICorner67 = Instance.new("UICorner")
+UICorner67.CornerRadius = UDim.new(0, 10)
+UICorner67.Parent = TextButton2
+local Frame69 = Instance.new("Frame")
+Frame69.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame69.BackgroundTransparency = 0.9
+Frame69.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame69.BackgroundColor3 = Color3.fromRGB(211, 0, 0)
+Frame69.ZIndex = -1
+Frame69.BorderSizePixel = 0
+Frame69.Size = UDim2.new(1, 4, 1, 4)
+Frame69.Parent = TextButton2
+local UICorner68 = Instance.new("UICorner")
+UICorner68.CornerRadius = UDim.new(0, 12)
+UICorner68.Parent = Frame69
+TextButton2.Activated:Connect(function(inputObject2, clickCount)
+	setclipboard("https://discord.gg/9eFf93Kg8D")
+	local hui2 = gethui()
+	local ScreenGui3 = Instance.new("ScreenGui")
+	ScreenGui3.IgnoreGuiInset = true
+	ScreenGui3.Name = "NotificationGui"
+	ScreenGui3.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	ScreenGui3.Parent = hui2
+	local Frame71 = Instance.new("Frame")
+	Frame71.BackgroundTransparency = 0.05
+	Frame71.Position = UDim2.new(1, 20, 1, -80)
+	Frame71.Name = "Notification"
+	Frame71.Size = UDim2.new(0, 280, 0, 60)
+	Frame71.BorderSizePixel = 0
+	Frame71.BackgroundColor3 = Color3.fromRGB(50, 20, 20)
+	Frame71.Parent = ScreenGui3
+	local UICorner72 = Instance.new("UICorner")
+	UICorner72.CornerRadius = UDim.new(0, 12)
+	UICorner72.Parent = Frame71
+	local UIStroke3 = Instance.new("UIStroke")
+	UIStroke3.Thickness = 2
+	UIStroke3.Transparency = 0.3
+	UIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	UIStroke3.Color = Color3.fromRGB(221, 0, 0)
+	UIStroke3.Parent = Frame71
+	local Frame72 = Instance.new("Frame")
+	Frame72.AnchorPoint = Vector2.new(0.5, 0.5)
+	Frame72.BackgroundTransparency = 0.85
+	Frame72.Position = UDim2.new(0.5, 0, 0.5, 0)
+	Frame72.BackgroundColor3 = Color3.fromRGB(221, 0, 0)
+	Frame72.ZIndex = -1
+	Frame72.BorderSizePixel = 0
+	Frame72.Size = UDim2.new(1, 6, 1, 6)
+	Frame72.Parent = Frame71
+	local UICorner73 = Instance.new("UICorner")
+	UICorner73.CornerRadius = UDim.new(0, 14)
+	UICorner73.Parent = Frame72
+	local TextLabel7 = Instance.new("TextLabel")
+	TextLabel7.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel7.Text = "Discord Invite Copied"
+	TextLabel7.Name = "NotificationText"
+	TextLabel7.Font = Enum.Font.GothamBold
+	TextLabel7.BackgroundTransparency = 1
+	TextLabel7.Position = UDim2.new(0, 15, 0, 0)
+	TextLabel7.TextXAlignment = Enum.TextXAlignment.Center
+	TextLabel7.TextYAlignment = Enum.TextYAlignment.Center
+	TextLabel7.TextSize = 14
+	TextLabel7.Size = UDim2.new(1, -30, 1, 0)
+	TextLabel7.Parent = Frame71
+	local tween286 = TweenService:Create(Frame71, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = UDim2.new(1, -300, 1, -80) })
+	tween286:Play()
+	local tween287 = TweenService:Create(UIStroke3, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Color = Color3.fromRGB(183, 6, 6), Transparency = 0.1 })
+	tween287:Play()
+	wait(2.5)
+	local tween288 = TweenService:Create(Frame71, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Position = UDim2.new(1, 20, 1, -80) })
+	tween288:Play()
+	wait(0.5)
+	ScreenGui3:Destroy()
+end)
+local TextButton3 = Instance.new("TextButton")
+TextButton3.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextButton3.Text = "Execute Kryvex"
+TextButton3.Name = "MainScript"
+TextButton3.Font = Enum.Font.GothamBold
+TextButton3.BackgroundTransparency = 0.05
+TextButton3.Position = UDim2.new(0, 0, 0, 42)
+TextButton3.Size = UDim2.new(1, 0, 0, 35)
+TextButton3.BorderSizePixel = 0
+TextButton3.TextSize = 16
+TextButton3.BackgroundColor3 = Color3.fromRGB(130, 0, 0)
+TextButton3.Parent = Frame68
+local UICorner69 = Instance.new("UICorner")
+UICorner69.CornerRadius = UDim.new(0, 10)
+UICorner69.Parent = TextButton3
+local Frame70 = Instance.new("Frame")
+Frame70.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame70.BackgroundTransparency = 0.9
+Frame70.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame70.BackgroundColor3 = Color3.fromRGB(130, 0, 0)
+Frame70.ZIndex = -1
+Frame70.BorderSizePixel = 0
+Frame70.Size = UDim2.new(1, 4, 1, 4)
+Frame70.Parent = TextButton3
+local UICorner70 = Instance.new("UICorner")
+UICorner70.CornerRadius = UDim.new(0, 12)
+UICorner70.Parent = Frame70
+local TextLabel5 = Instance.new("TextLabel")
+TextLabel5.TextColor3 = Color3.fromRGB(255, 0, 0)
+TextLabel5.TextTransparency = 0.3
+TextLabel5.Text = "Made with ♥️ by the Kryvex Team"
+TextLabel5.Font = Enum.Font.GothamBold
+TextLabel5.BackgroundTransparency = 1
+TextLabel5.Position = UDim2.new(0, 0, 1, -30)
+TextLabel5.Name = "FooterLabel"
+TextLabel5.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel5.TextSize = 14
+TextLabel5.Size = UDim2.new(1, 0, 0, 25)
+TextLabel5.Parent = Frame38
+local UIGradient3 = Instance.new("UIGradient")
+UIGradient3.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 0, 0)), ColorSequenceKeypoint.new(1, Color3.fromRGB(185, 0, 0)) })
+UIGradient3.Rotation = 0
+UIGradient3.Parent = TextLabel5
+local tween268 = TweenService:Create(UIGradient3, TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, false), { Rotation = 360 })
+tween268:Play()
+local TextLabel6 = Instance.new("TextLabel")
+TextLabel6.Visible = false
+TextLabel6.TextColor3 = Color3.fromRGB(255, 150, 150)
+TextLabel6.Text = ""
+TextLabel6.Name = "StatusLabel"
+TextLabel6.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel6.Font = Enum.Font.GothamBold
+TextLabel6.BackgroundTransparency = 1
+TextLabel6.Position = UDim2.new(0, 20, 0, 252)
+TextLabel6.Size = UDim2.new(1, -40, 0, 20)
+TextLabel6.BorderSizePixel = 0
+TextLabel6.TextSize = 14
+TextLabel6.BackgroundColor3 = Color3.fromRGB(50, 30, 30)
+TextLabel6.Parent = Frame38
+local UICorner71 = Instance.new("UICorner")
+UICorner71.CornerRadius = UDim.new(0, 6)
+UICorner71.Parent = TextLabel6
+TextButton2.MouseEnter:Connect(function(arg8)
+	local tween289 = TweenService:Create(TextButton2, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundColor3 = Color3.fromRGB(231, 10, 10), Size = UDim2.new(1, 0, 0, 38), TextSize = 17 })
+	tween289:Play()
+	local tween290 = TweenService:Create(Frame69, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.7, Size = UDim2.new(1, 8, 1, 8) })
+	tween290:Play()
+end)
+TextButton2.MouseLeave:Connect(function(arg9)
+	local tween291 = TweenService:Create(TextButton2, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundColor3 = Color3.fromRGB(211, 0, 0), Size = UDim2.new(1, 0, 0, 32), TextSize = 15 })
+	tween291:Play()
+	local tween292 = TweenService:Create(Frame69, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.9, Size = UDim2.new(1, 4, 1, 4) })
+	tween292:Play()
+end)
+TextButton3.MouseEnter:Connect(function(arg10)
+	local tween293 = TweenService:Create(TextButton3, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundColor3 = Color3.fromRGB(150, 15, 15), Size = UDim2.new(1, 0, 0, 38), TextSize = 17 })
+	tween293:Play()
+	local tween294 = TweenService:Create(Frame70, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.7, Size = UDim2.new(1, 8, 1, 8) })
+	tween294:Play()
+end)
+TextButton3.MouseLeave:Connect(function(arg11)
+	local tween295 = TweenService:Create(TextButton3, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundColor3 = Color3.fromRGB(130, 0, 0), Size = UDim2.new(1, 0, 0, 32), TextSize = 15 })
+	tween295:Play()
+	local tween296 = TweenService:Create(Frame70, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { BackgroundTransparency = 0.9, Size = UDim2.new(1, 4, 1, 4) })
+	tween296:Play()
+end)
+TextButton3.Activated:Connect(function(inputObject3, clickCount2)
+	TextLabel6.Text = "⚠️ Please enter a key!"
+	TextLabel6.TextColor3 = Color3.fromRGB(255, 217, 0)
+	TextLabel6.BackgroundColor3 = Color3.fromRGB(45, 20, 20)
+	TextLabel6.BackgroundTransparency = 1
+	TextLabel6.Visible = true
+	Frame66.Position = ((UDim2.new(0, 20, 0, 110) + UDim2.new(0, 0, 0, 50)) + UDim2.new(0, -10, 0, 0))
+	wait(0.06)
+	Frame66.Position = ((UDim2.new(0, 20, 0, 110) + UDim2.new(0, 0, 0, 50)) + UDim2.new(0, 10, 0, 0))
+	wait(0.06)
+end)
+TextButton.Activated:Connect(function(inputObject4, clickCount3)
+	local tween297 = TweenService:Create(Frame38, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), { BackgroundTransparency = 1, Rotation = 180, Size = UDim2.new(0, 0, 0, 0) })
+	tween297:Play()
+	local tween298 = TweenService:Create(Frame2, TweenInfo.new(0.5, Enum.EasingStyle.Quad), { BackgroundTransparency = 1 })
+	tween298:Play()
+	wait(0.6)
+	ScreenGui2:Destroy()
+end)
+Frame38.Size = UDim2.new(0, 0, 0, 0)
+Frame38.BackgroundTransparency = 1
+Frame38.Rotation = -180
+local tween269 = TweenService:Create(Frame38, TweenInfo.new(1.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { BackgroundTransparency = 0, Rotation = 0, Size = UDim2.new(0, 340, 0, 310) })
+tween269:Play()
+TextLabel.Position = (UDim2.new(0.5, 0, 0, 35) + UDim2.new(0, 0, 0, 50))
+TextLabel.BackgroundTransparency = 1
+TextLabel.Rotation = 36
+local tween270 = TweenService:Create(TextLabel, TweenInfo.new(0.9, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = ((UDim2.new(0.5, 0, 0, 35) + UDim2.new(0, 0, 0, 50)) - UDim2.new(0, 0, 0, 50)), Rotation = 0 })
+tween270:Play()
+local tween271 = TweenService:Create(TextLabel, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 })
+tween271:Play()
+TextLabel3.Position = (UDim2.new(0, 20, 0, 65) + UDim2.new(0, 0, 0, 50))
+TextLabel3.BackgroundTransparency = 1
+TextLabel3.Rotation = -42
+local tween272 = TweenService:Create(TextLabel3, TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = ((UDim2.new(0, 20, 0, 65) + UDim2.new(0, 0, 0, 50)) - UDim2.new(0, 0, 0, 50)), Rotation = 0 })
+tween272:Play()
+local tween273 = TweenService:Create(TextLabel3, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 })
+tween273:Play()
+Frame66.Position = (UDim2.new(0, 20, 0, 110) + UDim2.new(0, 0, 0, 50))
+Frame66.BackgroundTransparency = 1
+Frame66.Rotation = -11
+local tween274 = TweenService:Create(Frame66, TweenInfo.new(1.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = ((UDim2.new(0, 20, 0, 110) + UDim2.new(0, 0, 0, 50)) - UDim2.new(0, 0, 0, 50)), Rotation = 0 })
+tween274:Play()
+local tween275 = TweenService:Create(Frame66, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 })
+tween275:Play()
+Frame68.Position = (UDim2.new(0, 20, 0, 170) + UDim2.new(0, 0, 0, 50))
+Frame68.BackgroundTransparency = 1
+Frame68.Rotation = 9
+local tween276 = TweenService:Create(Frame68, TweenInfo.new(1.2000000000000002, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = ((UDim2.new(0, 20, 0, 170) + UDim2.new(0, 0, 0, 50)) - UDim2.new(0, 0, 0, 50)), Rotation = 0 })
+tween276:Play()
+local tween277 = TweenService:Create(Frame68, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 })
+tween277:Play()
+TextLabel5.Position = (UDim2.new(0, 0, 1, -30) + UDim2.new(0, 0, 0, 50))
+TextLabel5.BackgroundTransparency = 1
+TextLabel5.Rotation = 24
+local tween278 = TweenService:Create(TextLabel5, TweenInfo.new(1.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = ((UDim2.new(0, 0, 1, -30) + UDim2.new(0, 0, 0, 50)) - UDim2.new(0, 0, 0, 50)), Rotation = 0 })
+tween278:Play()
+local tween279 = TweenService:Create(TextLabel5, TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 })
+tween279:Play()
